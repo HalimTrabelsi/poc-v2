@@ -14,13 +14,6 @@ COPY ./openg2p-g2p-bridge-celery-beat-producers /opt/bitnami/odoo/extra-addons/o
 COPY ./openg2p-g2p-bridge-celery-workers /opt/bitnami/odoo/extra-addons/openg2p-g2p-bridge-celery-workers
 COPY ./openg2p-g2p-bridge-example-bank /opt/bitnami/odoo/extra-addons/openg2p-g2p-bridge-example-bank
 
-COPY ./storage/storage_backend /opt/bitnami/odoo/extra-addons/storage_backend
-COPY ./storage/storage_file /opt/bitnami/odoo/extra-addons/storage_file
-COPY ./storage/storage_image /opt/bitnami/odoo/extra-addons/storage_image
-COPY ./storage/storage_image_product /opt/bitnami/odoo/extra-addons/storage_image_product
-COPY ./storage/storage_media /opt/bitnami/odoo/extra-addons/storage_media
-COPY ./storage/storage_media_product /opt/bitnami/odoo/extra-addons/storage_media_product
-COPY ./storage/storage_thumbnail /opt/bitnami/odoo/extra-addons/storage_thumbnail
 
 
 RUN /opt/bitnami/odoo/venv/bin/python -m pip install --no-cache-dir schwifty
