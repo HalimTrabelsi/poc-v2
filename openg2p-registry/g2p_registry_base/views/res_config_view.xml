@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="openg2p_inherit_res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">openg2p.res.config.settings.view.inherit.setup</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="999" />
+        <field name="inherit_id" ref="base.res_config_settings_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app
+                    string="G2P Registry Settings"
+                    name="g2p_config_settings"
+                    logo="/g2p_registry_base/static/description/icon.png"
+                >
+                    <block title="G2P Registry Settings">
+                        <setting string="Phone number validation" help="Set up phone regex based on country.">
+                            <field name="phone_regex" />
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+</odoo>

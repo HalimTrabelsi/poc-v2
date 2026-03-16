@@ -1,0 +1,269 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* g2p_programs_priority_list
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0\n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: g2p_programs_priority_list
+#. odoo-python
+#: code:addons/g2p_programs_priority_list/models/cycle_manager.py:0
+#, python-format
+msgid "%s beneficiaries imported."
+msgstr ""
+
+#. module: g2p_programs_priority_list
+#: model:ir.model.fields.selection,name:g2p_programs_priority_list.selection__cycle_creation_wizard_criteria__order__asc
+#: model:ir.model.fields.selection,name:g2p_programs_priority_list.selection__g2p_sorting_criteria__order__asc
+msgid "Ascending"
+msgstr ""
+
+#. module: g2p_programs_priority_list
+#: model:ir.model.fields,field_description:g2p_programs_priority_list.field_cycle_creation_wizard__create_uid
+#: model:ir.model.fields,field_description:g2p_programs_priority_list.field_cycle_creation_wizard_criteria__create_uid
+#: model:ir.model.fields,field_description:g2p_programs_priority_list.field_g2p_sorting_criteria__create_uid
+msgid "Created by"
+msgstr ""
+
+#. module: g2p_programs_priority_list
+#: model:ir.model.fields,field_description:g2p_programs_priority_list.field_cycle_creation_wizard__create_date
+#: model:ir.model.fields,field_description:g2p_programs_priority_list.field_cycle_creation_wizard_criteria__create_date
+#: model:ir.model.fields,field_description:g2p_programs_priority_list.field_g2p_sorting_criteria__create_date
+msgid "Created on"
+msgstr ""
+
+#. module: g2p_programs_priority_list
+#. odoo-python
+#: code:addons/g2p_programs_priority_list/models/programs.py:0
+#: model:ir.model,name:g2p_programs_priority_list.model_g2p_cycle
+#: model:ir.model.fields,field_description:g2p_programs_priority_list.field_cycle_creation_wizard__cycle_id
+#: model:ir.model.fields,field_description:g2p_programs_priority_list.field_g2p_sorting_criteria__cycle_id
+#, python-format
+msgid "Cycle"
+msgstr ""
+
+#. module: g2p_programs_priority_list
+#: model:ir.actions.act_window,name:g2p_programs_priority_list.action_cycle_creation_wizard
+msgid "Cycle Created"
+msgstr ""
+
+#. module: g2p_programs_priority_list
+#: model:ir.model,name:g2p_programs_priority_list.model_cycle_creation_wizard
+msgid "Cycle Creation Wizard"
+msgstr ""
+
+#. module: g2p_programs_priority_list
+#: model:ir.model.fields,field_description:g2p_programs_priority_list.field_g2p_sorting_criteria__manager_id
+msgid "Cycle Manager"
+msgstr ""
+
+#. module: g2p_programs_priority_list
+#: model:ir.model,name:g2p_programs_priority_list.model_g2p_cycle_membership
+msgid "Cycle Membership"
+msgstr ""
+
+#. module: g2p_programs_priority_list
+#: model:ir.model.fields,field_description:g2p_programs_priority_list.field_cycle_creation_wizard__name
+msgid "Cycle Name"
+msgstr ""
+
+#. module: g2p_programs_priority_list
+#: model:ir.model,name:g2p_programs_priority_list.model_g2p_cycle_manager_default
+msgid "Default Cycle Manager"
+msgstr ""
+
+#. module: g2p_programs_priority_list
+#: model:ir.model,name:g2p_programs_priority_list.model_g2p_program_manager_default
+msgid "Default Program Manager"
+msgstr ""
+
+#. module: g2p_programs_priority_list
+#: model:ir.model.fields.selection,name:g2p_programs_priority_list.selection__cycle_creation_wizard_criteria__order__desc
+#: model:ir.model.fields.selection,name:g2p_programs_priority_list.selection__g2p_sorting_criteria__order__desc
+msgid "Descending"
+msgstr ""
+
+#. module: g2p_programs_priority_list
+#: model:ir.model.fields,field_description:g2p_programs_priority_list.field_g2p_program_manager_default__is_disbursement_through_priority_list
+msgid "Disbursement Through Priority List"
+msgstr ""
+
+#. module: g2p_programs_priority_list
+#: model:ir.model.fields,field_description:g2p_programs_priority_list.field_cycle_creation_wizard__display_name
+#: model:ir.model.fields,field_description:g2p_programs_priority_list.field_cycle_creation_wizard_criteria__display_name
+#: model:ir.model.fields,field_description:g2p_programs_priority_list.field_g2p_sorting_criteria__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: g2p_programs_priority_list
+#: model:ir.model.fields,field_description:g2p_programs_priority_list.field_cycle_creation_wizard__eligibility_domain
+#: model:ir.model.fields,field_description:g2p_programs_priority_list.field_g2p_cycle__eligibility_domain
+#: model:ir.model.fields,field_description:g2p_programs_priority_list.field_g2p_cycle_manager_default__eligibility_domain
+msgid "Domain"
+msgstr ""
+
+#. module: g2p_programs_priority_list
+#: model_terms:ir.ui.view,arch_db:g2p_programs_priority_list.view_cycle_creation_wizard
+msgid "Edit Cycle Details"
+msgstr ""
+
+#. module: g2p_programs_priority_list
+#. odoo-python
+#: code:addons/g2p_programs_priority_list/models/cycle_manager.py:0
+#, python-format
+msgid "Enrollment"
+msgstr ""
+
+#. module: g2p_programs_priority_list
+#: model:ir.model.fields,field_description:g2p_programs_priority_list.field_cycle_creation_wizard_criteria__field_name
+#: model:ir.model.fields,field_description:g2p_programs_priority_list.field_g2p_sorting_criteria__field_name
+msgid "Field Name"
+msgstr ""
+
+#. module: g2p_programs_priority_list
+#: model:ir.model.fields,field_description:g2p_programs_priority_list.field_cycle_creation_wizard__id
+#: model:ir.model.fields,field_description:g2p_programs_priority_list.field_cycle_creation_wizard_criteria__id
+#: model:ir.model.fields,field_description:g2p_programs_priority_list.field_g2p_sorting_criteria__id
+msgid "ID"
+msgstr ""
+
+#. module: g2p_programs_priority_list
+#. odoo-python
+#: code:addons/g2p_programs_priority_list/models/cycle_manager.py:0
+#, python-format
+msgid "Import of %s beneficiaries started."
+msgstr ""
+
+#. module: g2p_programs_priority_list
+#: model:ir.model.fields,field_description:g2p_programs_priority_list.field_cycle_creation_wizard__inclusion_limit
+#: model:ir.model.fields,field_description:g2p_programs_priority_list.field_g2p_cycle__inclusion_limit
+#: model:ir.model.fields,field_description:g2p_programs_priority_list.field_g2p_cycle_manager_default__inclusion_limit
+msgid "Inclusion Limit"
+msgstr ""
+
+#. module: g2p_programs_priority_list
+#: model:ir.model.fields,field_description:g2p_programs_priority_list.field_cycle_creation_wizard__write_uid
+#: model:ir.model.fields,field_description:g2p_programs_priority_list.field_cycle_creation_wizard_criteria__write_uid
+#: model:ir.model.fields,field_description:g2p_programs_priority_list.field_g2p_sorting_criteria__write_uid
+msgid "Last Updated by"
+msgstr ""
+
+#. module: g2p_programs_priority_list
+#: model:ir.model.fields,field_description:g2p_programs_priority_list.field_cycle_creation_wizard__write_date
+#: model:ir.model.fields,field_description:g2p_programs_priority_list.field_cycle_creation_wizard_criteria__write_date
+#: model:ir.model.fields,field_description:g2p_programs_priority_list.field_g2p_sorting_criteria__write_date
+msgid "Last Updated on"
+msgstr ""
+
+#. module: g2p_programs_priority_list
+#. odoo-python
+#: code:addons/g2p_programs_priority_list/models/programs.py:0
+#, python-format
+msgid "New cycle %s created."
+msgstr ""
+
+#. module: g2p_programs_priority_list
+#. odoo-python
+#: code:addons/g2p_programs_priority_list/models/programs.py:0
+#, python-format
+msgid "No Cycle Manager defined."
+msgstr ""
+
+#. module: g2p_programs_priority_list
+#. odoo-python
+#: code:addons/g2p_programs_priority_list/models/programs.py:0
+#, python-format
+msgid "No Program Manager defined."
+msgstr ""
+
+#. module: g2p_programs_priority_list
+#. odoo-python
+#: code:addons/g2p_programs_priority_list/models/cycle_manager.py:0
+#, python-format
+msgid "No beneficiaries to import."
+msgstr ""
+
+#. module: g2p_programs_priority_list
+#. odoo-python
+#: code:addons/g2p_programs_priority_list/models/programs.py:0
+#, python-format
+msgid ""
+"No enrolled registrants. Enroll registrants to program to create a new "
+"cycle."
+msgstr ""
+
+#. module: g2p_programs_priority_list
+#: model:ir.model.fields,field_description:g2p_programs_priority_list.field_g2p_cycle__is_not_disbursement
+msgid "Not Disbursement"
+msgstr ""
+
+#. module: g2p_programs_priority_list
+#: model:ir.model.fields,field_description:g2p_programs_priority_list.field_cycle_creation_wizard_criteria__order
+#: model:ir.model.fields,field_description:g2p_programs_priority_list.field_g2p_sorting_criteria__order
+msgid "Order"
+msgstr ""
+
+#. module: g2p_programs_priority_list
+#: model:ir.model,name:g2p_programs_priority_list.model_g2p_program
+#: model:ir.model.fields,field_description:g2p_programs_priority_list.field_cycle_creation_wizard__program_id
+msgid "Program"
+msgstr ""
+
+#. module: g2p_programs_priority_list
+#: model:ir.model.fields,field_description:g2p_programs_priority_list.field_g2p_cycle_membership__rank
+msgid "Rank"
+msgstr ""
+
+#. module: g2p_programs_priority_list
+#: model_terms:ir.ui.view,arch_db:g2p_programs_priority_list.view_cycle_creation_wizard
+msgid "Save"
+msgstr ""
+
+#. module: g2p_programs_priority_list
+#: model:ir.model.fields,help:g2p_programs_priority_list.field_cycle_creation_wizard_criteria__field_name
+#: model:ir.model.fields,help:g2p_programs_priority_list.field_g2p_sorting_criteria__field_name
+msgid "Select a field from res.partner for sorting"
+msgstr ""
+
+#. module: g2p_programs_priority_list
+#: model:ir.model.fields,field_description:g2p_programs_priority_list.field_cycle_creation_wizard_criteria__sequence
+#: model:ir.model.fields,field_description:g2p_programs_priority_list.field_g2p_sorting_criteria__sequence
+msgid "Sequence"
+msgstr ""
+
+#. module: g2p_programs_priority_list
+#: model:ir.model,name:g2p_programs_priority_list.model_g2p_sorting_criteria
+msgid "Sorting Criteria"
+msgstr ""
+
+#. module: g2p_programs_priority_list
+#: model:ir.model.fields,field_description:g2p_programs_priority_list.field_cycle_creation_wizard__sorting_criteria_ids
+#: model:ir.model.fields,field_description:g2p_programs_priority_list.field_g2p_cycle__sorting_criteria_ids
+#: model:ir.model.fields,field_description:g2p_programs_priority_list.field_g2p_cycle_manager_default__sorting_criteria_ids
+msgid "Sorting Order"
+msgstr ""
+
+#. module: g2p_programs_priority_list
+#: model:ir.model,name:g2p_programs_priority_list.model_cycle_creation_wizard_criteria
+msgid "Temporary Sorting Criteria for Cycle Creation Wizard"
+msgstr ""
+
+#. module: g2p_programs_priority_list
+#. odoo-python
+#: code:addons/g2p_programs_priority_list/models/programs.py:0
+#, python-format
+msgid "Update Priority Configuration"
+msgstr ""
+
+#. module: g2p_programs_priority_list
+#: model:ir.model.fields,field_description:g2p_programs_priority_list.field_cycle_creation_wizard_criteria__wizard_id
+msgid "Wizard"
+msgstr ""

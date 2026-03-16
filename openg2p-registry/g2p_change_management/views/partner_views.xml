@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <record id="view_partner_form_change_management" model="ir.ui.view">
+        <field name="name">res.partner.form.change.management</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="g2p_registry_group.view_groups_form" />
+        <field name="priority">300</field>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button
+                    type="object"
+                    name="action_create_change_request"
+                    class="oe_stat_button o_active_cr_highlight"
+                    icon="fa-edit"
+                    confirm="Are you sure you want to create a Change Request for this registrant?"
+                    invisible="not is_registrant or has_active_draft"
+                    title="Create Change Request"
+                >
+                    <div class="o_field_widget o_stat_info">
+                        <span class="o_stat_text">Create Change Request</span>
+                    </div>
+                </button>
+                <button
+                    type="object"
+                    name="action_view_active_change_request"
+                    class="oe_stat_button o_active_cr_highlight"
+                    icon="fa-tasks"
+                    invisible="not has_active_draft"
+                    title="View Active Change Request"
+                >
+                    <div class="o_field_widget o_stat_info">
+                        <span class="o_stat_text">Active Change Request</span>
+                    </div>
+                </button>
+            </xpath>
+
+            <xpath expr="//sheet" position="inside">
+                <div class="alert alert-info" role="alert" invisible="not has_active_draft">
+                    <strong>Active Change Request:</strong> This record has an active change request.
+                    <button type="object" name="action_view_active_change_request" class="btn btn-link">
+                        View Change Request
+                    </button>
+                </div>
+            </xpath>
+
+            <xpath expr="//field" position="attributes">
+                <attribute
+                    name="readonly"
+                >is_registrant and not context.get('change_request_context', False)</attribute>
+            </xpath>
+
+            <xpath expr="//sheet" position="inside">
+                <group string="Debug Info" invisible="1">
+                    <field name="has_active_draft" />
+                    <field name="active_change_request_id" />
+                    <field name="is_group" />
+                    <field name="is_registrant" />
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_partner_form_draft_members" model="ir.ui.view">
+        <field name="name">res.partner.form.draft.members</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="g2p_registry_group.view_groups_form" />
+        <field name="priority">200</field>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='members']" position="attributes">
+                <attribute name="string">Approved Members</attribute>
+            </xpath>
+
+            <xpath expr="//page[@name='members']" position="inside">
+                <group
+                    string="Draft Members"
+                    invisible="not context.get('change_request_context', False)"
+                    col="4"
+                    colspan="4"
+                >
+                    <field
+                        name="draft_member_ids"
+                        nolabel="1"
+                        colspan="4"
+                        domain="[('is_group', '=', False), ('active_change_request_state', 'in', ['draft', 'submitted'])]"
+                    >
+                        <tree editable="top" default_order="name asc">
+                            <field name="name" string="Member Name" />
+                            <field name="given_name" string="Given Name" />
+                            <field name="family_name" string="Family Name" />
+                            <field name="phone" string="Phone" />
+                            <field name="gender" string="Gender" />
+                            <field name="region" string="Region" />
+                        </tree>
+                    </field>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_individual_form_change_management" model="ir.ui.view">
+        <field name="name">res.partner.individual.form.change.management</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="g2p_registry_individual.view_individuals_form" />
+        <field name="priority">100</field>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button
+                    type="object"
+                    name="action_create_change_request"
+                    class="oe_stat_button o_active_cr_highlight"
+                    icon="fa-edit"
+                    confirm="Are you sure you want to create a Change Request for this registrant?"
+                    invisible="not is_registrant or has_active_draft"
+                    title="Create Change Request"
+                >
+                    <div class="o_field_widget o_stat_info">
+                        <span class="o_stat_text">Create Change Request</span>
+                    </div>
+                </button>
+                <button
+                    type="object"
+                    name="action_view_active_change_request"
+                    class="oe_stat_button o_active_cr_highlight"
+                    icon="fa-tasks"
+                    invisible="not has_active_draft"
+                    title="View Active Change Request"
+                >
+                    <div class="o_field_widget o_stat_info">
+                        <span class="o_stat_text">Active Change Request</span>
+                    </div>
+                </button>
+            </xpath>
+
+            <xpath expr="//sheet" position="inside">
+                <div class="alert alert-info" role="alert" invisible="not has_active_draft">
+                    <strong>Active Change Request:</strong> This record has an active change request.
+                    <button type="object" name="action_view_active_change_request" class="btn btn-link">
+                        View Change Request
+                    </button>
+                </div>
+            </xpath>
+
+            <xpath expr="//field" position="attributes">
+                <attribute
+                    name="readonly"
+                >is_registrant and not context.get('change_request_context', False)</attribute>
+            </xpath>
+
+            <xpath expr="//sheet" position="inside">
+                <group string="Debug Info" invisible="1">
+                    <field name="has_active_draft" />
+                    <field name="active_change_request_id" />
+                    <field name="is_registrant" />
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_partner_form_change_management" model="ir.actions.act_window">
+        <field name="name">Registrant</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_partner_form_change_management" />
+        <field name="context">{'change_management_context': True}</field>
+    </record>
+
+    <record id="view_individuals_list_tree_no_create" model="ir.ui.view">
+        <field name="name">view.individuals.list.tree.no.create</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="g2p_registry_individual.view_individuals_list_tree" />
+        <field name="arch" type="xml">
+            <xpath expr="//tree" position="attributes">
+                <attribute name="create">0</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_groups_list_tree_no_create" model="ir.ui.view">
+        <field name="name">view.groups.list.tree.no.create</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="g2p_registry_group.view_groups_list_tree" />
+        <field name="arch" type="xml">
+            <xpath expr="//tree" position="attributes">
+                <attribute name="create">0</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_individuals_form_readonly" model="ir.ui.view">
+        <field name="name">view_individuals_form_readonly</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="g2p_registry_individual.view_individuals_form" />
+        <field name="priority">1</field>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="attributes">
+                <attribute name="edit">0</attribute>
+                <attribute name="create">0</attribute>
+                <attribute name="delete">0</attribute>
+            </xpath>
+            <xpath expr="//field" position="attributes">
+                <attribute name="readonly">1</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_groups_form_readonly" model="ir.ui.view">
+        <field name="name">view_groups_form_readonly</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="g2p_registry_group.view_groups_form" />
+        <field name="priority">1</field>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="attributes">
+                <attribute name="edit">0</attribute>
+                <attribute name="create">0</attribute>
+                <attribute name="delete">0</attribute>
+            </xpath>
+            <xpath expr="//field" position="attributes">
+                <attribute name="readonly">1</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_individuals_readonly" model="ir.actions.act_window">
+        <field name="name">Individual (Read-only)</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_individuals_form_readonly" />
+        <field name="target">current</field>
+        <field
+            name="context"
+        >{'default_is_registrant':True,'default_is_group':False,'registrant_form':True}</field>
+    </record>
+
+    <record id="action_groups_readonly" model="ir.actions.act_window">
+        <field name="name">Group (Read-only)</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_groups_form_readonly" />
+        <field name="target">current</field>
+        <field
+            name="context"
+        >{'default_is_registrant':True,'default_is_group':True,'registrant_form':True}</field>
+    </record>
+
+</odoo>

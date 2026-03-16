@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <!-- Define the action first -->
+    <record id="action_social_registry_import_action" model="ir.actions.server">
+        <field name="name">Import Social Registry beneficiary</field>
+        <field name="model_id" ref="model_g2p_fetch_social_registry_beneficiary" />
+        <field name="binding_model_id" ref="model_g2p_fetch_social_registry_beneficiary" />
+        <field name="state">code</field>
+        <field name="code">
+            action = records.social_registry_import_action_trigger()
+        </field>
+    </record>
+
+    <record id="fetch_social_registry_beneficiary_tree" model="ir.ui.view">
+        <field name="name">fetch_social_registry_beneficiary_tree</field>
+        <field name="model">g2p.fetch.social.registry.beneficiary</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name" string="Search Criteria" />
+                <field name="create_date" />
+                <field name="job_status" />
+                <button
+                    type="action"
+                    name="%(action_social_registry_import_action)d"
+                    string="Start"
+                    icon="fa-play"
+                    class="oe_highlight"
+                    invisible="job_status not in ('draft', 'completed')"
+                    title="Click to schedule the social registry import"
+                />
+                <button
+                    type="action"
+                    name="%(action_social_registry_import_action)d"
+                    string="Stop"
+                    icon="fa-stop"
+                    class="oe_highlight"
+                    invisible="job_status not in ('started', 'running')"
+                    title="Click to stop the scheduled social registry import"
+                />
+                <button
+                    type="action"
+                    name="%(action_social_registry_import_action)d"
+                    string="Restart"
+                    icon="fa-refresh"
+                    class="oe_highlight"
+                    invisible="job_status not in ('failed')"
+                    title="Click to restart the failed social registry import"
+                />
+            </tree>
+        </field>
+    </record>
+
+    <record id="fetch_social_registry_beneficiary_form" model="ir.ui.view">
+        <field name="name">fetch_social_registry_beneficiary_form</field>
+        <field name="model">g2p.fetch.social.registry.beneficiary</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button
+                        name="test_connection"
+                        string="Test Connection"
+                        type="object"
+                        class="oe_highlight"
+                        title="Click to test social registry import API"
+                    />
+                    <button
+                        name="fetch_social_registry_beneficiary"
+                        string="Import Records"
+                        type="object"
+                        class="oe_highlight"
+                        title="Click to manually import social registry data"
+                    />
+                    <field name="job_status" invisible="1" />
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button
+                            type="action"
+                            name="%(action_social_registry_import_action)d"
+                            string="Start"
+                            icon="fa-play"
+                            class="oe_highlight"
+                            invisible="job_status not in ('draft', 'completed')"
+                            title="Click to schedule the social registry import"
+                        />
+                        <button
+                            type="action"
+                            name="%(action_social_registry_import_action)d"
+                            string="Stop"
+                            icon="fa-stop"
+                            class="oe_highlight"
+                            invisible="job_status not in ('started', 'running')"
+                            title="Click to stop the scheduled social registry import"
+                        />
+                        <button
+                            type="action"
+                            name="%(action_social_registry_import_action)d"
+                            string="Restart"
+                            icon="fa-refresh"
+                            class="oe_highlight"
+                            invisible="job_status not in ('failed')"
+                            title="Click to restart the failed social registry import"
+                        />
+                    </div>
+                    <group>
+                        <field name="name" />
+                        <field name="data_source_id" />
+                        <field name="import_registrant_without_id" />
+                        <field name="target_registry" />
+                        <field name="target_program" />
+                        <field name="query" />
+                        <field name="output_mapping" />
+                        <field name="last_sync_date" />
+                        <field
+                            name="imported_registrant_ids"
+                            options="{'no_open':True,'no_create':True,'no_create_edit':True}"
+                        >
+                                <tree>
+                                    <field name="registrant_id" />
+                                    <field name="is_group" />
+                                    <field name="is_created" />
+                                    <field name="is_updated" />
+                                </tree>
+                            </field>
+                    </group>
+                    <group string="Schedule Configuration" invisible="cron_running">
+                        <field name="interval_number" />
+                        <field name="interval_type" />
+                        <field name="cron_running" invisible="1" />
+                    </group>
+                    <group string="Job Information" invisible="job_status == 'draft'">
+                        <field name="start_datetime" readonly="1" />
+                        <field name="end_datetime" readonly="1" />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="fetch_social_registry_beneficiary_action_window" model="ir.actions.act_window">
+        <field name="name">Previous Search Criterias</field>
+        <field name="res_model">g2p.fetch.social.registry.beneficiary</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem
+        name="Import From Registry"
+        id="fetch_social_registry_submenu"
+        parent="g2p_programs.g2p_program_menu_root"
+        action="fetch_social_registry_beneficiary_action_window"
+    />
+</odoo>

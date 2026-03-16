@@ -1,0 +1,74 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* g2p_program_documents
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0\n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: g2p_program_documents
+#: model:ir.model,name:g2p_program_documents.model_g2p_program_entitlement_manager_default
+msgid "Default Entitlement Manager"
+msgstr ""
+
+#. module: g2p_program_documents
+#: model:ir.model.fields,field_description:g2p_program_documents.field_g2p_entitlement__document_count
+msgid "Document Count"
+msgstr ""
+
+#. module: g2p_program_documents
+#: model_terms:ir.ui.view,arch_db:g2p_program_documents.view_program_document_form
+#: model_terms:ir.ui.view,arch_db:g2p_program_documents.view_program_membership_documents_form
+msgid "Documents"
+msgstr ""
+
+#. module: g2p_program_documents
+#: model:ir.model,name:g2p_program_documents.model_g2p_entitlement
+#: model:ir.model.fields,field_description:g2p_program_documents.field_storage_file__entitlement_id
+msgid "Entitlement"
+msgstr ""
+
+#. module: g2p_program_documents
+#: model_terms:ir.ui.view,arch_db:g2p_program_documents.view_entitlement_docs_form
+#: model_terms:ir.ui.view,arch_db:g2p_program_documents.view_program_membership_documents_form
+msgid "Name"
+msgstr ""
+
+#. module: g2p_program_documents
+#: model:ir.model,name:g2p_program_documents.model_g2p_program
+msgid "Program"
+msgstr ""
+
+#. module: g2p_program_documents
+#: model:ir.model,name:g2p_program_documents.model_g2p_program_membership
+#: model:ir.model.fields,field_description:g2p_program_documents.field_storage_file__program_membership_id
+msgid "Program Membership"
+msgstr ""
+
+#. module: g2p_program_documents
+#: model:ir.model,name:g2p_program_documents.model_storage_file
+msgid "Storage File"
+msgstr ""
+
+#. module: g2p_program_documents
+#: model:ir.model.fields,field_description:g2p_program_documents.field_g2p_entitlement__supporting_document_ids
+msgid "Supporting Document"
+msgstr ""
+
+#. module: g2p_program_documents
+#: model:ir.model.fields,field_description:g2p_program_documents.field_g2p_program_membership__supporting_documents_ids
+#: model_terms:ir.ui.view,arch_db:g2p_program_documents.view_entitlement_docs_form
+msgid "Supporting Documents"
+msgstr ""
+
+#. module: g2p_program_documents
+#: model:ir.model.fields,field_description:g2p_program_documents.field_g2p_program__supporting_documents_store
+msgid "Supporting Documents Store"
+msgstr ""

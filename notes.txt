@@ -1,0 +1,25 @@
+docker-compose down -v
+docker-compose up --build
+
+docker exec -it openg22p-openg2p-odoo-1 bash
+
+odoo-bin -d openg2p -i component,server_environment,storage_backend,g2p_registry_base,g2p_registry_individual,g2p_registry_group,beneficiary_registry,programs,enrollment,targeting,payment_module --db_host=postgresql --db_user=odoo --db_password=odoo
+odoo-bin -d openg2p -i g2p_registry_base,g2p_registry_group,g2p_registry_individual,g2p_profile_image,g2p_auth_id_oidc,g2p_registration_portal_base,g2p_agent_portal_base,g2p_registry_documents_group,g2p_registry_documents_individual,g2p_registry_document_encryption,g2p_registry_document_encryption_group,g2p_registry_document_encryption_individual,g2p_registry_encryption,g2p_registry_datashare_rabbitmq,g2p_registry_datashare_websub,g2p_registry_deduplication_deduplicator --db_host=postgresql --db_user=odoo --db_password=odoo
+
+//TO ACESS POSTGRESQL CONTAINER DATABASE
+docker-compose exec postgresql psql -U odoo -d openg2p
+UPDATE res_users SET password = 'admin' WHERE login = 'user@example.com';
+
+//SCHWIFTY FIX 
+docker exec -it openg2p-odoo /opt/bitnami/odoo/venv/bin/python -m pip install schwifty
+ docker restart openg22p-openg2p-odoo-1
+
+//Documents FIX
+docker-compose exec openg2p-odoo pip install python-magic pycountry
+
+
+# 1. Start the database container first
+docker start openg22p-postgresql-1
+
+# 2. Wait a few seconds for the database to be fully ready, then start Odoo
+docker start openg22p-openg2p-odoo-1

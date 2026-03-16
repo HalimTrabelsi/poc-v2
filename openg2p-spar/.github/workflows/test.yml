@@ -1,0 +1,131 @@
+name: Test SPAR Mapper API
+
+on:
+  pull_request:
+  push:
+    branches:
+      - "**"
+    tags-ignore:
+      - '**'
+  workflow_dispatch:
+
+concurrency:
+  group: check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test-mapper-core:
+    name: Test Mapper Core with Python ${{ matrix.py }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        py:
+          - "3.11"
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: openg2p
+          POSTGRES_PASSWORD: openg2p
+          POSTGRES_DB: openg2p
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python ${{ matrix.py }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.py }}
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install git+https://github.com/openg2p/openg2p-fastapi-common@v1.1.4#subdirectory=openg2p-fastapi-auth-models
+          pip install git+https://github.com/openg2p/openg2p-fastapi-common@v1.1.4#subdirectory=openg2p-fastapi-auth
+          pip install git+https://github.com/openg2p/openg2p-fastapi-common@v1.1.4#subdirectory=openg2p-fastapi-common
+          pip install pytest pytest-asyncio pytest-cov
+          pip install -e ./openg2p-spar-models
+          pip install -e ./openg2p-spar-mapper-core
+
+      - name: Run Mapper Core tests
+        working-directory: openg2p-spar-mapper-core
+        run: |
+          pytest tests/ -v --cov=openg2p_spar_mapper_core --cov-report=xml --cov-report=term-missing
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./openg2p-spar-mapper-core/coverage.xml
+          flags: mapper-core
+          name: mapper-core-py${{ matrix.py }}
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+  test-bene-portal-api:
+    name: Test Bene Portal API with Python ${{ matrix.py }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        py:
+          - "3.11"
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: openg2p
+          POSTGRES_PASSWORD: openg2p
+          POSTGRES_DB: openg2p
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python ${{ matrix.py }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.py }}
+          cache: 'pip'
+
+      - name: Install external dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install git+https://github.com/openg2p/openg2p-fastapi-common@v1.1.4#subdirectory=openg2p-fastapi-auth-models
+          pip install git+https://github.com/openg2p/openg2p-fastapi-common@v1.1.4#subdirectory=openg2p-fastapi-auth
+          pip install git+https://github.com/openg2p/openg2p-fastapi-common@v1.1.4#subdirectory=openg2p-fastapi-common
+
+      - name: Install local dependencies
+        run: |
+          pip install pytest pytest-asyncio pytest-cov
+          pip install -e ./openg2p-spar-models
+          pip install -e ./openg2p-spar-mapper-core
+          pip install -e ./openg2p-spar-bene-portal-api
+
+      - name: Run Bene Portal API tests
+        working-directory: openg2p-spar-bene-portal-api
+        run: |
+          pytest tests/ -v --cov=openg2p_spar_bene_portal_api --cov-report=xml --cov-report=term-missing
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./openg2p-spar-bene-portal-api/coverage.xml
+          flags: bene-portal-api
+          name: bene-portal-api-py${{ matrix.py }}
+          token: ${{ secrets.CODECOV_TOKEN }}

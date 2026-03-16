@@ -1,0 +1,56 @@
+name: OpenAPI Generate for Bene Portal
+
+on:
+  push:
+    branches:
+      - "**"
+    tags-ignore:
+      - '**'
+  workflow_dispatch:
+
+jobs:
+  openapi-publish:
+    name: OpenAPI Generate (Bene Portal)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: openg2p-spar-bene-portal-api
+    steps:
+      - uses: actions/checkout@v3
+      - name: Get branch name (merge)
+        run: |
+          echo "BRANCH_NAME=$(echo ${{ github.ref }} | sed -e 's,.*/\\(.*\\),\\1,')" >> $GITHUB_ENV
+      - name: Setup python for openapi generate
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+      - name: Install dependencies
+        run: |
+          python -m pip install git+https://github.com/openg2p/openg2p-fastapi-common@v1.1.4\#subdirectory=openg2p-fastapi-auth-models
+          python -m pip install git+https://github.com/openg2p/openg2p-fastapi-common@v1.1.4\#subdirectory=openg2p-fastapi-auth
+          python -m pip install git+https://github.com/openg2p/openg2p-fastapi-common@v1.1.4\#subdirectory=openg2p-fastapi-common
+      - name: Install local models and core lib
+        run: |
+          cd ../openg2p-spar-models && pip install -e . --quiet && cd ../openg2p-spar-bene-portal-api
+          cd ../openg2p-spar-mapper-core && pip install -e . --quiet && cd ../openg2p-spar-bene-portal-api
+      - name: Install app
+        run: |
+          python -m pip install .
+      - name: Generate openapi json
+        run: |
+          mkdir -p src/openg2p_spar_bene_portal_api/api-docs/generated
+          python3 main.py getOpenAPI src/openg2p_spar_bene_portal_api/api-docs/generated/openapi.json
+          if ! [ -z "$(git status --porcelain=v1 2>/dev/null -- openg2p-spar-bene-portal-api/src/openg2p_spar_bene_portal_api/api-docs/generated/openapi.json)" ]; then
+            shopt -s nocasematch
+            if [[ ${{ github.repository_owner }} == 'OpenG2P' ]]; then
+              export OPENAPI_CHANGED="true"
+              echo OPENAPI_CHANGED=$OPENAPI_CHANGED >> $GITHUB_ENV
+            fi
+          fi
+      - name: Commit Changes
+        uses: EndBug/add-and-commit@v7
+        if: env.OPENAPI_CHANGED == 'true'
+        with:
+          default_author: github_actions
+          message: "Generated new openapi.json (bene-portal-api) on push to ${{ github.event.inputs.git-ref }}"
+          add: "openg2p-spar-bene-portal-api/src/openg2p_spar_bene_portal_api/api-docs/generated/openapi.json"

@@ -1,0 +1,43 @@
+# Ignore everything
+*
+
+# Allow the Dockerfile and dockerignore itself
+!Dockerfile.odoo
+!.dockerignore
+
+# Allow only the directories that Dockerfile.odoo COPY uses
+!openg2p-program
+!openg2p-program/**
+
+!openg2p-registry
+!openg2p-registry/**
+
+!openg2p-addons
+!openg2p-addons/**
+
+!odoo-openg2p-bot
+!odoo-openg2p-bot/**
+
+!server-tools
+!server-tools/**
+
+!connector
+!connector/**
+
+!openg2p-g2p-bridge
+!openg2p-g2p-bridge/**
+
+!openg2p-g2p-bridge-bank-connectors
+!openg2p-g2p-bridge-bank-connectors/**
+
+!openg2p-g2p-bridge-celery-beat-producers
+!openg2p-g2p-bridge-celery-beat-producers/**
+
+!openg2p-g2p-bridge-celery-workers
+!openg2p-g2p-bridge-celery-workers/**
+
+!openg2p-g2p-bridge-example-bank
+!openg2p-g2p-bridge-example-bank/**
+
+!storage
+!storage/**

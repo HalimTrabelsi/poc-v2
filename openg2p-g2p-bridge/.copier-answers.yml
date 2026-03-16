@@ -1,0 +1,15 @@
+# Do NOT update manually; changes here will be overwritten by Copier
+_commit: af08ec1
+_src_path: https://github.com/openg2p/openg2p-fastapi-template
+github_ci_docker_build: true
+github_ci_openapi_publish: true
+github_ci_precommit: true
+github_ci_pypi_publish: true
+github_ci_tests: true
+github_ci_tests_codecov: true
+module_name: openg2p_g2p_bridge_api
+org_name: OpenG2P
+org_slug: OpenG2P
+package_name: openg2p-g2p-bridge-api
+repo_name: openg2p-g2p-bridge-api
+repo_slug: openg2p-g2p-bridge-api

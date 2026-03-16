@@ -1,0 +1,693 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* g2p_registry_base
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 15.0\n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: 2023-08-21 13:24+0000\n"
+"Last-Translator: mansour rehman <mansour.rehman@gmail.com>\n"
+"Language-Team: Kurdish (Central) <https://translate.openspp.org/projects/"
+"openg2p/g2p_registry_base/ckb/>\n"
+"Language: ckb\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 4.14\n"
+
+#. module: g2p_registry_base
+#: model_terms:ir.ui.view,arch_db:g2p_registry_base.view_phone_number_form
+#: model_terms:ir.ui.view,arch_db:g2p_registry_base.view_reg_rel_form
+msgid "<span class=\"o_stat_text\">Disable</span>"
+msgstr "<span class=\"o_stat_text\"> ناکارا</span>"
+
+#. module: g2p_registry_base
+#: model_terms:ir.ui.view,arch_db:g2p_registry_base.view_reg_rel_form
+msgid "<span class=\"o_stat_text\">Enable</span>"
+msgstr "<span class=\"o_stat_text\">کارایە</span>"
+
+#. module: g2p_registry_base
+#: model_terms:ir.ui.view,arch_db:g2p_registry_base.view_phone_number_form
+msgid ""
+"<span class=\"o_stat_text\">Enable</span>\n"
+"                                <span class=\"o_stat_text\">Phone No.</span>"
+msgstr ""
+"<span class=\"o_stat_text\">چالاککردن</span>\n"
+"                                 <span class=\"o_stat_text\">ژمارەی "
+"تەلەفۆن.</span>"
+
+#. module: g2p_registry_base
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_reg_rel__message_needaction
+msgid "Action Needed"
+msgstr "کردار پێویستە"
+
+#. module: g2p_registry_base
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_registrant_tags__active
+msgid "Active"
+msgstr "چالاک"
+
+#. module: g2p_registry_base
+#: model_terms:ir.actions.act_window,help:g2p_registry_base.action_reg_rel
+msgid "Add a Registrant Relationship!"
+msgstr "پەیوەندی تۆمارکەر زیاد بکە!"
+
+#. module: g2p_registry_base
+#: model_terms:ir.actions.act_window,help:g2p_registry_base.action_reg_id
+msgid "Add a Registrant's ID!"
+msgstr "ناسنامەی تۆمارکەر زیاد بکە!"
+
+#. module: g2p_registry_base
+#: model_terms:ir.actions.act_window,help:g2p_registry_base.action_phone_number
+msgid "Add a Registrant's Phone Number!"
+msgstr "ژمارەی تەلەفۆنی تۆمارکەرێک زیاد بکە!"
+
+#. module: g2p_registry_base
+#: model_terms:ir.actions.act_window,help:g2p_registry_base.action_registrant_tags
+msgid "Add a Registrant's Tags!"
+msgstr "تاگەکانی تۆمارکەرێک زیاد بکە!"
+
+#. module: g2p_registry_base
+#: model_terms:ir.actions.act_window,help:g2p_registry_base.action_relationship
+msgid "Add a Relationship!"
+msgstr "پەیوەندییەک زیاد بکە!"
+
+#. module: g2p_registry_base
+#: model_terms:ir.actions.act_window,help:g2p_registry_base.action_id_type
+msgid "Add an ID Type!"
+msgstr "جۆری ناسنامەیەک زیاد بکە!"
+
+#. module: g2p_registry_base
+#: model:ir.model.fields,field_description:g2p_registry_base.field_res_partner__address
+#: model:ir.model.fields,field_description:g2p_registry_base.field_res_users__address
+msgid "Address"
+msgstr "ناونیشان"
+
+#. module: g2p_registry_base
+#: model:res.groups,name:g2p_registry_base.group_g2p_admin
+msgid "Administrator"
+msgstr "بەڕێوەبەر"
+
+#. module: g2p_registry_base
+#: model:ir.model.fields,help:g2p_registry_base.field_g2p_registrant_tags__active
+msgid "Archive to hide the RegistrantTag without removing it."
+msgstr "ئەرشیف بۆ شاردنەوەی تاگی تۆمارکەر بەبێ لابردنی."
+
+#. module: g2p_registry_base
+#: model_terms:ir.ui.view,arch_db:g2p_registry_base.registrant_tags_filter
+msgid "Archived"
+msgstr "ئەرشیڤکرا"
+
+#. module: g2p_registry_base
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_reg_rel__message_attachment_count
+msgid "Attachment Count"
+msgstr "ژمارەی هاوپێچەکان"
+
+#. module: g2p_registry_base
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_relationship__bidirectional
+msgid "Bi-directional"
+msgstr "دوو ئاراستەیی"
+
+#. module: g2p_registry_base
+#: model_terms:ir.ui.view,arch_db:g2p_registry_base.disable_registrant_wizard_form_view
+msgid "Cancel"
+msgstr "هەڵوەشاندنەوە"
+
+#. module: g2p_registry_base
+#: model_terms:ir.actions.act_window,help:g2p_registry_base.action_id_type
+msgid "Click the create button to enter a new ID type."
+msgstr "بۆ داخڵکردنی جۆری ناسنامەیەکی نوێ کلیک لە دوگمەی دروستکردن بکە."
+
+#. module: g2p_registry_base
+#: model_terms:ir.actions.act_window,help:g2p_registry_base.action_relationship
+msgid "Click the create button to enter a new relationship."
+msgstr "بۆ چوونە ناو پەیوەندییەکی نوێ کلیک لە دوگمەی دروستکردن بکە."
+
+#. module: g2p_registry_base
+#: model_terms:ir.actions.act_window,help:g2p_registry_base.action_phone_number
+msgid "Click the create button to enter a registrant's phone number."
+msgstr "بۆ داخڵکردنی ژمارەی تەلەفۆنی تۆمارکراوێک کلیک لە دوگمەی دروستکردن بکە."
+
+#. module: g2p_registry_base
+#: model_terms:ir.actions.act_window,help:g2p_registry_base.action_reg_id
+msgid "Click the create button to enter the new registrant's ID information."
+msgstr ""
+"بۆ داخڵکردنی زانیاری ناسنامەی تۆمارکەری نوێ کلیک لە دوگمەی دروستکردن بکە."
+
+#. module: g2p_registry_base
+#: model_terms:ir.actions.act_window,help:g2p_registry_base.action_registrant_tags
+msgid "Click the create button to enter the new registrant's Tags information."
+msgstr ""
+"بۆ داخڵکردنی زانیارییەکانی تاگەکانی تۆمارکەری نوێ کلیک لە دوگمەی دروستکردن "
+"بکە."
+
+#. module: g2p_registry_base
+#: model_terms:ir.actions.act_window,help:g2p_registry_base.action_reg_rel
+msgid ""
+"Click the create button to enter the new registrant's relationship "
+"information."
+msgstr ""
+"بۆ داخڵکردنی زانیاری پەیوەندی تۆمارکەری نوێ کلیک لە دوگمەی دروستکردن بکە."
+
+#. module: g2p_registry_base
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_registrant_tags__color
+msgid "Color"
+msgstr "ڕەنگ"
+
+#. module: g2p_registry_base
+#: model:ir.ui.menu,name:g2p_registry_base.g2p_configuration_menu_root
+msgid "Configuration"
+msgstr "ڕێکخستن"
+
+#. module: g2p_registry_base
+#: model:ir.model,name:g2p_registry_base.model_res_partner
+msgid "Contact"
+msgstr "پەیوەندی"
+
+#. module: g2p_registry_base
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_phone_number__country_id
+msgid "Country"
+msgstr "وڵات"
+
+#. module: g2p_registry_base
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_disable_registrant_wizard__create_uid
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_id_type__create_uid
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_phone_number__create_uid
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_reg_id__create_uid
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_reg_rel__create_uid
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_registrant_tags__create_uid
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_relationship__create_uid
+msgid "Created by"
+msgstr "دروست کراوە لەلایەن"
+
+#. module: g2p_registry_base
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_disable_registrant_wizard__create_date
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_id_type__create_date
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_phone_number__create_date
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_reg_id__create_date
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_reg_rel__create_date
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_registrant_tags__create_date
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_relationship__create_date
+msgid "Created on"
+msgstr "دروستکراوە لەناو"
+
+#. module: g2p_registry_base
+#: model:ir.ui.menu,name:g2p_registry_base.g2p_data_mgmt_menu_root
+msgid "Data Management"
+msgstr "بەڕێوەبردنی داتا"
+
+#. module: g2p_registry_base
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_phone_number__date_collected
+msgid "Date Collected"
+msgstr "بەرواری کۆکردنەوە"
+
+#. module: g2p_registry_base
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_phone_number__disabled
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_reg_rel__disabled
+#: model:ir.model.fields,field_description:g2p_registry_base.field_res_partner__disabled
+#: model:ir.model.fields,field_description:g2p_registry_base.field_res_users__disabled
+msgid "Date Disabled"
+msgstr "بەرواری لەکارخراوە"
+
+#. module: g2p_registry_base
+#: model_terms:ir.ui.view,arch_db:g2p_registry_base.view_reg_rel_form
+msgid "Date Range"
+msgstr "مەودای بەروار"
+
+#. module: g2p_registry_base
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_reg_rel__destination
+#: model_terms:ir.ui.view,arch_db:g2p_registry_base.reg_rel_filter
+msgid "Destination"
+msgstr "جێمەبەست"
+
+#. module: g2p_registry_base
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_relationship__destination_type
+msgid "Destination partner type"
+msgstr "جۆری هاوبەشی مەبەست"
+
+#. module: g2p_registry_base
+#: model:ir.actions.act_window,name:g2p_registry_base.action_disable_registrant_wizard
+#: model_terms:ir.ui.view,arch_db:g2p_registry_base.disable_registrant_wizard_form_view
+msgid "Disable"
+msgstr "ناچالاک کردن"
+
+#. module: g2p_registry_base
+#: model_terms:ir.ui.view,arch_db:g2p_registry_base.view_phone_number_form
+#: model_terms:ir.ui.view,arch_db:g2p_registry_base.view_reg_rel_form
+msgid "Disable Info"
+msgstr "زانیاری لەکاربخە"
+
+#. module: g2p_registry_base
+#: model:ir.model,name:g2p_registry_base.model_g2p_disable_registrant_wizard
+msgid "Disable Registrant Wizard"
+msgstr "یارمەتیدەری تۆمارکردن لەکاربخە"
+
+#. module: g2p_registry_base
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_phone_number__disabled_by
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_reg_rel__disabled_by
+#: model:ir.model.fields,field_description:g2p_registry_base.field_res_partner__disabled_by
+#: model:ir.model.fields,field_description:g2p_registry_base.field_res_users__disabled_by
+msgid "Disabled By"
+msgstr "لەکارکەوتووە لەلایەن"
+
+#. module: g2p_registry_base
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_disable_registrant_wizard__display_name
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_id_type__display_name
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_phone_number__display_name
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_reg_id__display_name
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_reg_rel__display_name
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_registrant_tags__display_name
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_relationship__display_name
+msgid "Display Name"
+msgstr "ناوی پێشاندراو"
+
+#. module: g2p_registry_base
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_reg_rel__end_date
+msgid "End Date"
+msgstr "رێکەوتی کۆتایی"
+
+#. module: g2p_registry_base
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_reg_id__expiry_date
+msgid "Expiry Date"
+msgstr "بەرواری بەسەرچوون"
+
+#. module: g2p_registry_base
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_reg_rel__message_follower_ids
+msgid "Followers"
+msgstr "شوێنکەوتووان"
+
+#. module: g2p_registry_base
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_reg_rel__message_partner_ids
+msgid "Followers (Partners)"
+msgstr "شوێنکەوتووان"
+
+#. module: g2p_registry_base
+#: code:addons/g2p_registry_base/models/reg_relationship.py:0
+#: model:ir.model.fields,field_description:g2p_registry_base.field_res_partner__is_group
+#: model:ir.model.fields,field_description:g2p_registry_base.field_res_users__is_group
+#, python-format
+msgid "Group"
+msgstr "گروپ"
+
+#. module: g2p_registry_base
+#: model_terms:ir.ui.view,arch_db:g2p_registry_base.phone_number_filter
+#: model_terms:ir.ui.view,arch_db:g2p_registry_base.reg_id_filter
+#: model_terms:ir.ui.view,arch_db:g2p_registry_base.reg_rel_filter
+msgid "Group By"
+msgstr "گروپ بەپێی"
+
+#. module: g2p_registry_base
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_reg_rel__has_message
+msgid "Has Message"
+msgstr "پەیام هەیە"
+
+#. module: g2p_registry_base
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_disable_registrant_wizard__id
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_id_type__id
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_phone_number__id
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_reg_id__id
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_reg_rel__id
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_registrant_tags__id
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_relationship__id
+msgid "ID"
+msgstr "ناسنامە"
+
+#. module: g2p_registry_base
+#: model:ir.model,name:g2p_registry_base.model_g2p_id_type
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_reg_id__id_type
+msgid "ID Type"
+msgstr "جۆری ناسنامە"
+
+#. module: g2p_registry_base
+#: model:ir.actions.act_window,name:g2p_registry_base.action_id_type
+#: model:ir.ui.menu,name:g2p_registry_base.menu_id_type
+#: model_terms:ir.ui.view,arch_db:g2p_registry_base.reg_id_filter
+msgid "ID Types"
+msgstr "جۆرەکانی ناسنامە"
+
+#. module: g2p_registry_base
+#: model:ir.model.fields,help:g2p_registry_base.field_g2p_reg_rel__message_needaction
+#: model:ir.model.fields,help:g2p_registry_base.field_g2p_reg_rel__message_unread
+msgid "If checked, new messages require your attention."
+msgstr "سەیر بکە، پەیامە نوێیەکان سەرنجی تۆیان دەوێ."
+
+#. module: g2p_registry_base
+#: model:ir.model.fields,help:g2p_registry_base.field_g2p_reg_rel__message_has_error
+#: model:ir.model.fields,help:g2p_registry_base.field_g2p_reg_rel__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr "سەیر بکە، هەندێک لە پەیامەکان نەگەیشتوون."
+
+#. module: g2p_registry_base
+#: code:addons/g2p_registry_base/models/reg_relationship.py:0
+#, python-format
+msgid "Individual"
+msgstr "تاکەکەسی"
+
+#. module: g2p_registry_base
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_relationship__name_inverse
+msgid "Inverse name"
+msgstr "ناوی پێچەوانە"
+
+#. module: g2p_registry_base
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_reg_rel__message_is_follower
+msgid "Is Follower"
+msgstr "فۆڵۆوەرە"
+
+#. module: g2p_registry_base
+#: model_terms:ir.ui.view,arch_db:g2p_registry_base.view_reg_rel_form
+msgid "Is Related to:"
+msgstr "پەیوەندی بە:"
+
+#. module: g2p_registry_base
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_disable_registrant_wizard____last_update
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_id_type____last_update
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_phone_number____last_update
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_reg_id____last_update
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_reg_rel____last_update
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_registrant_tags____last_update
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_relationship____last_update
+msgid "Last Modified on"
+msgstr "دوا دەستکاریکردن لە"
+
+#. module: g2p_registry_base
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_disable_registrant_wizard__write_uid
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_id_type__write_uid
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_phone_number__write_uid
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_reg_id__write_uid
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_reg_rel__write_uid
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_registrant_tags__write_uid
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_relationship__write_uid
+msgid "Last Updated by"
+msgstr "دوا نوێکردنەوە لەلایەن"
+
+#. module: g2p_registry_base
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_disable_registrant_wizard__write_date
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_id_type__write_date
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_phone_number__write_date
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_reg_id__write_date
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_reg_rel__write_date
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_registrant_tags__write_date
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_relationship__write_date
+msgid "Last Updated on"
+msgstr "دوا نوێکردنەوە لە"
+
+#. module: g2p_registry_base
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_reg_rel__message_main_attachment_id
+msgid "Main Attachment"
+msgstr "هاوپێچی سەرەکی"
+
+#. module: g2p_registry_base
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_reg_rel__message_has_error
+msgid "Message Delivery error"
+msgstr "هەڵە لەکاتی گەیاندنی پەیام"
+
+#. module: g2p_registry_base
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_reg_rel__message_ids
+msgid "Messages"
+msgstr "پەیامەکان"
+
+#. module: g2p_registry_base
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_id_type__name
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_reg_id__id_type_as_str
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_reg_rel__relation_as_str
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_relationship__name
+#: model:ir.model.fields,field_description:g2p_registry_base.field_res_partner__name
+#: model:ir.model.fields,field_description:g2p_registry_base.field_res_users__name
+msgid "Name"
+msgstr "ناو"
+
+#. module: g2p_registry_base
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_reg_rel__message_needaction_counter
+msgid "Number of Actions"
+msgstr "ژمارەی کردارەکان"
+
+#. module: g2p_registry_base
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_reg_rel__message_has_error_counter
+msgid "Number of errors"
+msgstr "ژمارەی هەڵەکان"
+
+#. module: g2p_registry_base
+#: model:ir.model.fields,help:g2p_registry_base.field_g2p_reg_rel__message_needaction_counter
+msgid "Number of messages which requires an action"
+msgstr "ژمارەی ئەو پەیامانەی کە پێویستە کاریان لەسەر بکرێت"
+
+#. module: g2p_registry_base
+#: model:ir.model.fields,help:g2p_registry_base.field_g2p_reg_rel__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr "ژمارەی ئەو پەیامانەی کە نەگەیشتوون"
+
+#. module: g2p_registry_base
+#: model:ir.model.fields,help:g2p_registry_base.field_g2p_reg_rel__message_unread_counter
+msgid "Number of unread messages"
+msgstr "ژمارەی پەیامە نەخوێنراوەکان"
+
+#. module: g2p_registry_base
+#: model:ir.module.category,name:g2p_registry_base.openg2p_module
+msgid "OpenG2P Module Access"
+msgstr "دەستڕاگەیشتن بە مۆدیۆلی G2P بکەرەوە"
+
+#. module: g2p_registry_base
+#: model:ir.model,name:g2p_registry_base.model_g2p_phone_number
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_phone_number__phone_no
+msgid "Phone Number"
+msgstr "ژمارەی تەلەفۆن"
+
+#. module: g2p_registry_base
+#: model:ir.actions.act_window,name:g2p_registry_base.action_phone_number
+#: model:ir.model.fields,field_description:g2p_registry_base.field_res_partner__phone_number_ids
+#: model:ir.model.fields,field_description:g2p_registry_base.field_res_users__phone_number_ids
+msgid "Phone Numbers"
+msgstr "ژماره‌ی په‌یوه‌ندی"
+
+#. module: g2p_registry_base
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_phone_number__phone_sanitized
+msgid "Phone Sanitized"
+msgstr "تەلەفۆن پاکوخاوێن کراوە"
+
+#. module: g2p_registry_base
+#: model:ir.model.fields,field_description:g2p_registry_base.field_res_partner__disabled_reason
+#: model:ir.model.fields,field_description:g2p_registry_base.field_res_users__disabled_reason
+msgid "Reason for Disabling"
+msgstr "هۆکاری لەکارخستنی"
+
+#. module: g2p_registry_base
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_disable_registrant_wizard__disabled_reason
+#: model_terms:ir.ui.view,arch_db:g2p_registry_base.disable_registrant_wizard_form_view
+msgid "Reason for disabling"
+msgstr "هۆکاری لەکارخستنی"
+
+#. module: g2p_registry_base
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_disable_registrant_wizard__partner_id
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_phone_number__partner_id
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_reg_id__partner_id
+#: model:ir.model.fields,field_description:g2p_registry_base.field_res_partner__is_registrant
+#: model:ir.model.fields,field_description:g2p_registry_base.field_res_users__is_registrant
+#: model_terms:ir.ui.view,arch_db:g2p_registry_base.phone_number_filter
+#: model_terms:ir.ui.view,arch_db:g2p_registry_base.reg_id_filter
+#: model_terms:ir.ui.view,arch_db:g2p_registry_base.reg_rel_filter
+msgid "Registrant"
+msgstr "تۆمارکەر"
+
+#. module: g2p_registry_base
+#: code:addons/g2p_registry_base/models/reg_relationship.py:0
+#, python-format
+msgid "Registrant 1 and Registrant 2 cannot be the same."
+msgstr "تۆمارکەری یەکەم و تۆمارکەری دووەم ناتوانن وەک یەک بن."
+
+#. module: g2p_registry_base
+#: model:ir.model,name:g2p_registry_base.model_g2p_reg_id
+msgid "Registrant ID"
+msgstr "ناسنامەی ناو تۆمارکردن"
+
+#. module: g2p_registry_base
+#: model:ir.actions.act_window,name:g2p_registry_base.action_reg_id
+#: model:ir.model.fields,field_description:g2p_registry_base.field_res_partner__reg_ids
+#: model:ir.model.fields,field_description:g2p_registry_base.field_res_users__reg_ids
+msgid "Registrant IDs"
+msgstr "ناسنامەی ناو تۆمارکردن"
+
+#. module: g2p_registry_base
+#: model_terms:ir.ui.view,arch_db:g2p_registry_base.view_phone_number_form
+msgid "Registrant Phone Number"
+msgstr "ژمارەی تەلەفۆنی ناو تۆمارکردن"
+
+#. module: g2p_registry_base
+#: model:ir.model,name:g2p_registry_base.model_g2p_reg_rel
+#: model_terms:ir.ui.view,arch_db:g2p_registry_base.view_reg_rel_form
+msgid "Registrant Relationship"
+msgstr "پەیوەندی تۆمارکەر"
+
+#. module: g2p_registry_base
+#: model:ir.actions.act_window,name:g2p_registry_base.action_reg_rel
+msgid "Registrant Relationships"
+msgstr "پەیوەندییەکانی تۆمارکەر"
+
+#. module: g2p_registry_base
+#: model:ir.actions.act_window,name:g2p_registry_base.action_registrant_tags
+#: model:ir.model,name:g2p_registry_base.model_g2p_registrant_tags
+#: model:ir.ui.menu,name:g2p_registry_base.menu_registrant_tags
+msgid "Registrant Tags"
+msgstr "تاگەکانی ناو تۆمارکردن"
+
+#. module: g2p_registry_base
+#: model_terms:ir.ui.view,arch_db:g2p_registry_base.view_phone_number_form
+#: model_terms:ir.ui.view,arch_db:g2p_registry_base.view_reg_rel_form
+msgid "Registrant:"
+msgstr "ناوی تۆمارکەر:"
+
+#. module: g2p_registry_base
+#: model:res.groups,name:g2p_registry_base.group_g2p_registrar
+msgid "Registrar"
+msgstr "تۆمارکەر"
+
+#. module: g2p_registry_base
+#: model:ir.model.fields,field_description:g2p_registry_base.field_res_partner__registration_date
+#: model:ir.model.fields,field_description:g2p_registry_base.field_res_users__registration_date
+msgid "Registration Date"
+msgstr "بەرواری ناو تۆمارکردن"
+
+#. module: g2p_registry_base
+#: model:ir.ui.menu,name:g2p_registry_base.g2p_main_menu_root
+msgid "Registry"
+msgstr "تۆمارکردن"
+
+#. module: g2p_registry_base
+#: model:ir.model.fields,field_description:g2p_registry_base.field_res_partner__related_1_ids
+#: model:ir.model.fields,field_description:g2p_registry_base.field_res_users__related_1_ids
+msgid "Related to registrant 1"
+msgstr "پەیوەندی بە تۆمارکراوەوە هەیە 1"
+
+#. module: g2p_registry_base
+#: model:ir.model.fields,field_description:g2p_registry_base.field_res_partner__related_2_ids
+#: model:ir.model.fields,field_description:g2p_registry_base.field_res_users__related_2_ids
+msgid "Related to registrant 2"
+msgstr "پەیوەندی بە تۆمارکەرەوە هەیە 2"
+
+#. module: g2p_registry_base
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_reg_rel__relation
+#: model_terms:ir.ui.view,arch_db:g2p_registry_base.reg_rel_filter
+msgid "Relation"
+msgstr "پەیوەندی"
+
+#. module: g2p_registry_base
+#: model_terms:ir.ui.view,arch_db:g2p_registry_base.view_reg_rel_form
+msgid "Relation:"
+msgstr "پەیوەندی:"
+
+#. module: g2p_registry_base
+#: model:ir.actions.act_window,name:g2p_registry_base.action_relationship
+#: model:ir.model,name:g2p_registry_base.model_g2p_relationship
+msgid "Relationship"
+msgstr "پەیوەندی"
+
+#. module: g2p_registry_base
+#: model:ir.ui.menu,name:g2p_registry_base.menu_relationship
+msgid "Relationships"
+msgstr "پەیوەندییەکان"
+
+#. module: g2p_registry_base
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_reg_rel__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr "کورتەنامە نەگەیشت"
+
+#. module: g2p_registry_base
+#: model_terms:ir.ui.view,arch_db:g2p_registry_base.phone_number_filter
+msgid "Search Phone Number"
+msgstr "گەڕان بە ژمارەی تەلەفۆن"
+
+#. module: g2p_registry_base
+#: model_terms:ir.ui.view,arch_db:g2p_registry_base.reg_id_filter
+msgid "Search Registrant IDs"
+msgstr "گەڕان بەدوای ناسنامەی تۆمارکەردا"
+
+#. module: g2p_registry_base
+#: model_terms:ir.ui.view,arch_db:g2p_registry_base.reg_rel_filter
+msgid "Search Registrant Relationships"
+msgstr "گەڕان بەدوای پەیوەندییەکانی تۆمارکەر"
+
+#. module: g2p_registry_base
+#: model_terms:ir.ui.view,arch_db:g2p_registry_base.registrant_tags_filter
+msgid "Search Registrant Tags"
+msgstr "گەڕان بە تاگەکانی تۆمارکەر"
+
+#. module: g2p_registry_base
+#: model_terms:ir.ui.view,arch_db:g2p_registry_base.view_reg_rel_form
+msgid "Select Destination..."
+msgstr "شوێنی مەبەست هەڵبژێرە..."
+
+#. module: g2p_registry_base
+#: model_terms:ir.ui.view,arch_db:g2p_registry_base.view_phone_number_form
+msgid "Select Registrant..."
+msgstr "تۆمارکەر هەڵبژێرە..."
+
+#. module: g2p_registry_base
+#: model_terms:ir.ui.view,arch_db:g2p_registry_base.view_reg_rel_form
+msgid "Select Relationship..."
+msgstr "پەیوەندی هەڵبژێرە..."
+
+#. module: g2p_registry_base
+#: model_terms:ir.ui.view,arch_db:g2p_registry_base.view_reg_rel_form
+msgid "Select Source..."
+msgstr "سەرچاوە هەڵبژێرە..."
+
+#. module: g2p_registry_base
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_reg_rel__source
+#: model_terms:ir.ui.view,arch_db:g2p_registry_base.reg_rel_filter
+msgid "Source"
+msgstr "سەرچاوە"
+
+#. module: g2p_registry_base
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_relationship__source_type
+msgid "Source partner type"
+msgstr "جۆری هاوبەشی سەرچاوە"
+
+#. module: g2p_registry_base
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_reg_rel__start_date
+msgid "Start Date"
+msgstr "ڕێکەوتی دەستپێكردن"
+
+#. module: g2p_registry_base
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_registrant_tags__name
+#: model:ir.model.fields,field_description:g2p_registry_base.field_res_partner__tags_ids
+#: model:ir.model.fields,field_description:g2p_registry_base.field_res_users__tags_ids
+msgid "Tags"
+msgstr "تاگەکان"
+
+#. module: g2p_registry_base
+#: code:addons/g2p_registry_base/models/reg_relationship.py:0
+#, python-format
+msgid "The starting date cannot be after the ending date."
+msgstr "بەرواری دەستپێکردن ناتوانێت دوای بەرواری کۆتایی بێت."
+
+#. module: g2p_registry_base
+#: code:addons/g2p_registry_base/models/reg_relationship.py:0
+#, python-format
+msgid "There is already a similar relation with overlapping dates"
+msgstr "لە ئێستاوە پەیوەندییەکی هاوشێوە لەگەڵ بەروارە سەریەککەوتووەکاندا هەیە"
+
+#. module: g2p_registry_base
+#: code:addons/g2p_registry_base/models/reg_relationship.py:0
+#, python-format
+msgid "This registrant is not applicable for this relation type."
+msgstr "ئەم تۆمارکردنە بۆ ئەم جۆرە پەیوەندییە ناگونجێت."
+
+#. module: g2p_registry_base
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_reg_rel__message_unread
+msgid "Unread Messages"
+msgstr "پەیامی نەخوێندراو"
+
+#. module: g2p_registry_base
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_reg_rel__message_unread_counter
+msgid "Unread Messages Counter"
+msgstr "ژمێرەری پەیامە نەخوێندراوەکان"
+
+#. module: g2p_registry_base
+#: model:ir.module.category,description:g2p_registry_base.openg2p_module
+msgid "User access level for the OpenG2P module"
+msgstr "ئاستی دەستڕاگەیشتن بە بەکارهێنەر بۆ مۆدیۆلی Open G2P"
+
+#. module: g2p_registry_base
+#: model:ir.model.fields,field_description:g2p_registry_base.field_g2p_reg_id__value
+msgid "Value"
+msgstr "بەها"

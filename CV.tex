@@ -1,0 +1,309 @@
+\documentclass[10pt, letterpaper]{article}
+
+% ===== PAGE GEOMETRY =====
+\usepackage[
+    ignoreheadfoot,
+    top=1.0cm,
+    bottom=1.0cm,
+    left=1.2cm,
+    right=1.2cm,
+    footskip=0.8cm
+]{geometry}
+
+% ===== PACKAGES =====
+\usepackage{titlesec}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{enumitem}
+\usepackage{fontawesome5}
+\usepackage{amsmath}
+\usepackage[
+    pdftitle={Halim Trabelsi - CV},
+    pdfauthor={Halim Trabelsi},
+    colorlinks=true,
+    urlcolor=MidnightBlue
+]{hyperref}
+\usepackage[pscoord]{eso-pic}
+\usepackage{calc}
+\usepackage{bookmark}
+\usepackage{lastpage}
+\usepackage{changepage}
+\usepackage{paracol}
+\usepackage{ifthen}
+\usepackage{needspace}
+\usepackage{iftex}
+
+% ===== FONTS =====
+\ifPDFTeX
+    \input{glyphtounicode}
+    \pdfgentounicode=1
+    \usepackage[T1]{fontenc}
+    \usepackage[utf8]{inputenc}
+    \usepackage{lmodern}
+\fi
+
+\usepackage{charter}
+
+% ===== STYLE =====
+\definecolor{primaryColor}{RGB}{0, 51, 102}
+
+\raggedright
+\pagestyle{empty}
+\setcounter{secnumdepth}{0}
+\setlength{\parindent}{0pt}
+\setlength{\columnsep}{0.25cm}
+\setlength{\topskip}{0pt}
+\pagenumbering{gobble}
+
+\titleformat{\section}
+{\needspace{4\baselineskip}\bfseries\large\color{primaryColor}}
+{}{0pt}{}[\vspace{1pt}\titlerule]
+\titlespacing{\section}{-1pt}{0.12cm}{0.1cm}
+
+\newenvironment{highlights}{
+    \begin{itemize}[
+        topsep=0.05cm,
+        parsep=0.03cm,
+        itemsep=0pt,
+        leftmargin=10pt,
+        labelsep=4pt
+    ]
+}{
+    \end{itemize}
+}
+\renewcommand\labelitemi{\fontsize{5pt}{5pt}\selectfont$\bullet$}
+
+\newenvironment{onecolentry}{
+    \begin{adjustwidth}{0cm}{0cm}\fontsize{10pt}{11.5pt}\selectfont
+}{
+    \end{adjustwidth}
+}
+
+\newenvironment{twocolentry}[2][]{
+    \begin{paracol}{2}
+    \setlength{\columnsep}{0.25cm}
+    \def\secondColumn{#2}
+    \setcolumnwidth{\fill, 3.8cm}
+    \fontsize{10pt}{11.5pt}\selectfont
+}{
+    \switchcolumn \raggedleft \secondColumn
+    \end{paracol}
+}
+
+% ===== DOCUMENT =====
+\begin{document}
+
+% ===== 1. HEADER =====
+\begin{center}
+    \fontsize{18pt}{18pt}\selectfont \textbf{Halim Trabelsi}
+
+    \vspace{3pt}
+
+    \small
+    \faMapMarker*\, Ariana, Tunisie
+    \kern 6pt|\kern 6pt
+    \faEnvelope\, \href{mailto:halim.trabelsi@esprit.tn}{halim.trabelsi@esprit.tn}
+    \kern 6pt|\kern 6pt
+    \faPhone*\, \href{tel:+21623340490}{+216 23 340 490}
+    \kern 6pt|\kern 6pt
+    \faLinkedin\, \href{https://www.linkedin.com/in/halim-trabelsi-a49a74246/}{linkedin.com/in/halim-trabelsi}
+\end{center}
+
+\vspace{5pt}
+
+% ===== 2. PROFILE =====
+\section{Profil Professionnel}
+\begin{onecolentry}
+Ingénieur en informatique passionné par le \textbf{développement full-stack} et l’\textbf{intégration de solutions IA}. 
+Spécialisé en \textbf{Software Engineering – Technologies Web et Internet} à \textbf{ESPRIT}. 
+Solide maîtrise des environnements \textbf{MERN}, \textbf{Spring Boot}, \textbf{Django} et \textbf{DevOps (Docker, CI/CD)}. 
+Motivé par la conception d’applications web performantes, intelligentes et centrées sur l’expérience utilisateur.
+\end{onecolentry}
+
+\vspace{3pt}
+
+% ===== 3. OBJECTIF =====
+\section{Objectif}
+\begin{onecolentry}
+Recherche d’un \textbf{stage de fin d’études (PFE)} en \textbf{développement full-stack et intégration de solutions IA}, 
+avec opportunité de \textbf{pré-embauche} dans un environnement technologique innovant.
+\end{onecolentry}
+
+\vspace{3pt}
+
+% ===== 4. SKILLS =====
+\section{Compétences Techniques}
+\begin{onecolentry}
+\textbf{Langages \& Frameworks :} Java (JEE, Spring Boot), JavaScript (React, Node.js, Angular), PHP (Laravel, Symfony), Python (Django, Flask), HTML5, CSS3 \\
+\textbf{Bases de Données :} MySQL, SQLite, MongoDB, SPARQL, PostgreSQL \\
+\textbf{Développement Web :} MERN Stack, RESTful APIs, Microservices, OAuth2, JWT Auth, WebSocket \\
+\textbf{DevOps :} Git, GitHub/GitLab, Jenkins, Docker, SonarQube, Docker Compose, CI/CD Pipelines \\
+\textbf{Intelligence Artificielle :} Python (Pandas, Scikit-learn, TensorFlow), intégration AI \& automatisation \\
+
+\textbf{Design UI/UX :} Figma, Responsive Web Design, Wireframing, Prototypage \\
+\textbf{Gestion de Projet :} Agile/Scrum, Jira, Trello, Xray, Documentation technique
+\end{onecolentry}
+
+\vspace{3pt}
+
+% ===== 5. EXPERIENCE =====
+\section{Expérience Professionnelle}
+
+\begin{twocolentry}{Juil. 2022}
+\textbf{Stage de formation humaine et sociale – EY Tunisia}
+\end{twocolentry}
+\begin{onecolentry}
+\begin{highlights}
+    \item Développement d’une application web \textbf{SmartHealthTracker} avec \textbf{Laravel}.
+    \item Conception d’un module de \textbf{suivi d’activités quotidiennes} : To-Do List, calendrier interactif et catégorisation.
+\end{highlights}
+\textbf{Technologies :} PHP (Laravel), HTML, CSS, JS, MySQL
+\end{onecolentry}
+
+\vspace{4pt}
+
+\begin{twocolentry}{Juin – Août 2024}
+\textbf{Stage d’immersion – Akwel Automotive}
+\end{twocolentry}
+\begin{onecolentry}
+\begin{highlights}
+    \item Développement d’un \textbf{système de tickets automatisé} pour le service IT.
+    \item Mise en place de \textbf{dashboards dynamiques} et d’un \textbf{chat interne en temps réel}.
+    \item Sécurisation via \textbf{JWT} et \textbf{PHP Sockets}.
+\end{highlights}
+\textbf{Technologies :} PHP, MySQL, JWT, WebSocket, SMTP, HTML, CSS, JS
+\end{onecolentry}
+
+\vspace{4pt}
+
+\begin{twocolentry}{Juil. – Août 2025 (prévu)}
+\textbf{Stage Ingénieur – EY Tunisia : Intégration d’OpenG2P sur Odoo 17}
+\end{twocolentry}
+\begin{onecolentry}
+\begin{highlights}
+    \item Déploiement d’une \textbf{plateforme d’aides sociales} sous \textbf{Odoo 17 / OpenG2P}.
+    \item Configuration d’une \textbf{infrastructure Docker multi-conteneurs}.
+    \item Intégration des modules Registry, Program et Accounting.
+    \item Conception d’un \textbf{chatbot intelligent (Botpress)} pour assister les utilisateurs.
+\end{highlights}
+\textbf{Technologies :} Odoo 17, OpenG2P, Docker, PostgreSQL, Botpress, GitHub
+\end{onecolentry}
+
+\vspace{4pt}
+
+% ===== 6. PROJECTS =====
+\section{Projets Académiques et Techniques}
+
+\begin{twocolentry}{Jan. – Mai 2024}
+\textbf{Application de gestion des hôpitaux militaires – ESPRIT}
+\end{twocolentry}
+\begin{onecolentry}
+\begin{highlights}
+    \item Développement d’un \textbf{site web et desktop app} pour la gestion hospitalière.
+    \item Système intelligent de planification et gestion de stock.
+    \item \textit{Projet nominé au “Bal des Projets 2024”.}
+\end{highlights}
+\textbf{Technologies :} Symfony, JS, Bootstrap, MySQL
+\end{onecolentry}
+
+\vspace{4pt}
+
+\begin{twocolentry}{Sept. – Nov. 2024}
+\textbf{Automatisation d’un pipeline CI/CD – ESPRIT}
+\end{twocolentry}
+\begin{onecolentry}
+\begin{highlights}
+    \item Mise en place d’un \textbf{pipeline CI/CD} complet avec \textbf{Maven, Docker, SonarQube, Kubernetes}.
+\end{highlights}
+\textbf{Technologies :} Spring Boot, Docker, Kubernetes, Terraform, Nexus
+\end{onecolentry}
+
+\vspace{4pt}
+
+\begin{twocolentry}{Jan. – Mai 2025}
+\textbf{Finova – Smarter Accounting for Tunisia}
+\end{twocolentry}
+\begin{onecolentry}
+\begin{highlights}
+    \item Plateforme de comptabilité intelligente avec \textbf{IA, chatbot, reconnaissance faciale et NLP}.
+    \item \textit{Projet nominé au “Bal des Projets 2025”.}
+\end{highlights}
+\textbf{Technologies :} ReactJS, Node.js, MongoDB, Python (AI/ML), CI/CD
+\end{onecolentry}
+
+\vspace{4pt}
+
+\begin{twocolentry}{Sept. – Oct. 2025 (prévu)}
+\textbf{Plateforme santé et fitness intelligente – Full-Stack Web \& IA}
+\end{twocolentry}
+\begin{onecolentry}
+\begin{highlights}
+    \item Application \textbf{React + Node.js + Python} avec API sécurisée JWT.
+    \item Moteur IA de recommandation basé sur \textbf{SPARQL}.
+\end{highlights}
+\textbf{Technologies :} ReactJS, Node.js, Python, SPARQL, WebSocket
+\end{onecolentry}
+
+\vspace{4pt}
+
+\begin{twocolentry}{Jan. – Mai 2025}
+\textbf{Projet IA-Learning – Plateforme web éducative intelligente (ESPRIT)}
+\end{twocolentry}
+\begin{onecolentry}
+\begin{highlights}
+    \item Plateforme web collaborative assistée par \textbf{IA} pour la révision et l’évaluation.
+    \item Backend \textbf{Django/MongoDB} + \textbf{Sneat Template}.
+    \item Génération automatique de QCM et quiz adaptatifs.
+\end{highlights}
+\textbf{Technologies :} Django, MongoDB, Sneat, AI APIs, Twilio
+\end{onecolentry}
+
+\vspace{4pt}
+
+% ===== 7. EDUCATION =====
+\section{Formation}
+\begin{twocolentry}{2021}
+\textbf{Baccalauréat en Mathématiques}
+\end{twocolentry}
+\begin{onecolentry}
+Lycée 2 Mars – Mateur, Bizerte
+\end{onecolentry}
+
+\vspace{2pt}
+\begin{twocolentry}{2021 – 2026}
+\textbf{Diplôme d’Ingénieur en Informatique – Technologies du Web et de l’Internet}
+\end{twocolentry}
+\begin{onecolentry}
+ESPRIT – École Supérieure Privée d'Ingénierie et de Technologies, Ariana
+\end{onecolentry}
+
+\vspace{4pt}
+
+% ===== 8. CERTIFICATIONS =====
+\section{Certifications}
+\begin{onecolentry}
+\begin{highlights}
+    \item \textbf{AWS Academy Graduate – Cloud Foundations} (AWS, 2025)
+    \item \textbf{Hashgraph Developer Attendance Certificate} – The Hashgraph Association (2025)
+    \item \textbf{Scrum Master Professional Certificate (SMPC)} – CertiProf
+\end{highlights}
+\end{onecolentry}
+
+\vspace{3pt}
+
+% ===== 9. LANGUAGES =====
+\section{Langues}
+\begin{onecolentry}
+Arabe (Langue maternelle) \,|\, Français (B2 – professionnel) \,|\, Anglais (B2 – technique)
+\end{onecolentry}
+
+\vspace{3pt}
+
+% ===== 10. SOFT SKILLS =====
+\section{Soft Skills}
+\begin{onecolentry}
+Esprit d’équipe, autonomie, curiosité technologique, sens du détail, communication proactive
+\end{onecolentry}
+
+\end{document}

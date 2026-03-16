@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+Part of OpenG2P. See LICENSE file for full copyright and licensing details.
+-->
+<odoo>
+    <record id="res_config_settings_view_form_g2p_payment_manager_phee" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.g2p.payment.manager.phee</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="1000" />
+        <field name="inherit_id" ref="base.res_config_settings_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app
+                    string="Payment Hub EE API"
+                    name="g2p_payment_phee"
+                    data-string="Payment Hub EE API"
+                    id="g2p_payment_phee"
+                    logo="/g2p_payment_phee/static/description/icon.png"
+                    groups="base.group_system,g2p_registry_base.group_g2p_admin"
+                >
+                    <block title="Payment Hub EE API Endpoint URLs">
+                        <setting title="Default authentication endpoint URL">
+                            <field name="default_auth_endpoint_url" />
+                        </setting>
+                        <setting title="Default payment endpoint URL">
+                            <field name="default_payment_endpoint_url" />
+                        </setting>
+                        <setting title="Default status endpoint URL">
+                            <field name="default_status_endpoint_url" />
+                        </setting>
+                        <setting title="Default details endpoint URL">
+                            <field name="default_details_endpoint_url" />
+                        </setting>
+                    </block>
+
+                    <block title="Authentication Parameters">
+                        <setting title="Default tenant ID">
+                            <field name="default_tenant_id" />
+                        </setting>
+                        <setting title="Default username">
+                            <field name="default_username" />
+                        </setting>
+                        <setting title="Default password">
+                            <field name="default_password" password="True" />
+                        </setting>
+                        <setting title="Default grant type">
+                            <field name="default_grant_type" password="True" />
+                        </setting>
+                        <setting title="Default authorization">
+                            <field name="default_authorization" />
+                        </setting>
+                    </block>
+                </app>
+
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_g2p_payment_manager_phee_configuration" model="ir.actions.act_window">
+        <field name="name">Settings</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_id" ref="res_config_settings_view_form_g2p_payment_manager_phee" />
+        <field name="view_mode">form</field>
+        <field name="target">inline</field>
+        <field name="context">{'module' : 'g2p_payment_phee', 'bin_size': False}</field>
+    </record>
+
+    <menuitem
+        id="menu_g2p_payment_manager_phee_configuration_settings"
+        name="Payment Hub EE API Settings"
+        parent="g2p_programs.g2p_program_configuration_menu_root"
+        sequence="1000"
+        action="action_g2p_payment_manager_phee_configuration"
+        groups="base.group_system,g2p_registry_base.group_g2p_admin"
+    />
+</odoo>

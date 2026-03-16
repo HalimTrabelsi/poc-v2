@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+   Part of OpenG2P Registry. See LICENSE file for full copyright and licensing details.
+-->
+<odoo>
+    <record id="view_relationship_tree" model="ir.ui.view">
+        <field name="name">view_relationship_tree</field>
+        <field name="model">g2p.relationship</field>
+        <field name="priority">1</field>
+        <field name="arch" type="xml">
+            <tree editable="bottom">
+                <field name="name" />
+                <field name="name_inverse" />
+                <field name="bidirectional" />
+                <field name="source_type" />
+                <field name="destination_type" />
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_relationship" model="ir.actions.act_window">
+        <field name="name">Relationship</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">g2p.relationship</field>
+        <field name="view_mode">tree</field>
+        <field name="context">{}</field>
+        <field name="domain">[]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Add a Relationship!
+            </p><p>
+                Click the create button to enter a new relationship.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_relationship_tree_view" model="ir.actions.act_window.view">
+        <field name="sequence" eval="1" />
+        <field name="view_mode">tree</field>
+        <field name="view_id" ref="view_relationship_tree" />
+        <field name="act_window_id" ref="action_relationship" />
+    </record>
+
+   <menuitem
+        id="menu_relationship"
+        name="Relationships"
+        action="action_relationship"
+        parent="g2p_configuration_menu_root"
+        sequence="20"
+        groups="g2p_registry_base.group_g2p_admin,g2p_registry_base.group_g2p_registrar"
+    />
+
+</odoo>

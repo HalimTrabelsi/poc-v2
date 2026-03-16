@@ -1,0 +1,57 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* g2p_formio
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0\n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: g2p_formio
+#: model:ir.model,name:g2p_formio.model_g2p_program_create_wizard
+msgid "Create a New Program Wizard"
+msgstr ""
+
+#. module: g2p_formio
+#: model:ir.model,name:g2p_formio.model_formio_builder
+msgid "Form Builder"
+msgstr ""
+
+#. module: g2p_formio
+#: model:ir.model.fields,field_description:g2p_formio.field_formio_builder__is_form_mapped_with_program
+msgid "Is Form Mapped"
+msgstr ""
+
+#. module: g2p_formio
+#: model:ir.model.fields,field_description:g2p_formio.field_g2p_program__is_multiple_form_submission
+#: model:ir.model.fields,field_description:g2p_formio.field_g2p_program_create_wizard__is_multiple_form_submission
+msgid "Is Multiple Form Submission"
+msgstr ""
+
+#. module: g2p_formio
+#: model_terms:ir.ui.view,arch_db:g2p_formio.self_service_create_wizard_form
+#: model_terms:ir.ui.view,arch_db:g2p_formio.self_service_portal_form
+msgid "Portal Form"
+msgstr ""
+
+#. module: g2p_formio
+#: model:ir.model,name:g2p_formio.model_g2p_program
+msgid "Program"
+msgstr ""
+
+#. module: g2p_formio
+#: model:ir.model.fields,field_description:g2p_formio.field_g2p_program__portal_form_builder_id
+#: model:ir.model.fields,field_description:g2p_formio.field_g2p_program_create_wizard__portal_form_builder_id
+msgid "Program Form"
+msgstr ""
+
+#. module: g2p_formio
+#: model_terms:ir.ui.view,arch_db:g2p_formio.program_formio_builder_tree
+msgid "record"
+msgstr ""

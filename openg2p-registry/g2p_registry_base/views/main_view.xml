@@ -1,0 +1,31 @@
+<!--
+   Part of OpenG2P Registry. See LICENSE file for full copyright and licensing details.
+-->
+<odoo>
+    <!-- Top menu item -->
+    <menuitem
+        id="g2p_main_menu_root"
+        name="Registry"
+        web_icon="g2p_registry_base,static/src/img/icons/contacts.png"
+        active="True"
+        sequence="-1"
+    />
+
+    <menuitem
+        id="g2p_data_mgmt_menu_root"
+        name="Data Management"
+        parent="g2p_main_menu_root"
+        sequence="900"
+    />
+    <menuitem
+        id="g2p_configuration_menu_root"
+        name="Configuration"
+        parent="g2p_main_menu_root"
+        sequence="1000"
+    />
+
+    <record id="contacts.res_partner_menu_contacts" model="ir.ui.menu">
+        <field name="groups_id" eval="[(4,ref('base.group_system'))]" />
+    </record>
+
+</odoo>

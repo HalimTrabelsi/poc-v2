@@ -1,0 +1,6 @@
+git+https://github.com/openspp/openspp-modules@v17.0.1.2.1#subdirectory=spp_area
+git+https://github.com/openspp/openspp-modules@v17.0.1.2.1#subdirectory=spp_registry_data_source
+git+https://github.com/openspp/openspp-modules@v17.0.1.2.1#subdirectory=spp_service_points
+git+https://github.com/openspp/openspp-modules@v17.0.1.2.1#subdirectory=spp_programs
+git+https://github.com/openspp/openspp-modules@v17.0.1.2.1#subdirectory=spp_entitlement_cash
+git+https://github.com/openspp/openspp-modules@v17.0.1.2.1#subdirectory=spp_entitlement_in_kind

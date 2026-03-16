@@ -1,0 +1,84 @@
+version: "3.8"
+
+services:
+  postgresql:
+    image: postgres:15.6
+    container_name: openg2p-postgresql
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-openg2p}
+      POSTGRES_USER: ${POSTGRES_USER:-odoo}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set in .env}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-odoo} -d ${POSTGRES_DB:-openg2p}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - openg2p-internal
+
+  spar-mapper-api:
+    build:
+      context: ./openg2p-spar
+      dockerfile: Dockerfile.mapper
+    container_name: openg2p-spar-mapper-api
+    restart: unless-stopped
+    depends_on:
+      postgresql:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    networks:
+      - openg2p-internal
+
+  spar-bene-portal-api:
+    build:
+      context: ./openg2p-spar
+      dockerfile: Dockerfile.bene-portal
+    container_name: openg2p-spar-bene-portal-api
+    restart: unless-stopped
+    depends_on:
+      postgresql:
+        condition: service_healthy
+    ports:
+      - "8001:8000"
+    networks:
+      - openg2p-internal
+
+  openg2p-odoo:
+    build:
+      context: .
+      dockerfile: Dockerfile.odoo
+    image: openg2p-odoo-stable:17.0
+    container_name: openg2p-odoo
+    restart: unless-stopped
+    depends_on:
+      postgresql:
+        condition: service_healthy
+    ports:
+      - "8069:8069"
+    environment:
+      ODOO_DATABASE_HOST: postgresql
+      ODOO_DATABASE_NAME: ${POSTGRES_DB:-openg2p}
+      ODOO_DATABASE_USER: ${POSTGRES_USER:-odoo}
+      ODOO_DATABASE_PASSWORD: ${POSTGRES_PASSWORD:?set in .env}
+      ODOO_LOAD_DEMO_DATA: "no"
+      ODOO_UPDATE: "no"
+      ODOO_ADDONS_PATH: "/opt/bitnami/odoo/addons,/opt/bitnami/odoo/extra-addons"
+
+      ODOO_ADMIN_PASSWORD: admin
+
+    volumes:
+      - odoo-data:/bitnami/odoo
+    networks:
+      - openg2p-internal
+
+networks:
+  openg2p-internal:
+    driver: bridge
+
+volumes:
+  db-data:
+  odoo-data:

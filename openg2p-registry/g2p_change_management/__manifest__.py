@@ -1,0 +1,42 @@
+# Part of OpenG2P. See LICENSE file for full copyright and licensing details.
+{
+    "name": "OpenG2P Change Management",
+    "category": "G2P",
+    "version": "17.0.0.0.0",
+    "sequence": 1,
+    "author": "OpenG2P",
+    "website": "https://openg2p.org",
+    "license": "LGPL-3",
+    "depends": [
+        "base",
+        "mail",
+        "g2p_registry_base",
+        "g2p_registry_group",
+        "g2p_registry_individual",
+        "g2p_registry_membership",
+        "g2p_registry_documents",
+        "web",
+    ],
+    "data": [
+        "security/ir.rules.xml",
+        "security/ir.model.access.csv",
+        "views/partner_views.xml",
+        "views/change_request_views.xml",
+        "views/change_log_views.xml",
+        "views/draft_record_views.xml",
+        "views/change_request_reason_views.xml",
+        "wizards/change_request_wizard.xml",
+        "wizards/bulk_operations_wizard_views.xml",
+    ],
+    "assets": {
+        "web.assets_backend": [
+            "g2p_change_management/static/src/**/*.js",
+            "g2p_change_management/static/src/**/*.css",
+            "g2p_change_management/static/src/**/*.scss",
+            "g2p_change_management/static/src/**/*.xml",
+        ],
+    },
+    "installable": True,
+    "application": True,
+    "auto_install": False,
+}

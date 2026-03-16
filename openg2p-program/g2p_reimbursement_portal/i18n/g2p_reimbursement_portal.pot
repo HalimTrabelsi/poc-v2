@@ -1,0 +1,350 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* g2p_reimbursement_portal
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0\n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: g2p_reimbursement_portal
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.reimbursement_form_submitted
+msgid ""
+"<i class=\"fa fa-print\"/>\n"
+" Print"
+msgstr ""
+
+#. module: g2p_reimbursement_portal
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.reimbursement_form_template_view
+msgid ""
+"<span class=\"s_website_form_label_content\" style=\"color: #666666;\">Date "
+"of Birth</span>"
+msgstr ""
+
+#. module: g2p_reimbursement_portal
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.reimbursement_form_template_view
+msgid ""
+"<span class=\"s_website_form_label_content\" style=\"color: #666666;\">Email"
+" Address</span>"
+msgstr ""
+
+#. module: g2p_reimbursement_portal
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.reimbursement_form_template_view
+msgid ""
+"<span class=\"s_website_form_label_content\" style=\"color: #666666;\">First"
+" Name</span>"
+msgstr ""
+
+#. module: g2p_reimbursement_portal
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.reimbursement_form_template_view
+msgid ""
+"<span class=\"s_website_form_label_content\" style=\"color: "
+"#666666;\">Gender</span>"
+msgstr ""
+
+#. module: g2p_reimbursement_portal
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.reimbursement_form_template_view
+msgid ""
+"<span class=\"s_website_form_label_content\" style=\"color: #666666;\">Last "
+"Name</span>"
+msgstr ""
+
+#. module: g2p_reimbursement_portal
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.reimbursement_form_template_view
+msgid ""
+"<span class=\"s_website_form_label_content\" style=\"color: "
+"#666666;\">Mobile Number</span>"
+msgstr ""
+
+#. module: g2p_reimbursement_portal
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.reimbursement_form_template_view
+msgid ""
+"<span class=\"s_website_form_label_content\">Amount</span>\n"
+"                                                                    <span class=\"s_website_form_mark\"> *</span>"
+msgstr ""
+
+#. module: g2p_reimbursement_portal
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.reimbursement_form_template_view
+msgid ""
+"<span class=\"s_website_form_label_content\">Invoice</span>\n"
+"                                                                    <span class=\"s_website_form_mark\"> *</span>"
+msgstr ""
+
+#. module: g2p_reimbursement_portal
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.reimbursement_form_template_view
+msgid ""
+"<span class=\"s_website_form_label_content\">Voucher Code</span>\n"
+"                                                                    <span class=\"s_website_form_mark\"> *</span>"
+msgstr ""
+
+#. module: g2p_reimbursement_portal
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.reimbursements_entitlement_view
+msgid "Actions"
+msgstr ""
+
+#. module: g2p_reimbursement_portal
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.reimbursement_form_submitted
+msgid "Application ID"
+msgstr ""
+
+#. module: g2p_reimbursement_portal
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.reimbursements_entitlement_view
+msgid "Applied"
+msgstr ""
+
+#. module: g2p_reimbursement_portal
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.reimbursements_entitlement_view
+msgid "Apply"
+msgstr ""
+
+#. module: g2p_reimbursement_portal
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.reimbursement_form_submitted
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.reimbursements_entitlement_view
+msgid "Approved"
+msgstr ""
+
+#. module: g2p_reimbursement_portal
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.reimbursement_form_submitted
+msgid "Approved On"
+msgstr ""
+
+#. module: g2p_reimbursement_portal
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.reimbursements_entitlement_view
+msgid "Assistance Amount <i class=\"fa fa-sort\"/>"
+msgstr ""
+
+#. module: g2p_reimbursement_portal
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.reimbursements_entitlement_view
+msgid "Assistance Type <i class=\"fa fa-sort\"/>"
+msgstr ""
+
+#. module: g2p_reimbursement_portal
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.reimbursement_form_template_view
+msgid "Beneficiary Details"
+msgstr ""
+
+#. module: g2p_reimbursement_portal
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.reimbursements_entitlement_view
+msgid "Beneficiary Name <i class=\"fa fa-sort\"/>"
+msgstr ""
+
+#. module: g2p_reimbursement_portal
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.reimbursement_form_template_view
+msgid "Cancel"
+msgstr ""
+
+#. module: g2p_reimbursement_portal
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.reimbursement_form_template_view
+msgid "Close"
+msgstr ""
+
+#. module: g2p_reimbursement_portal
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.reimbursement_form_submitted
+msgid "Dear"
+msgstr ""
+
+#. module: g2p_reimbursement_portal
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.dashboard_service_provider_inherited
+msgid "Details"
+msgstr ""
+
+#. module: g2p_reimbursement_portal
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.reimbursement_form_template_view
+msgid "Do you want to submit the application?"
+msgstr ""
+
+#. module: g2p_reimbursement_portal
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.reimbursement_form_template_view
+msgid "Enter Amount"
+msgstr ""
+
+#. module: g2p_reimbursement_portal
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.reimbursement_form_template_view
+msgid "Enter Voucher Code"
+msgstr ""
+
+#. module: g2p_reimbursement_portal
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.reimbursements_entitlement_view
+msgid "Entitlements | Reimbursements Portal"
+msgstr ""
+
+#. module: g2p_reimbursement_portal
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.reimbursement_form_template_view
+msgid ""
+"Fields marked with\n"
+"                                                    \"                                                    <span class=\"s_website_form_mark\">*</span>\"\n"
+"                                                    are mandatory"
+msgstr ""
+
+#. module: g2p_reimbursement_portal
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.reimbursement_form_submitted
+msgid "Go to Home"
+msgstr ""
+
+#. module: g2p_reimbursement_portal
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.reimbursement_form_submitted
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.reimbursements_entitlement_view
+msgid "Home"
+msgstr ""
+
+#. module: g2p_reimbursement_portal
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.reimbursement_home_page
+msgid "Home | Reimbursement Portal"
+msgstr ""
+
+#. module: g2p_reimbursement_portal
+#: model:ir.model.fields,field_description:g2p_reimbursement_portal.field_website_page__is_portal_form
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.website_page_properties_view_form_extended
+msgid "Is Portal Form"
+msgstr ""
+
+#. module: g2p_reimbursement_portal
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.reimbursement_profile_page
+msgid "My Profile | Reimbursement Portal"
+msgstr ""
+
+#. module: g2p_reimbursement_portal
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.reimbursements_entitlement_view
+msgid "New"
+msgstr ""
+
+#. module: g2p_reimbursement_portal
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.reimbursement_form_template_view
+msgid "New Reimbursement Request | Agent Portal"
+msgstr ""
+
+#. module: g2p_reimbursement_portal
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.reimbursement_form_template_view
+msgid "Once submitted, application can not be modified."
+msgstr ""
+
+#. module: g2p_reimbursement_portal
+#: model:ir.model,name:g2p_reimbursement_portal.model_website_page
+msgid "Page"
+msgstr ""
+
+#. module: g2p_reimbursement_portal
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.rreimbursement_portal_login_page
+msgid "Reimbursement Portal Login"
+msgstr ""
+
+#. module: g2p_reimbursement_portal
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.reimbursement_form_submitted
+msgid "Reimbursement Submission"
+msgstr ""
+
+#. module: g2p_reimbursement_portal
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.dashboard_service_provider_inherited
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.reimbursement_form_submitted
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.reimbursements_entitlement_view
+msgid "Reimbursements"
+msgstr ""
+
+#. module: g2p_reimbursement_portal
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.reimbursements_entitlement_view
+msgid "Search by Voucher ID / Beneficia…"
+msgstr ""
+
+#. module: g2p_reimbursement_portal
+#: model:ir.ui.menu,name:g2p_reimbursement_portal.menu_account_supplier
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.res_partner_view_search_g2p_inherit
+msgid "Service Provider"
+msgstr ""
+
+#. module: g2p_reimbursement_portal
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.reimbursements_entitlement_view
+msgid "Sr.No."
+msgstr ""
+
+#. module: g2p_reimbursement_portal
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.reimbursements_entitlement_view
+msgid "Status"
+msgstr ""
+
+#. module: g2p_reimbursement_portal
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.reimbursement_form_submitted
+msgid "Submission"
+msgstr ""
+
+#. module: g2p_reimbursement_portal
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.reimbursement_form_template_view
+msgid "Submission Form"
+msgstr ""
+
+#. module: g2p_reimbursement_portal
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.reimbursement_form_template_view
+msgid "Submit"
+msgstr ""
+
+#. module: g2p_reimbursement_portal
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.reimbursement_form_submitted
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.reimbursements_entitlement_view
+msgid "Submitted"
+msgstr ""
+
+#. module: g2p_reimbursement_portal
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.reimbursement_form_submitted
+msgid "Sumbitted On"
+msgstr ""
+
+#. module: g2p_reimbursement_portal
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.reimbursement_form_template_view
+msgid "Tap to know more"
+msgstr ""
+
+#. module: g2p_reimbursement_portal
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.reimbursement_form_submitted
+msgid ""
+"Thank you for submitting the reimbursement application.\n"
+"                    Your claim is being processed."
+msgstr ""
+
+#. module: g2p_reimbursement_portal
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.reimbursement_form_submitted
+msgid ""
+"Thank you. Your application has been submitted successfully.\n"
+"                                Please note your application ID for future reference -"
+msgstr ""
+
+#. module: g2p_reimbursement_portal
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.reimbursement_form_template_view
+msgid "The claim submission will be made against the above voucher ID."
+msgstr ""
+
+#. module: g2p_reimbursement_portal
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.reimbursements_entitlement_view
+msgid "View"
+msgstr ""
+
+#. module: g2p_reimbursement_portal
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.dashboard_service_provider_inherited
+msgid "View All"
+msgstr ""
+
+#. module: g2p_reimbursement_portal
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.reimbursement_form_submitted
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.reimbursement_form_template_view
+msgid "Voucher ID -"
+msgstr ""
+
+#. module: g2p_reimbursement_portal
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.reimbursements_entitlement_view
+msgid "Voucher ID <i class=\"fa fa-sort\"/>"
+msgstr ""
+
+#. module: g2p_reimbursement_portal
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.reimbursement_form_submitted
+msgid "Your application for reimbursement is approved."
+msgstr ""
+
+#. module: g2p_reimbursement_portal
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.reimbursement_form_submitted
+#: model_terms:ir.ui.view,arch_db:g2p_reimbursement_portal.reimbursement_form_template_view
+msgid "breadcrumb"
+msgstr ""

@@ -1,0 +1,41 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "openg2p-g2p-bridge-celery-workers"
+authors = [
+  { name="OpenG2P", email="info@openg2p.org" },
+]
+description = "OpenG2P G2P Bridge Celery Workers"
+readme = "README.md"
+requires-python = ">=3.7"
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)",
+  "Operating System :: OS Independent",
+]
+dependencies = [
+  "openg2p-g2pconnect-mapper-lib >=1.1.0",
+  "openg2p-g2p-bridge-models",
+  "openg2p-g2p-bridge-bank-connectors",
+  "openg2p-g2p-bridge-agency-allocator",
+  "openg2p-g2p-bridge-warehouse-allocator",
+  "openg2p-g2p-bridge-notification-connectors",
+  "openg2p-g2p-bridge-geo-resolver",
+  "fastnanoid",
+  "celery[redis]",
+  "mt-940",
+  "psycopg2",
+  "asyncpg",
+]
+dynamic = ["version"]
+
+[project.urls]
+Homepage = "https://openg2p.org"
+Documentation = "https://docs.openg2p.org/"
+Repository = "https://github.com/OpenG2P/openg2p-g2p-bridge"
+Source = "https://github.com/OpenG2P/openg2p-g2p-bridge"
+
+[tool.hatch.version]
+path = "src/openg2p_g2p_bridge_celery_workers/__init__.py"

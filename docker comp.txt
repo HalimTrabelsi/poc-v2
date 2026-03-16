@@ -1,0 +1,73 @@
+version: "3.8"
+
+services:
+  openg2p-odoo:
+    image: openg2p/openg2p-odoo-package:17.0-develop
+    container_name: openg2p-odoo
+    depends_on:
+      postgresql:
+        condition: service_healthy
+    ports:
+      - "8069:8069"
+    environment:
+      - ODOO_DATABASE_HOST=postgresql
+      - ODOO_DATABASE_NAME=openg2p
+      - ODOO_DATABASE_USER=odoo
+      - ODOO_DATABASE_PASSWORD=odoo
+      - ALLOW_EMPTY_PASSWORD=no
+      - ODOO_LOAD_DEMO_DATA=no
+      - ODOO_UPDATE=no
+      - ODOO_ADDONS_PATH=/opt/bitnami/odoo/addons,/opt/bitnami/odoo/extra-addons
+    volumes:
+      - ./openg2p-program:/opt/bitnami/odoo/extra-addons/openg2p-program
+      - ./openg2p-registry:/opt/bitnami/odoo/extra-addons/openg2p-registry
+      - ./openg2p-addons:/opt/bitnami/odoo/extra-addons/openg2p-addons
+      - ./odoo-openg2p-bot:/opt/bitnami/odoo/extra-addons/odoo-openg2p-bot
+      - ./openg2p-spar-mapper-api:/opt/bitnami/odoo/extra-addons/openg2p-spar-mapper-api
+
+      - ./server-tools:/opt/bitnami/odoo/extra-addons/server-tools
+      - ./connector:/opt/bitnami/odoo/extra-addons/connector
+
+      - ./openg2p-g2p-bridge:/opt/bitnami/odoo/extra-addons/openg2p-g2p-bridge
+      - ./openg2p-g2p-bridge-bank-connectors:/opt/bitnami/odoo/extra-addons/openg2p-g2p-bridge-bank-connectors  # Unzip first if needed
+      - ./openg2p-g2p-bridge-celery-beat-producers:/opt/bitnami/odoo/extra-addons/openg2p-g2p-bridge-celery-beat-producers
+      - ./openg2p-g2p-bridge-celery-workers:/opt/bitnami/odoo/extra-addons/openg2p-g2p-bridge-celery-workers
+      - ./openg2p-g2p-bridge-example-bank:/opt/bitnami/odoo/extra-addons/openg2p-g2p-bridge-example-bank  # Consolidate duplicates
+
+      - ./storage/storage_backend:/opt/bitnami/odoo/extra-addons/storage_backend
+      - ./storage/storage_file:/opt/bitnami/odoo/extra-addons/storage_file
+      - ./storage/storage_image:/opt/bitnami/odoo/extra-addons/storage_image
+      - ./storage/storage_image_product:/opt/bitnami/odoo/extra-addons/storage_image_product
+      - ./storage/storage_media:/opt/bitnami/odoo/extra-addons/storage_media
+      - ./storage/storage_media_product:/opt/bitnami/odoo/extra-addons/storage_media_product
+      - ./storage/storage_thumbnail:/opt/bitnami/odoo/extra-addons/storage_thumbnail
+
+      - odoo-data:/bitnami/odoo
+
+    networks:
+      - openg2p-network
+
+  postgresql:
+    image: postgres:15
+    container_name: openg2p-postgresql
+    environment:
+      - POSTGRES_DB=openg2p
+      - POSTGRES_USER=odoo
+      - POSTGRES_PASSWORD=odoo
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U odoo -d openg2p"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - openg2p-network
+
+volumes:
+  db-data:
+  odoo-data:
+
+networks:
+  openg2p-network:
+    driver: bridge

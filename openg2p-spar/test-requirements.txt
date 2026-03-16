@@ -1,0 +1,6 @@
+pytest>=8.0.0
+pytest-asyncio>=0.21.0
+pytest-cov>=4.0.0
+git+https://github.com/openg2p/openg2p-fastapi-common@v1.1.4#subdirectory=openg2p-fastapi-auth-models
+git+https://github.com/openg2p/openg2p-fastapi-common@v1.1.4#subdirectory=openg2p-fastapi-auth
+git+https://github.com/openg2p/openg2p-fastapi-common@v1.1.4#subdirectory=openg2p-fastapi-common

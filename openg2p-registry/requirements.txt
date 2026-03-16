@@ -1,0 +1,10 @@
+# generated from manifests external_dependencies
+PyLD
+cryptography>36,<37
+extendable-pydantic
+jq
+jwcrypto
+pika
+pydantic
+python-jose
+schwifty

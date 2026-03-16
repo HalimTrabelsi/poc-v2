@@ -1,0 +1,95 @@
+name: Publish to PyPI
+
+on:
+  workflow_dispatch:
+
+jobs:
+  publish-to-pypi-models:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+    - uses: actions/checkout@v3
+    - name: Install build dependencies
+      run: pip install build
+    - name: Build distribution
+      run: python -m build openg2p-g2p-bridge-models
+    - name: Publish
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        password: ${{ secrets.PYPI_API_TOKEN }}
+        packages-dir: openg2p-g2p-bridge-models/dist/
+
+  publish-to-pypi-api:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+    - uses: actions/checkout@v3
+    - name: Install build dependencies
+      run: pip install build
+    - name: Build distribution
+      run: python -m build openg2p-g2p-bridge-api
+    - name: Publish
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        password: ${{ secrets.PYPI_API_TOKEN }}
+        packages-dir: openg2p-g2p-bridge-api/dist/
+
+  publish-to-pypi-bank-connectors:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+    - uses: actions/checkout@v3
+    - name: Install build dependencies
+      run: pip install build
+    - name: Build distribution
+      run: python -m build openg2p-g2p-bridge-bank-connectors
+    - name: Publish
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        password: ${{ secrets.PYPI_API_TOKEN }}
+        packages-dir: openg2p-g2p-bridge-bank-connectors/dist/
+
+  publish-to-pypi-producers:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+    - uses: actions/checkout@v3
+    - name: Install build dependencies
+      run: pip install build
+    - name: Build distribution
+      run: python -m build openg2p-g2p-bridge-celery-beat-producers
+    - name: Publish
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        password: ${{ secrets.PYPI_API_TOKEN }}
+        packages-dir: openg2p-g2p-bridge-celery-beat-producers/dist/
+
+  publish-to-pypi-workers:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+    - uses: actions/checkout@v3
+    - name: Install build dependencies
+      run: pip install build
+    - name: Build distribution
+      run: python -m build openg2p-g2p-bridge-celery-workers
+    - name: Publish
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        password: ${{ secrets.PYPI_API_TOKEN }}
+        packages-dir: openg2p-g2p-bridge-celery-workers/dist/
