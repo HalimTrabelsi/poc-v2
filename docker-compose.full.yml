@@ -148,15 +148,12 @@ services:
       mlflow server
       --host 0.0.0.0
       --port 5000
-      --backend-store-uri postgresql://fraud:fraud123@fraud-db:5432/fraud_engine
+      --backend-store-uri /mlflow/mlruns
       --default-artifact-root /mlflow/artifacts
     ports:
       - "5000:5000"
     volumes:
       - mlflow_data:/mlflow
-    depends_on:
-      fraud-db:
-        condition: service_healthy
     networks:
       - fraud-net
 
