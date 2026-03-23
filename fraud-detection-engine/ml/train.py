@@ -11,7 +11,7 @@ import mlflow.sklearn
 from sklearn.ensemble import IsolationForest
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import (
-    roc_auc_score, f1_score,
+    auc, roc_auc_score, f1_score,
     classification_report, confusion_matrix
 )
 from xgboost import XGBClassifier
@@ -112,7 +112,7 @@ def train():
         y_proba = xgb.predict_proba(X_test)[:, 1]
         auc     = roc_auc_score(y_test, y_proba)
         f1      = f1_score(y_test, y_pred)
-
+        
         mlflow.log_metric("auc_roc",  auc)
         mlflow.log_metric("f1_score", f1)
         mlflow.log_params(xgb.get_params())
@@ -134,7 +134,8 @@ def train():
         os.makedirs("models_saved", exist_ok=True)
         joblib.dump(xgb, "models_saved/xgboost.pkl")
         joblib.dump(iso, "models_saved/isoforest.pkl")
-
+        mlflow.log_artifact("models_saved/xgboost.pkl")
+        mlflow.log_artifact("models_saved/isoforest.pkl")
         # ── Report ────────────────────────────────────────────
         print("\n" + "="*50)
         print(f"AUC-ROC : {auc:.4f}")

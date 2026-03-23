@@ -23,3 +23,5 @@ docker start openg22p-postgresql-1
 
 # 2. Wait a few seconds for the database to be fully ready, then start Odoo
 docker start openg22p-openg2p-odoo-1
+
+docker compose -f docker-compose.full.yml up -d

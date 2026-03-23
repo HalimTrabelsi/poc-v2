@@ -131,3 +131,14 @@ def _run_full_scan():
             print(f"[SCAN] Error on {row.get('beneficiary_id')}: {e}")
 
     print(f"[SCAN] Done. High risk: {high_risk}/{len(df)}")
+
+@router.get(
+    "/alerts",
+    summary="List fraud alerts"
+)
+async def list_alerts(status: str = "pending"):
+    try:
+        alerts = get_fraud_db().get_alerts(status=status)
+        return {"alerts": alerts, "total": len(alerts)}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

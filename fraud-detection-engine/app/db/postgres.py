@@ -189,3 +189,31 @@ def get_fraud_db() -> FraudDatabase:
     if _fraud_db is None:
         _fraud_db = FraudDatabase()
     return _fraud_db
+def get_cases(self, limit: int = 50) -> list[dict]:
+    query = text("""
+        SELECT
+            fc.id,
+            fc.alert_id,
+            fc.assigned_to,
+            fc.resolution,
+            fc.notes,
+            fc.resolved_at,
+            fc.created_at,
+            fa.beneficiary_id,
+            fa.risk_score,
+            fa.risk_level,
+            fa.action,
+            fa.rule_flags,
+            fa.explanation,
+            fa.status
+        FROM fraud_cases fc
+        JOIN fraud_alerts fa ON fa.id = fc.alert_id
+        ORDER BY fc.created_at DESC
+        LIMIT :limit
+    """)
+    try:
+        df = pd.read_sql(query, self.engine, params={"limit": limit})
+        return df.to_dict(orient="records")
+    except Exception as e:
+        print(f"[Fraud DB Error] {e}")
+        return []

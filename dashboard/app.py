@@ -163,13 +163,13 @@ elif page == "📋 Cas de fraude":
 
     try:
         resp  = requests.get(
-            f"{API_URL}/api/v1/cases?status=pending", timeout=5
+    f"{API_URL}/api/v1/alerts?status=pending", timeout=5
         )
         data  = resp.json()
-        cases = data.get("cases", [])
+        alerts = data.get("alerts", [])
 
-        if cases:
-            st.dataframe(pd.DataFrame(cases), use_container_width=True)
+        if alerts:
+            st.dataframe(pd.DataFrame(alerts), use_container_width=True)
         else:
             st.info("Aucun cas en attente de révision.")
     except Exception:
