@@ -35,7 +35,11 @@ services:
     ports:
       - "8002:8001"
     environment:
+  # DB du POC OpenG2P (pour lire les données bénéficiaires)
+      OPENG2P_DB_URL: postgresql://odoo:${POSTGRES_PASSWORD}@postgresql:5432/openg2p
+  # DB dédiée fraud engine (pour stocker les alertes)
       DB_URL: postgresql://fraud:fraud123@fraud-db:5432/fraud_engine
+
       MLFLOW_TRACKING_URI: http://mlflow:5000
       CHROMADB_HOST: chromadb
       CHROMADB_PORT: 8000
@@ -55,6 +59,8 @@ services:
         condition: service_started
     networks:
       - fraud-net
+      - openg2p-internal
+
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
       interval: 30s
@@ -171,11 +177,16 @@ services:
       - fraud-net
     depends_on:
       - fraud-engine
+      - openg2p-internal   
 
 networks:
   fraud-net:
     driver: bridge
     name: fraud-net
+  
+  openg2p-internal:
+    external: true
+    name: openg2p-internal
 
 volumes:
   fraud_pgdata:
