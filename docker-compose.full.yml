@@ -1,10 +1,85 @@
-version: "3.9"
-
 services:
 
-  # ─────────────────────────────────────────
-  # PostgreSQL dédié Fraud Engine
-  # ─────────────────────────────────────────
+  # ═══════════════════════════════════════════════════════════
+  # POC OpenG2P — Services existants (inchangés)
+  # ═══════════════════════════════════════════════════════════
+
+  postgresql:
+    image: postgres:15.6
+    container_name: openg2p-postgresql
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-openg2p}
+      POSTGRES_USER: ${POSTGRES_USER:-odoo}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set in .env}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-odoo} -d ${POSTGRES_DB:-openg2p}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - openg2p-internal
+
+  spar-mapper-api:
+    build:
+      context: ./openg2p-spar
+      dockerfile: Dockerfile.mapper
+    container_name: openg2p-spar-mapper-api
+    restart: unless-stopped
+    depends_on:
+      postgresql:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    networks:
+      - openg2p-internal
+
+  spar-bene-portal-api:
+    build:
+      context: ./openg2p-spar
+      dockerfile: Dockerfile.bene-portal
+    container_name: openg2p-spar-bene-portal-api
+    restart: unless-stopped
+    depends_on:
+      postgresql:
+        condition: service_healthy
+    ports:
+      - "8001:8000"
+    networks:
+      - openg2p-internal
+
+  openg2p-odoo:
+    build:
+      context: .
+      dockerfile: Dockerfile.odoo
+    image: openg2p-odoo-stable:17.0
+    container_name: openg2p-odoo
+    restart: unless-stopped
+    depends_on:
+      postgresql:
+        condition: service_healthy
+    ports:
+      - "8069:8069"
+    environment:
+      ODOO_DATABASE_HOST: postgresql
+      ODOO_DATABASE_NAME: ${POSTGRES_DB:-openg2p}
+      ODOO_DATABASE_USER: ${POSTGRES_USER:-odoo}
+      ODOO_DATABASE_PASSWORD: ${POSTGRES_PASSWORD:?set in .env}
+      ODOO_LOAD_DEMO_DATA: "no"
+      ODOO_UPDATE: "no"
+      ODOO_ADDONS_PATH: "/opt/bitnami/odoo/addons,/opt/bitnami/odoo/extra-addons"
+      ODOO_ADMIN_PASSWORD: admin
+    volumes:
+      - odoo-data:/bitnami/odoo
+    networks:
+      - openg2p-internal
+
+  # ═══════════════════════════════════════════════════════════
+  # FRAUD ENGINE — Nouveaux services
+  # ═══════════════════════════════════════════════════════════
+
   fraud-db:
     image: postgres:15-alpine
     container_name: fraud-db
@@ -25,7 +100,6 @@ services:
       interval: 10s
       retries: 5
 
-
   fraud-engine:
     build:
       context: ./fraud-detection-engine
@@ -35,11 +109,10 @@ services:
     ports:
       - "8002:8001"
     environment:
-  # DB du POC OpenG2P (pour lire les données bénéficiaires)
-      OPENG2P_DB_URL: postgresql://odoo:${POSTGRES_PASSWORD}@postgresql:5432/openg2p
-  # DB dédiée fraud engine (pour stocker les alertes)
+      # DB OpenG2P — lecture des bénéficiaires
+      OPENG2P_DB_URL: postgresql://${POSTGRES_USER:-odoo}:${POSTGRES_PASSWORD}@postgresql:5432/${POSTGRES_DB:-openg2p}
+      # DB Fraud — stockage des alertes
       DB_URL: postgresql://fraud:fraud123@fraud-db:5432/fraud_engine
-
       MLFLOW_TRACKING_URI: http://mlflow:5000
       CHROMADB_HOST: chromadb
       CHROMADB_PORT: 8000
@@ -51,6 +124,8 @@ services:
       - ./fraud-detection-engine/ml/rules:/app/ml/rules
       - ./fraud-detection-engine/models_saved:/app/models_saved
     depends_on:
+      postgresql:
+        condition: service_healthy
       fraud-db:
         condition: service_healthy
       mlflow:
@@ -58,17 +133,13 @@ services:
       chromadb:
         condition: service_started
     networks:
-      - fraud-net
-      - openg2p-internal
-
+      - openg2p-internal   # pour lire les données OpenG2P
+      - fraud-net          # pour parler à MLflow, ChromaDB, Ollama
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
       interval: 30s
       retries: 3
 
-  # ─────────────────────────────────────────
-  # MLflow — Model Registry
-  # ─────────────────────────────────────────
   mlflow:
     image: ghcr.io/mlflow/mlflow:v2.11.0
     container_name: mlflow
@@ -89,10 +160,6 @@ services:
     networks:
       - fraud-net
 
-  # ─────────────────────────────────────────
-  # ChromaDB — Vector Store
-  # port 8000 occupé par SPAR Mapper → on utilise 5001
-  # ─────────────────────────────────────────
   chromadb:
     image: chromadb/chroma:0.5.0
     container_name: chromadb
@@ -106,9 +173,6 @@ services:
     networks:
       - fraud-net
 
-  # ─────────────────────────────────────────
-  # Ollama — LLM local (Mistral)
-  # ─────────────────────────────────────────
   ollama:
     image: ollama/ollama:latest
     container_name: ollama
@@ -120,9 +184,6 @@ services:
     networks:
       - fraud-net
 
-  # ─────────────────────────────────────────
-  # Prometheus — Métriques
-  # ─────────────────────────────────────────
   prometheus:
     image: prom/prometheus:v2.51.0
     container_name: prometheus
@@ -138,9 +199,6 @@ services:
     networks:
       - fraud-net
 
-  # ─────────────────────────────────────────
-  # Grafana — Dashboards
-  # ─────────────────────────────────────────
   grafana:
     image: grafana/grafana:10.4.0
     container_name: grafana
@@ -160,9 +218,6 @@ services:
     networks:
       - fraud-net
 
-  # ─────────────────────────────────────────
-  # Streamlit Dashboard
-  # ─────────────────────────────────────────
   dashboard:
     build:
       context: ./dashboard
@@ -177,18 +232,25 @@ services:
       - fraud-net
     depends_on:
       - fraud-engine
-      - openg2p-internal   
 
+# ═══════════════════════════════════════════════════════════
+# RÉSEAUX
+# ═══════════════════════════════════════════════════════════
 networks:
+  openg2p-internal:
+    driver: bridge
+    name: openg2p-internal
+
   fraud-net:
     driver: bridge
     name: fraud-net
-  
-  openg2p-internal:
-    external: true
-    name: openg2p-internal
 
+# ═══════════════════════════════════════════════════════════
+# VOLUMES
+# ═══════════════════════════════════════════════════════════
 volumes:
+  db-data:
+  odoo-data:
   fraud_pgdata:
   mlflow_data:
   chroma_data:

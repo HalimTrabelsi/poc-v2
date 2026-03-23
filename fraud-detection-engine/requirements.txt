@@ -10,7 +10,7 @@ psycopg2-binary==2.9.9
 pandas==2.2.1
 
 # ML Core
-scikit-learn==1.4.1
+scikit-learn==1.4.2
 xgboost==2.0.3
 imbalanced-learn==0.12.0
 shap==0.45.0
