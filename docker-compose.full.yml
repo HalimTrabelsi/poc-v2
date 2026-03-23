@@ -1,0 +1,185 @@
+version: "3.9"
+
+services:
+
+  # ─────────────────────────────────────────
+  # PostgreSQL dédié Fraud Engine
+  # ─────────────────────────────────────────
+  fraud-db:
+    image: postgres:15-alpine
+    container_name: fraud-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: fraud_engine
+      POSTGRES_USER: fraud
+      POSTGRES_PASSWORD: fraud123
+    volumes:
+      - fraud_pgdata:/var/lib/postgresql/data
+      - ./scripts/init_db.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5433:5432"
+    networks:
+      - fraud-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fraud"]
+      interval: 10s
+      retries: 5
+
+
+  fraud-engine:
+    build:
+      context: ./fraud-detection-engine
+      dockerfile: Dockerfile
+    container_name: fraud-engine
+    restart: unless-stopped
+    ports:
+      - "8002:8001"
+    environment:
+      DB_URL: postgresql://fraud:fraud123@fraud-db:5432/fraud_engine
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+      CHROMADB_HOST: chromadb
+      CHROMADB_PORT: 8000
+      OLLAMA_HOST: http://ollama:11434
+      RULES_PATH: /app/ml/rules/fraud_rules.json
+      MODELS_DIR: /app/models_saved
+      ENV: development
+    volumes:
+      - ./fraud-detection-engine/ml/rules:/app/ml/rules
+      - ./fraud-detection-engine/models_saved:/app/models_saved
+    depends_on:
+      fraud-db:
+        condition: service_healthy
+      mlflow:
+        condition: service_started
+      chromadb:
+        condition: service_started
+    networks:
+      - fraud-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      retries: 3
+
+  # ─────────────────────────────────────────
+  # MLflow — Model Registry
+  # ─────────────────────────────────────────
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v2.11.0
+    container_name: mlflow
+    restart: unless-stopped
+    command: >
+      mlflow server
+      --host 0.0.0.0
+      --port 5000
+      --backend-store-uri postgresql://fraud:fraud123@fraud-db:5432/fraud_engine
+      --default-artifact-root /mlflow/artifacts
+    ports:
+      - "5000:5000"
+    volumes:
+      - mlflow_data:/mlflow
+    depends_on:
+      fraud-db:
+        condition: service_healthy
+    networks:
+      - fraud-net
+
+  # ─────────────────────────────────────────
+  # ChromaDB — Vector Store
+  # port 8000 occupé par SPAR Mapper → on utilise 5001
+  # ─────────────────────────────────────────
+  chromadb:
+    image: chromadb/chroma:0.5.0
+    container_name: chromadb
+    restart: unless-stopped
+    ports:
+      - "5001:8000"
+    volumes:
+      - chroma_data:/chroma/chroma
+    environment:
+      ANONYMIZED_TELEMETRY: "false"
+    networks:
+      - fraud-net
+
+  # ─────────────────────────────────────────
+  # Ollama — LLM local (Mistral)
+  # ─────────────────────────────────────────
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    networks:
+      - fraud-net
+
+  # ─────────────────────────────────────────
+  # Prometheus — Métriques
+  # ─────────────────────────────────────────
+  prometheus:
+    image: prom/prometheus:v2.51.0
+    container_name: prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.enable-lifecycle"
+    networks:
+      - fraud-net
+
+  # ─────────────────────────────────────────
+  # Grafana — Dashboards
+  # ─────────────────────────────────────────
+  grafana:
+    image: grafana/grafana:10.4.0
+    container_name: grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+    depends_on:
+      - prometheus
+    networks:
+      - fraud-net
+
+  # ─────────────────────────────────────────
+  # Streamlit Dashboard
+  # ─────────────────────────────────────────
+  dashboard:
+    build:
+      context: ./dashboard
+      dockerfile: Dockerfile
+    container_name: streamlit-dashboard
+    restart: unless-stopped
+    ports:
+      - "8501:8501"
+    environment:
+      FRAUD_ENGINE_URL: http://fraud-engine:8001
+    networks:
+      - fraud-net
+    depends_on:
+      - fraud-engine
+
+networks:
+  fraud-net:
+    driver: bridge
+    name: fraud-net
+
+volumes:
+  fraud_pgdata:
+  mlflow_data:
+  chroma_data:
+  ollama_data:
+  grafana_data:

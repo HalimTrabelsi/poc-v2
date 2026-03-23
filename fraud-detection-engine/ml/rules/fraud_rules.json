@@ -1,0 +1,66 @@
+{
+  "version": "1.0.0",
+  "description": "Regles de detection de fraude OpenG2P",
+  "rules": [
+    {
+      "id": "R001",
+      "name": "Multi-inscription programmes",
+      "field": "nb_programs",
+      "op": "gt",
+      "value": 3,
+      "weight": 0.40,
+      "severity": "HIGH",
+      "flag": "MULTI_PROGRAM_ENROLLMENT"
+    },
+    {
+      "id": "R002",
+      "name": "Montant anormal vs moyenne zone",
+      "field": "amount_ratio",
+      "op": "gt",
+      "value": 2.5,
+      "weight": 0.35,
+      "severity": "HIGH",
+      "flag": "ABNORMAL_AMOUNT"
+    },
+    {
+      "id": "R003",
+      "name": "Changements compte frequents 30j",
+      "field": "account_changes_30d",
+      "op": "gt",
+      "value": 3,
+      "weight": 0.35,
+      "severity": "HIGH",
+      "flag": "FREQUENT_ACCOUNT_CHANGE"
+    },
+    {
+      "id": "R004",
+      "name": "Composition menage atypique",
+      "field": "household_size",
+      "op": "gt",
+      "value": 12,
+      "weight": 0.25,
+      "severity": "MEDIUM",
+      "flag": "ATYPICAL_HOUSEHOLD"
+    },
+    {
+      "id": "R005",
+      "name": "Echecs paiement multiples",
+      "field": "nb_payment_failures",
+      "op": "gt",
+      "value": 5,
+      "weight": 0.30,
+      "severity": "MEDIUM",
+      "flag": "MULTIPLE_PAYMENT_FAILURES"
+    },
+    {
+      "id": "R006",
+      "name": "Zone geographique a risque",
+      "field": "location_risk_score",
+      "op": "gt",
+      "value": 0.75,
+      "weight": 0.20,
+      "severity": "MEDIUM",
+      "flag": "HIGH_RISK_LOCATION"
+    }
+  ]
+}
