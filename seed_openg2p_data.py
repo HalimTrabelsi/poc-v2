@@ -45,6 +45,18 @@ def get_engine():
     return create_engine(OPENG2P_DB_URL, pool_pre_ping=True)
 
 
+def get_table_columns(engine, table_name: str) -> set:
+    """Retourne l'ensemble des colonnes d'une table PostgreSQL."""
+    query = text("""
+        SELECT column_name
+        FROM information_schema.columns
+        WHERE table_schema = current_schema()
+          AND table_name = :table_name
+    """)
+    df = pd.read_sql(query, engine, params={"table_name": table_name})
+    return set(df["column_name"].tolist())
+
+
 def load_partners(engine) -> pd.DataFrame:
     """Charge tous les res_partner existants"""
     query = text("""
@@ -87,8 +99,7 @@ def generate_programs(engine):
             print(f"⏭️  {result} programmes déjà présents")
             return pd.read_sql("SELECT id, name FROM g2p_program", engine)
 
-        rows = []
-        for i, p in enumerate(programs):
+        for p in programs:
             conn.execute(text("""
                 INSERT INTO g2p_program (name, active, create_date, write_date)
                 VALUES (:name, true, NOW(), NOW())
@@ -115,14 +126,15 @@ def generate_cycles(engine, programs_df: pd.DataFrame) -> pd.DataFrame:
                 end   = start + timedelta(days=89)
                 conn.execute(text("""
                     INSERT INTO g2p_cycle
-                        (name, program_id, start_date, end_date, state,
+                        (name, program_id, sequence, start_date, end_date, state,
                          create_date, write_date)
                     VALUES
-                        (:name, :program_id, :start, :end, 'ended',
+                        (:name, :program_id, :sequence, :start, :end, 'ended',
                          NOW(), NOW())
                 """), {
                     "name":       f"Cycle {c+1} - {prog['name'][:20]}",
                     "program_id": int(prog["id"]),
+                    "sequence":   c + 1,
                     "start":      start,
                     "end":        end,
                 })
@@ -167,13 +179,12 @@ def generate_registrations(engine, partners_df, programs_df):
         selected = programs_df.sample(min(n_prog, len(programs_df)))
 
         for _, prog in selected.iterrows():
-            pmt = np.random.uniform(0.1, 0.4) if is_fraud else \
-                  np.random.uniform(0.3, 0.9)
+            pmt = np.random.uniform(0.1, 0.4) if is_fraud else np.random.uniform(0.3, 0.9)
             rows.append({
                 "registrant_id":   int(partner["id"]),
                 "program_id":      int(prog["id"]),
                 "pmt_score":       round(pmt, 4),
-                "latest_pmt_score":round(pmt, 4),
+                "latest_pmt_score": round(pmt, 4),
             })
 
     df_rows = pd.DataFrame(rows)
@@ -217,7 +228,6 @@ def generate_phones(engine, partners_df, fraud_mask):
     ]
 
     rows = []
-    fraud_phone_groups = {}
     shared_count = 0
 
     for i, (_, partner) in enumerate(partners_df.iterrows()):
@@ -251,7 +261,7 @@ def generate_phones(engine, partners_df, fraud_mask):
 
 # ══════════════════════════════════════════════════════════════
 # ÉTAPE 5 — Comptes bancaires (scénario fraude : partage)
-# ══════════════════════════════════════════════════════════════
+# ═════════════════════════════════════════════════════════════
 
 def generate_bank_accounts(engine, partners_df, fraud_mask):
     """
@@ -265,6 +275,12 @@ def generate_bank_accounts(engine, partners_df, fraud_mask):
         if result > 0:
             print(f"⏭️  {result} comptes bancaires déjà présents")
             return
+
+    bank_cols = get_table_columns(engine, "res_partner_bank")
+    account_col = "account_number" if "account_number" in bank_cols else "acc_number" if "acc_number" in bank_cols else None
+    if account_col is None or "partner_id" not in bank_cols:
+        print("⚠️  res_partner_bank: colonnes attendues absentes, seed des comptes ignoré")
+        return
 
     # Pool de comptes partagés pour fraudeurs
     shared_accounts = [
@@ -286,19 +302,22 @@ def generate_bank_accounts(engine, partners_df, fraud_mask):
             account = f"MA{np.random.randint(100000000000, 999999999999)}"
 
         rows.append({
-            "partner_id":     int(partner["id"]),
-            "account_number": account,
+            "partner_id": int(partner["id"]),
+            "account_value": account,
         })
 
     with engine.begin() as conn:
         for row in rows:
-            conn.execute(text("""
-                INSERT INTO res_partner_bank
-                    (partner_id, account_number, create_date, write_date)
-                VALUES
-                    (:partner_id, :account_number, NOW(), NOW())
-                ON CONFLICT DO NOTHING
-            """), row)
+            conn.execute(
+                text(f"""
+                    INSERT INTO res_partner_bank
+                        (partner_id, {account_col}, create_date, write_date)
+                    VALUES
+                        (:partner_id, :account_value, NOW(), NOW())
+                    ON CONFLICT DO NOTHING
+                """),
+                row,
+            )
 
     print(f"✅ {len(rows)} comptes créés ({shared_count} partagés = fraude)")
 
@@ -321,6 +340,12 @@ def generate_payments(engine, partners_df, cycles_df, fraud_mask):
         if result > 0:
             print(f"⏭️  {result} paiements déjà présents")
             return
+
+    payment_cols = get_table_columns(engine, "g2p_payment")
+    required_cols = {"partner_id", "cycle_id", "amount_issued", "amount_paid"}
+    if not required_cols.issubset(payment_cols):
+        print("⚠️  g2p_payment: schéma incompatible avec le seed simplifié, paiements ignorés")
+        return
 
     # Charger les inscriptions pour savoir quel cycle → quel partenaire
     registrations = pd.read_sql("""
@@ -366,7 +391,7 @@ def generate_payments(engine, partners_df, cycles_df, fraud_mask):
                             "amount_issued":   round(amount_issued, 2),
                             "amount_paid":     round(amount_paid, 2),
                             "status":          "paid",
-                            "payment_datetime":datetime.now() - timedelta(
+                            "payment_datetime": datetime.now() - timedelta(
                                 days=np.random.randint(1, 365)),
                         })
                     continue
@@ -382,20 +407,23 @@ def generate_payments(engine, partners_df, cycles_df, fraud_mask):
                 "amount_issued":   round(amount_issued, 2),
                 "amount_paid":     round(amount_paid, 2),
                 "status":          "paid",
-                "payment_datetime":datetime.now() - timedelta(
+                "payment_datetime": datetime.now() - timedelta(
                     days=np.random.randint(1, 365)),
             })
 
     with engine.begin() as conn:
         for row in rows:
-            conn.execute(text("""
-                INSERT INTO g2p_payment
-                    (partner_id, cycle_id, amount_issued, amount_paid,
-                     status, payment_datetime, create_date, write_date)
-                VALUES
-                    (:partner_id, :cycle_id, :amount_issued, :amount_paid,
-                     :status, :payment_datetime, NOW(), NOW())
-            """), row)
+            conn.execute(
+                text("""
+                    INSERT INTO g2p_payment
+                        (partner_id, cycle_id, amount_issued, amount_paid,
+                         status, payment_datetime, create_date, write_date)
+                    VALUES
+                        (:partner_id, :cycle_id, :amount_issued, :amount_paid,
+                         :status, :payment_datetime, NOW(), NOW())
+                """),
+                row,
+            )
 
     print(f"✅ {len(rows)} paiements créés")
 
@@ -411,7 +439,73 @@ def extract_features_for_ml(engine) -> pd.DataFrame:
     """
     print("\n🔧 Extraction des features ML depuis OpenG2P...")
 
-    query = text("""
+    bank_cols = get_table_columns(engine, "res_partner_bank")
+    bank_account_col = "account_number" if "account_number" in bank_cols else "acc_number" if "acc_number" in bank_cols else None
+    if bank_account_col and "partner_id" in bank_cols:
+        bank_cte = f"""
+    bank_info AS (
+        SELECT
+            rb.partner_id,
+            COUNT(DISTINCT rb2.partner_id) - 1                AS shared_account_count
+        FROM res_partner_bank rb
+        JOIN res_partner_bank rb2 ON rb.{bank_account_col} = rb2.{bank_account_col}
+            AND rb.partner_id != rb2.partner_id
+        GROUP BY rb.partner_id
+    )
+    """
+    else:
+        bank_cte = """
+    bank_info AS (
+        SELECT NULL::int AS partner_id, 0::int AS shared_account_count
+        WHERE FALSE
+    )
+    """
+
+    payment_cols = get_table_columns(engine, "g2p_payment")
+    if "partner_id" in payment_cols:
+        payment_partner_expr = "pay.partner_id"
+        payment_join_sql = ""
+    elif "entitlement_id" in payment_cols and "id" in get_table_columns(engine, "g2p_entitlement"):
+        payment_partner_expr = "ent.partner_id"
+        payment_join_sql = "JOIN g2p_entitlement ent ON ent.id = pay.entitlement_id"
+    else:
+        payment_partner_expr = None
+        payment_join_sql = ""
+
+    if payment_partner_expr:
+        payment_cte = f"""
+    payment_info AS (
+        SELECT
+            {payment_partner_expr}                            AS partner_id,
+            SUM(pay.amount_issued)                            AS total_amount_issued,
+            SUM(pay.amount_paid)                              AS total_amount_paid,
+            SUM(pay.amount_issued - pay.amount_paid)          AS payment_gap,
+            CASE WHEN SUM(pay.amount_issued) > 0
+                 THEN SUM(pay.amount_issued - pay.amount_paid)
+                      / SUM(pay.amount_issued)
+                 ELSE 0 END                                   AS payment_gap_ratio,
+            COUNT(pay.id)                                     AS payment_count,
+            COUNT(DISTINCT pay.cycle_id)                      AS payment_count_in_cycle
+        FROM g2p_payment pay
+        {payment_join_sql}
+        GROUP BY {payment_partner_expr}
+    )
+    """
+    else:
+        payment_cte = """
+    payment_info AS (
+        SELECT NULL::int AS partner_id,
+               0::numeric AS total_amount_issued,
+               0::numeric AS total_amount_paid,
+               0::numeric AS payment_gap,
+               0::numeric AS payment_gap_ratio,
+               0::int AS payment_count,
+               0::int AS payment_count_in_cycle
+        WHERE FALSE
+    )
+    """
+
+    query = text(f"""
     WITH
     -- Profil de base
     partner_base AS (
@@ -444,21 +538,7 @@ def extract_features_for_ml(engine) -> pd.DataFrame:
     ),
 
     -- Paiements
-    payment_info AS (
-        SELECT
-            pay.partner_id,
-            SUM(pay.amount_issued)                            AS total_amount_issued,
-            SUM(pay.amount_paid)                              AS total_amount_paid,
-            SUM(pay.amount_issued - pay.amount_paid)          AS payment_gap,
-            CASE WHEN SUM(pay.amount_issued) > 0
-                 THEN SUM(pay.amount_issued - pay.amount_paid)
-                      / SUM(pay.amount_issued)
-                 ELSE 0 END                                   AS payment_gap_ratio,
-            COUNT(pay.id)                                     AS payment_count,
-            COUNT(DISTINCT pay.cycle_id)                      AS payment_count_in_cycle
-        FROM g2p_payment pay
-        GROUP BY pay.partner_id
-    ),
+    {payment_cte},
 
     -- Réseau téléphonique (partage de numéro = fraude)
     phone_info AS (
@@ -472,21 +552,13 @@ def extract_features_for_ml(engine) -> pd.DataFrame:
     ),
 
     -- Réseau bancaire (partage de compte = fraude)
-    bank_info AS (
-        SELECT
-            rb.partner_id,
-            COUNT(DISTINCT rb2.partner_id) - 1                AS shared_account_count
-        FROM res_partner_bank rb
-        JOIN res_partner_bank rb2 ON rb.account_number = rb2.account_number
-            AND rb.partner_id != rb2.partner_id
-        GROUP BY rb.partner_id
-    ),
+    {bank_cte},
 
     -- Groupes
     group_info AS (
         SELECT
             gm.individual                                     AS partner_id,
-            COUNT(DISTINCT gm.group)                          AS active_group_memberships
+            COUNT(DISTINCT gm."group")                        AS active_group_memberships
         FROM g2p_group_membership gm
         GROUP BY gm.individual
     )
