@@ -17,6 +17,7 @@ dist/
 postgres_data/
 odoo_addons/
 volumes/
+data/
 *.log
 *.pkl
 *.joblib

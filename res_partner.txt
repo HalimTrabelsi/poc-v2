@@ -1,0 +1,119 @@
+                        column_name                        |          data_type          | is_nullable
+-----------------------------------------------------------+-----------------------------+-------------
+ id                                                        | integer                     | NO
+ company_id                                                | integer                     | NO
+ create_date                                               | timestamp without time zone | YES
+ name                                                      | character varying           | YES
+ title                                                     | integer                     | YES
+ parent_id                                                 | integer                     | YES
+ user_id                                                   | integer                     | YES
+ state_id                                                  | integer                     | YES
+ country_id                                                | integer                     | YES
+ industry_id                                               | integer                     | YES
+ color                                                     | integer                     | YES
+ commercial_partner_id                                     | integer                     | YES
+ create_uid                                                | integer                     | YES
+ write_uid                                                 | integer                     | YES
+ complete_name                                             | character varying           | YES
+ ref                                                       | character varying           | YES
+ lang                                                      | character varying           | YES
+ tz                                                        | character varying           | YES
+ vat                                                       | character varying           | YES
+ company_registry                                          | character varying           | YES
+ website                                                   | character varying           | YES
+ function                                                  | character varying           | YES
+ type                                                      | character varying           | YES
+ street                                                    | character varying           | YES
+ street2                                                   | character varying           | YES
+ zip                                                       | character varying           | YES
+ city                                                      | character varying           | YES
+ email                                                     | character varying           | YES
+ phone                                                     | character varying           | YES
+ mobile                                                    | character varying           | YES
+ commercial_company_name                                   | character varying           | YES
+ company_name                                              | character varying           | YES
+ date                                                      | date                        | YES
+ comment                                                   | text                        | YES
+ partner_latitude                                          | numeric                     | YES
+ partner_longitude                                         | numeric                     | YES
+ active                                                    | boolean                     | YES
+ employee                                                  | boolean                     | YES
+ is_company                                                | boolean                     | YES
+ partner_share                                             | boolean                     | YES
+ write_date                                                | timestamp without time zone | YES
+ message_bounce                                            | integer                     | YES
+ email_normalized                                          | character varying           | YES
+ signup_type                                               | character varying           | YES
+ signup_expiration                                         | timestamp without time zone | YES
+ signup_token                                              | character varying           | YES
+ calendar_last_notif_ack                                   | timestamp without time zone | YES
+ partner_gid                                               | integer                     | YES
+ additional_info                                           | character varying           | YES
+ phone_sanitized                                           | character varying           | YES
+ disabled_by                                               | integer                     | YES
+ district                                                  | integer                     | YES
+ civil_status                                              | character varying           | YES
+ occupation                                                | character varying           | YES
+ registration_date                                         | date                        | YES
+ address                                                   | text                        | YES
+ disabled_reason                                           | text                        | YES
+ is_registrant                                             | boolean                     | YES
+ is_group                                                  | boolean                     | YES
+ disabled                                                  | timestamp without time zone | YES
+ income                                                    | double precision            | YES
+ supplier_rank                                             | integer                     | YES
+ customer_rank                                             | integer                     | YES
+ invoice_warn                                              | character varying           | YES
+ invoice_warn_msg                                          | text                        | YES
+ debit_limit                                               | numeric                     | YES
+ last_time_entries_checked                                 | timestamp without time zone | YES
+ kind                                                      | integer                     | YES
+ is_partial_group                                          | boolean                     | YES
+ family_name                                               | character varying           | YES
+ given_name                                                | character varying           | YES
+ addl_name                                                 | character varying           | YES
+ birth_place                                               | character varying           | YES
+ gender                                                    | character varying           | YES
+ birthdate                                                 | date                        | YES
+ birthdate_not_exact                                       | boolean                     | YES
+ picking_warn                                              | character varying           | YES
+ picking_warn_msg                                          | text                        | YES
+ website_id                                                | integer                     | YES
+ is_published                                              | boolean                     | YES
+ ubl_cii_format                                            | character varying           | YES
+ peppol_endpoint                                           | character varying           | YES
+ peppol_eas                                                | character varying           | YES
+ enumerator_id                                             | integer                     | YES
+ eid                                                       | character varying           | YES
+ z_ind_grp_num_individuals                                 | integer                     | YES
+ force_recompute_canary                                    | timestamp without time zone | YES
+ area_id                                                   | integer                     | YES
+ program_membership_count                                  | integer                     | YES
+ entitlements_count                                        | integer                     | YES
+ cycles_count                                              | integer                     | YES
+ id_pdf_filename                                           | character varying           | YES
+ image_1920_filename                                       | character varying           | YES
+data_source_id                                            | integer                     | YES
+ inkind_entitlements_count                                 | integer                     | YES
+ z_cst_indv_disability_level                               | integer                     | YES
+ z_ind_grp_num_children                                    | integer                     | YES
+ z_ind_grp_num_elderly                                     | integer                     | YES
+ z_ind_grp_num_adults_male_not_elderly                     | integer                     | YES
+ z_ind_grp_num_adults_female_not_elderly                   | integer                     | YES
+ z_ind_grp_num_cyclone_aug_2022_injured                    | integer                     | YES
+ z_ind_grp_num_receive_government_benefits                 | integer                     | YES
+ z_ind_grp_num_cyclone_aug_2022_lost_livestock             | integer                     | YES
+ z_ind_grp_num_cyclone_aug_2022_lost_primary_source_income | integer                     | YES
+ z_ind_grp_num_disability                                  | integer                     | YES
+ z_ind_grp_num_single_child_less_36m_with_birth_cert       | integer                     | YES
+ z_ind_grp_num_twin_less_36m_with_birth_cert               | integer                     | YES
+ z_ind_grp_num_triplets_more_less_36m_with_birth_cert      | integer                     | YES
+ z_cst_indv_cyclone_aug_2022_injured                       | boolean                     | YES
+ z_cst_indv_receive_government_benefits                    | boolean                     | YES
+ z_cst_indv_cyclone_aug_2022_lost_livestock                | boolean                     | YES
+ z_cst_indv_cyclone_aug_2022_lost_primary_source_income    | boolean                     | YES
+ z_cst_indv_has_birth_certificate                          | boolean                     | YES
+ z_ind_grp_is_hh_with_disabled                             | boolean                     | YES
+ z_ind_grp_is_single_head_hh                               | boolean                     | YES
+ z_ind_grp_is_elderly_head_hh                              | boolean                     | YES
+ mode_of_payment                                           | character varying           | YES

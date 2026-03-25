@@ -25,3 +25,109 @@ docker start openg22p-postgresql-1
 docker start openg22p-openg2p-odoo-1
 
 docker compose -f docker-compose.full.yml up -d
+
+👤 A. Bénéficiaires / identité (CORE)
+
+👉 c’est la base de tout ton modèle
+
+res_partner ⭐⭐⭐ (TRÈS IMPORTANT)
+g2p_reg_id
+g2p_reg_rel
+g2p_group_membership
+g2p_group_kind
+g2p_relationship
+
+💡 Ces tables vont te donner :
+
+identité
+ménage
+relations entre individus
+composition des foyers
+
+foyers
+📞 B. Contact / duplication (TRÈS IMPORTANT pour fraude)
+g2p_phone_number ⭐⭐⭐
+res_partner_bank ⭐⭐⭐ (comptes bancaires)
+res_bank
+mail_message (optionnel pour comportement)
+
+💡 ici tu détectes :
+
+comptes partagés
+téléphones partagés
+duplications
+
+👉 c’est une des sources les plus puissantes pour fraude
+
+📋 C. Programmes & inscriptions
+g2p_program ⭐⭐⭐
+g2p_program_registrant_info ⭐⭐⭐
+g2p_program_membership_*
+g2p_eligibility_manager
+g2p_entitlement
+
+💡 ici tu détectes :
+
+multi-program fraud
+eligibility anomalies
+incohérences d’inscription
+💰 D. Paiements (ULTRA CRITIQUE)
+
+👉 c’est le cœur du moteur fraude
+
+g2p_payment ⭐⭐⭐⭐⭐
+g2p_payment_batch
+account_payment
+account_move
+account_move_line
+
+💡 ici tu détectes :
+
+montants anormaux
+fréquence suspecte
+échecs de paiement
+spikes
+🔄 E. Cycles & temporel
+g2p_cycle ⭐⭐⭐
+g2p_cycle_membership
+
+💡 pour :
+
+analyser l’évolution dans le temps
+détecter anomalies temporelles
+
+🔄 E. Cycles & temporel
+g2p_cycle ⭐⭐⭐
+g2p_cycle_membership
+
+💡 pour :
+
+analyser l’évolution dans le temps
+détecter anomalies temporelles
+🧠 F. Déduplication (TRÈS IMPORTANT)
+
+👉 déjà implémenté dans OpenG2P !
+
+g2p_deduplication_manager ⭐⭐⭐
+g2p_deduplication_manager_id_dedup
+g2p_deduplication_manager_phone_number
+
+💡 ça c’est de l’or :
+
+tu peux l’utiliser directement comme feature ML
+🌍 G. Localisation
+g2p_district
+spp_area
+
+💡 utile pour :
+
+anomalies géographiques
+fraude régionale
+⚠️ 3. Tables UTILes mais secondaires
+
+Tu peux les utiliser plus tard :
+
+g2p_enumerator (agents terrain)
+g2p_program_assessment
+g2p_proxy_means_test_params
+g2p_document_tag
