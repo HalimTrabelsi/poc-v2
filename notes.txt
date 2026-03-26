@@ -136,3 +136,7 @@ g2p_enumerator (agents terrain)
 g2p_program_assessment
 g2p_proxy_means_test_params
 g2p_document_tag
+
+
+#To run jupyter :
+python -m jupyterlab

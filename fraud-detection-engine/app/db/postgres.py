@@ -1,19 +1,14 @@
-"""
-PostgreSQL connections
-- OPENG2P_DB : lecture seule → données bénéficiaires du POC
-- FRAUD_DB   : lecture/écriture → alertes et scores du moteur fraude
-"""
 import os
+from typing import Any, Dict, List, Optional
+
 import pandas as pd
 from sqlalchemy import create_engine, text
 
-# ── Connexion 1 : Base OpenG2P du POC (lecture seule) ────────
 OPENG2P_DB_URL = os.getenv(
     "OPENG2P_DB_URL",
-    "postgresql://odoo:odoo@postgresql:5432/openg2p"
+    "postgresql://odoo:openg2p@postgresql:5432/openg2p"
 )
 
-# ── Connexion 2 : Base Fraud Engine (lecture/écriture) ───────
 FRAUD_DB_URL = os.getenv(
     "DB_URL",
     "postgresql://fraud:fraud123@fraud-db:5432/fraud_engine"
@@ -21,109 +16,112 @@ FRAUD_DB_URL = os.getenv(
 
 
 class OpenG2PDatabase:
-    """Lecture des données bénéficiaires depuis le POC OpenG2P"""
-
     def __init__(self):
         self.engine = create_engine(
             OPENG2P_DB_URL,
             pool_pre_ping=True,
-            connect_args={"connect_timeout": 10}
+            connect_args={"connect_timeout": 10},
         )
-
-    def get_all_beneficiaries(self) -> pd.DataFrame:
-        """Récupère tous les bénéficiaires pour scan complet"""
-        query = text("""
-            SELECT
-                r.id::text                                    AS beneficiary_id,
-                r.name                                        AS beneficiary_name,
-                COUNT(DISTINCT pm.program_id)                 AS nb_programs,
-                COALESCE(SUM(p.amount_paid), 0)               AS total_amount,
-                COUNT(DISTINCT p.cycle_id)                    AS nb_cycles,
-                EXTRACT(DAY FROM NOW() - r.create_date)::int  AS days_since_enrollment,
-                COUNT(DISTINCT gm.individual_id)              AS household_size,
-                r.active
-            FROM res_partner r
-            LEFT JOIN g2p_program_membership pm ON r.id = pm.partner_id
-            LEFT JOIN g2p_payment p             ON r.id = p.partner_id
-            LEFT JOIN g2p_group_membership gm   ON r.id = gm.group_id
-            WHERE r.active = true
-              AND EXISTS (
-                SELECT 1 FROM g2p_program_membership pm2
-                WHERE pm2.partner_id = r.id
-              )
-            GROUP BY r.id, r.name, r.create_date, r.active
-            LIMIT 1000
-        """)
-        try:
-            df = pd.read_sql(query, self.engine)
-            if df.empty:
-                return pd.DataFrame()
-            # Compute derived features
-            df["amount_ratio"]        = df["total_amount"] / 500.0
-            df["account_changes_30d"] = 0
-            df["nb_payment_failures"] = 0
-            df["location_risk_score"] = 0.3
-            return df
-        except Exception as e:
-            print(f"[OpenG2P DB Error] {e}")
-            return pd.DataFrame()
-
-    def get_beneficiary(self, beneficiary_id: str) -> dict | None:
-        """Récupère un bénéficiaire spécifique par ID"""
-        query = text("""
-            SELECT
-                r.id::text                                    AS beneficiary_id,
-                r.name                                        AS beneficiary_name,
-                COUNT(DISTINCT pm.program_id)                 AS nb_programs,
-                COALESCE(SUM(p.amount_paid), 0)               AS total_amount,
-                COUNT(DISTINCT p.cycle_id)                    AS nb_cycles,
-                EXTRACT(DAY FROM NOW() - r.create_date)::int  AS days_since_enrollment,
-                COUNT(DISTINCT gm.individual_id)              AS household_size,
-                r.active
-            FROM res_partner r
-            LEFT JOIN g2p_program_membership pm ON r.id = pm.partner_id
-            LEFT JOIN g2p_payment p             ON r.id = p.partner_id
-            LEFT JOIN g2p_group_membership gm   ON r.id = gm.group_id
-            WHERE r.id = :bid
-            GROUP BY r.id, r.name, r.create_date, r.active
-        """)
-        try:
-            df = pd.read_sql(
-                query, self.engine, params={"bid": int(beneficiary_id)}
-            )
-            if df.empty:
-                return None
-            row = df.iloc[0].to_dict()
-            row["amount_ratio"]        = row["total_amount"] / 500.0
-            row["account_changes_30d"] = 0
-            row["nb_payment_failures"] = 0
-            row["location_risk_score"] = 0.3
-            return row
-        except Exception as e:
-            print(f"[OpenG2P DB Error] {e}")
-            return None
 
     def test_connection(self) -> bool:
         try:
             with self.engine.connect() as conn:
                 conn.execute(text("SELECT 1"))
             return True
-        except Exception:
+        except Exception as e:
+            print(f"[OpenG2P DB Error] {e}")
             return False
+
+    def get_all_beneficiaries(self, limit: int = 100) -> pd.DataFrame:
+        query = text("""
+            SELECT
+                rp.id AS beneficiary_id,
+                rp.name AS beneficiary_name,
+                rp.gender,
+                CASE
+                    WHEN rp.birthdate IS NOT NULL
+                    THEN DATE_PART('year', AGE(CURRENT_DATE, rp.birthdate))
+                    ELSE 0
+                END AS age,
+                COALESCE(rp.income, 0) AS income,
+                COALESCE(rp.z_ind_grp_num_individuals, 0) AS household_size,
+                COALESCE(rp.z_ind_grp_num_children, 0) AS nb_children,
+                CASE
+                    WHEN rp.z_ind_grp_is_hh_with_disabled IS TRUE THEN 'yes'
+                    ELSE 'no'
+                END AS disability_status,
+                CASE
+                    WHEN rp.z_cst_indv_receive_government_benefits IS TRUE THEN 'yes'
+                    ELSE 'no'
+                END AS immigration_status,
+                CASE
+                    WHEN rp.z_ind_grp_is_single_head_hh IS TRUE THEN 'yes'
+                    ELSE 'no'
+                END AS own_home,
+                0 AS vehicles_owned,
+                1 AS shared_phone_count,
+                1 AS shared_account_count
+            FROM res_partner rp
+            LIMIT :limit
+        """)
+        try:
+            return pd.read_sql(query, self.engine, params={"limit": limit})
+        except Exception as e:
+            print(f"[OpenG2P DB Error] {e}")
+            return pd.DataFrame()
+
+    def get_beneficiary(self, beneficiary_id: str) -> Optional[dict]:
+        query = text("""
+            SELECT
+                rp.id AS beneficiary_id,
+                rp.name AS beneficiary_name,
+                rp.gender,
+                CASE
+                    WHEN rp.birthdate IS NOT NULL
+                    THEN DATE_PART('year', AGE(CURRENT_DATE, rp.birthdate))
+                    ELSE 0
+                END AS age,
+                COALESCE(rp.income, 0) AS income,
+                COALESCE(rp.z_ind_grp_num_individuals, 0) AS household_size,
+                COALESCE(rp.z_ind_grp_num_children, 0) AS nb_children,
+                CASE
+                    WHEN rp.z_ind_grp_is_hh_with_disabled IS TRUE THEN 'yes'
+                    ELSE 'no'
+                END AS disability_status,
+                CASE
+                    WHEN rp.z_cst_indv_receive_government_benefits IS TRUE THEN 'yes'
+                    ELSE 'no'
+                END AS immigration_status,
+                CASE
+                    WHEN rp.z_ind_grp_is_single_head_hh IS TRUE THEN 'yes'
+                    ELSE 'no'
+                END AS own_home,
+                0 AS vehicles_owned,
+                1 AS shared_phone_count,
+                1 AS shared_account_count
+            FROM res_partner rp
+            WHERE rp.id = :bid
+            LIMIT 1
+        """)
+        try:
+            df = pd.read_sql(query, self.engine, params={"bid": int(beneficiary_id)})
+            if df.empty:
+                return None
+            return df.iloc[0].to_dict()
+        except Exception as e:
+            print(f"[OpenG2P DB Error] {e}")
+            return None
 
 
 class FraudDatabase:
-    """Stockage des alertes et résultats du moteur fraude"""
-
     def __init__(self):
         self.engine = create_engine(
             FRAUD_DB_URL,
             pool_pre_ping=True,
-            connect_args={"connect_timeout": 10}
+            connect_args={"connect_timeout": 10},
         )
 
     def save_alert(self, result: dict) -> bool:
-        """Sauvegarde une alerte de fraude"""
         query = text("""
             INSERT INTO fraud_alerts (
                 beneficiary_id, risk_score, risk_level,
@@ -132,32 +130,23 @@ class FraudDatabase:
                 :beneficiary_id, :risk_score, :risk_level,
                 :action, :rule_flags, :explanation, 'pending'
             )
-            ON CONFLICT (beneficiary_id)
-            DO UPDATE SET
-                risk_score  = EXCLUDED.risk_score,
-                risk_level  = EXCLUDED.risk_level,
-                action      = EXCLUDED.action,
-                rule_flags  = EXCLUDED.rule_flags,
-                explanation = EXCLUDED.explanation,
-                updated_at  = NOW()
         """)
         try:
             with self.engine.begin() as conn:
                 conn.execute(query, {
                     "beneficiary_id": result["beneficiary_id"],
-                    "risk_score":     result["final_score"],
-                    "risk_level":     result["risk_level"],
-                    "action":         result["action"],
-                    "rule_flags":     ", ".join(result.get("rule_flags", [])),
-                    "explanation":    result.get("explanation", ""),
+                    "risk_score": result["final_score"],
+                    "risk_level": result["risk_level"],
+                    "action": result.get("action", "No immediate action"),
+                    "rule_flags": ", ".join(result.get("rule_flags", [])),
+                    "explanation": result.get("explanation", ""),
                 })
             return True
         except Exception as e:
             print(f"[Fraud DB Error] {e}")
             return False
 
-    def get_alerts(self, status: str = "pending") -> list[dict]:
-        """Récupère les alertes par statut"""
+    def get_alerts(self, status: str = "pending") -> List[dict]:
         query = text("""
             SELECT * FROM fraud_alerts
             WHERE status = :status
@@ -170,11 +159,84 @@ class FraudDatabase:
         except Exception as e:
             print(f"[Fraud DB Error] {e}")
             return []
+    def _normalize_gender(self, value: Any) -> int:
+        if value is None:
+            return 0
+        s = str(value).strip().lower()
+        if s in ["female", "f", "1"]:
+            return 1
+        return 0
+
+    def _normalize_flag(self, value: Any) -> int:
+        if value is None:
+            return 0
+        s = str(value).strip().lower()
+        if s in ["yes", "true", "1", "owned", "own_home", "immigrant", "migrant", "disabled", "has_disability"]:
+            return 1
+        return 0
+
+    def _safe_float(self, value: Any, default: float = 0.0) -> float:
+        try:
+            if value is None or value == "":
+                return default
+            return float(value)
+        except Exception:
+            return default
+
+    def _row_to_features(self, row: Dict[str, Any]) -> Dict[str, Any]:
+        household_size = self._safe_float(row.get("household_size"), 0.0)
+        nb_children = self._safe_float(row.get("nb_children"), 0.0)
+        income = self._safe_float(row.get("income"), 0.0)
+
+        nb_adults = max(household_size - nb_children, 0.0)
+        dependency_ratio = (nb_children / nb_adults) if nb_adults > 0 else 0.0
+        income_per_person = (income / household_size) if household_size > 0 else 0.0
+
+        return {
+            "beneficiary_id": row.get("beneficiary_id"),
+            "gender": self._normalize_gender(row.get("gender")),
+            "age": self._safe_float(row.get("age"), 0.0),
+            "income": income,
+            "household_size": household_size,
+            "nb_children": nb_children,
+            "vehicles_owned": self._safe_float(row.get("vehicles_owned"), 0.0),
+            "dependency_ratio": dependency_ratio,
+            "income_per_person": income_per_person,
+            "disability_flag": self._normalize_flag(row.get("disability_status")),
+            "immigration_flag": self._normalize_flag(row.get("immigration_status")),
+            "own_home_flag": self._normalize_flag(row.get("own_home")),
+            "shared_phone_count": self._safe_float(row.get("shared_phone_count"), 1.0),
+            "shared_account_count": self._safe_float(row.get("shared_account_count"), 1.0),
+        }
+
+    def get_beneficiary_features(self, beneficiary_id: int) -> Optional[Dict[str, Any]]:
+        openg2p = get_openg2p_db()
+        row = openg2p.get_beneficiary(str(beneficiary_id))
+        if not row:
+            return None
+        return self._row_to_features(row)
+
+    def get_all_beneficiaries_features(self, limit: int = 50) -> List[Dict[str, Any]]:
+        openg2p = get_openg2p_db()
+        df = openg2p.get_all_beneficiaries(limit=limit)
+        if df.empty:
+            return []
+        rows = df.to_dict(orient="records")
+        return [self._row_to_features(row) for row in rows]
+
+    def save_case_result(self, result: Dict[str, Any]) -> bool:
+        return self.save_alert({
+            "beneficiary_id": result["beneficiary_id"],
+            "final_score": result["final_score"],
+            "risk_level": result["risk_level"],
+            "action": result.get("recommended_action", "No immediate action"),
+            "rule_flags": [],
+            "explanation": result.get("explanation", ""),
+        })
 
 
-# ── Singletons ───────────────────────────────────────────────
 _openg2p_db: OpenG2PDatabase | None = None
-_fraud_db:   FraudDatabase   | None = None
+_fraud_db: FraudDatabase | None = None
 
 
 def get_openg2p_db() -> OpenG2PDatabase:
@@ -189,31 +251,3 @@ def get_fraud_db() -> FraudDatabase:
     if _fraud_db is None:
         _fraud_db = FraudDatabase()
     return _fraud_db
-def get_cases(self, limit: int = 50) -> list[dict]:
-    query = text("""
-        SELECT
-            fc.id,
-            fc.alert_id,
-            fc.assigned_to,
-            fc.resolution,
-            fc.notes,
-            fc.resolved_at,
-            fc.created_at,
-            fa.beneficiary_id,
-            fa.risk_score,
-            fa.risk_level,
-            fa.action,
-            fa.rule_flags,
-            fa.explanation,
-            fa.status
-        FROM fraud_cases fc
-        JOIN fraud_alerts fa ON fa.id = fc.alert_id
-        ORDER BY fc.created_at DESC
-        LIMIT :limit
-    """)
-    try:
-        df = pd.read_sql(query, self.engine, params={"limit": limit})
-        return df.to_dict(orient="records")
-    except Exception as e:
-        print(f"[Fraud DB Error] {e}")
-        return []
