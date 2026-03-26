@@ -32,7 +32,7 @@ metrics_app = make_asgi_app()
 app.mount("/metrics", metrics_app)
 
 # ── Routers ──────────────────────────────────────────────────
-app.include_router(scoring_router, prefix="/api/v1", tags=["Scoring"])
+app.include_router(scoring_router, prefix="/api/v1", tags=["Fraud Scoring"])
 app.include_router(graph_router,   prefix="/api/v1", tags=["Graph"])
 app.include_router(cases_router,   prefix="/api/v1", tags=["Cases"])
 app.include_router(rules_router,   prefix="/api/v1", tags=["Rules"])

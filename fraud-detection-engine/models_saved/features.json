@@ -1,0 +1,18 @@
+{
+  "features": [
+    "gender",
+    "age",
+    "income",
+    "household_size",
+    "nb_children",
+    "vehicles_owned",
+    "dependency_ratio",
+    "income_per_person",
+    "disability_flag",
+    "immigration_flag",
+    "own_home_flag",
+    "shared_phone_count",
+    "shared_account_count"
+  ],
+  "target": "is_suspicious"
+}

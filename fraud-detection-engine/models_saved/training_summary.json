@@ -1,0 +1,20 @@
+{
+  "random_forest": {
+    "accuracy": 0.975,
+    "precision": 1.0,
+    "recall": 0.9636363636363636,
+    "f1_score": 0.9814814814814815
+  },
+  "xgboost": {
+    "accuracy": 0.975,
+    "precision": 1.0,
+    "recall": 0.9636363636363636,
+    "f1_score": 0.9814814814814815
+  },
+  "selected_baseline_model": "random_forest",
+  "artifacts": {
+    "random_forest_model": "C:\\Users\\Mega Pc\\Desktop\\poc-v2\\poc-v2\\fraud-detection-engine\\models_saved\\random_forest.pkl",
+    "xgboost_model": "C:\\Users\\Mega Pc\\Desktop\\poc-v2\\poc-v2\\fraud-detection-engine\\models_saved\\xgboost.pkl",
+    "features": "C:\\Users\\Mega Pc\\Desktop\\poc-v2\\poc-v2\\fraud-detection-engine\\models_saved\\features.json"
+  }
+}
