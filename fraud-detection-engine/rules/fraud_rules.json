@@ -1,0 +1,84 @@
+{
+  "rules": [
+    {
+      "id": "R001",
+      "name": "shared_bank_account",
+      "condition": "shared_account_count >= 2",
+      "weight": 0.35,
+      "severity": "HIGH",
+      "flag": "SHARED_ACCOUNT"
+    },
+    {
+      "id": "R002",
+      "name": "shared_phone",
+      "condition": "shared_phone_count >= 3",
+      "weight": 0.25,
+      "severity": "HIGH",
+      "flag": "SHARED_PHONE"
+    },
+    {
+      "id": "R003",
+      "name": "too_many_programs",
+      "condition": "nb_programs >= 4",
+      "weight": 0.25,
+      "severity": "HIGH",
+      "flag": "MULTI_PROGRAM_ENROLLMENT"
+    },
+    {
+      "id": "R004",
+      "name": "very_low_pmt",
+      "condition": "pmt_score <= 0.25",
+      "weight": 0.15,
+      "severity": "MEDIUM",
+      "flag": "LOW_PMT_SCORE"
+    },
+    {
+      "id": "R005",
+      "name": "large_gap_ratio",
+      "condition": "gap_ratio >= 0.50",
+      "weight": 0.30,
+      "severity": "HIGH",
+      "flag": "LARGE_PAYMENT_GAP"
+    },
+    {
+      "id": "R006",
+      "name": "abnormally_high_total_issued",
+      "condition": "high_amount_flag == 1",
+      "weight": 0.20,
+      "severity": "MEDIUM",
+      "flag": "HIGH_AMOUNT"
+    },
+    {
+      "id": "R007",
+      "name": "high_dependency_low_income",
+      "condition": "dependency_ratio >= 2.5 and income_per_person < 60",
+      "weight": 0.15,
+      "severity": "MEDIUM",
+      "flag": "HIGH_DEPENDENCY_LOW_INCOME"
+    },
+    {
+      "id": "R008",
+      "name": "network_risk_high",
+      "condition": "network_risk >= 0.60",
+      "weight": 0.30,
+      "severity": "HIGH",
+      "flag": "NETWORK_RISK"
+    },
+    {
+      "id": "R009",
+      "name": "single_adult_many_children_low_income",
+      "condition": "household_size >= 5 and nb_children >= 4 and income_per_person < 80",
+      "weight": 0.15,
+      "severity": "MEDIUM",
+      "flag": "HOUSEHOLD_STRESS_PATTERN"
+    },
+    {
+      "id": "R010",
+      "name": "high_gap_and_network",
+      "condition": "gap_ratio >= 0.30 and (shared_phone_count >= 2 or shared_account_count >= 2)",
+      "weight": 0.35,
+      "severity": "CRITICAL",
+      "flag": "PAYMENT_NETWORK_COMBO"
+    }
+  ]
+}
