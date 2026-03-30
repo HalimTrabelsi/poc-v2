@@ -34,6 +34,38 @@ class OpenG2PDatabase:
 
     def get_all_beneficiaries(self, limit: int = 100) -> pd.DataFrame:
         query = text("""
+            WITH phone_counts AS (
+                SELECT
+                    p.partner_id,
+                    MAX(cnt.shared_phone_count) AS shared_phone_count
+                FROM g2p_phone_number p
+                JOIN (
+                    SELECT
+                        phone_sanitized,
+                        COUNT(DISTINCT partner_id) AS shared_phone_count
+                    FROM g2p_phone_number
+                    WHERE phone_sanitized IS NOT NULL
+                    GROUP BY phone_sanitized
+                ) cnt
+                    ON p.phone_sanitized = cnt.phone_sanitized
+                GROUP BY p.partner_id
+            ),
+            bank_counts AS (
+                SELECT
+                    b.partner_id,
+                    MAX(cnt.shared_account_count) AS shared_account_count
+                FROM res_partner_bank b
+                JOIN (
+                    SELECT
+                        COALESCE(NULLIF(sanitized_acc_number, ''), acc_number) AS acc_key,
+                        COUNT(DISTINCT partner_id) AS shared_account_count
+                    FROM res_partner_bank
+                    WHERE COALESCE(NULLIF(sanitized_acc_number, ''), acc_number) IS NOT NULL
+                    GROUP BY COALESCE(NULLIF(sanitized_acc_number, ''), acc_number)
+                ) cnt
+                    ON COALESCE(NULLIF(b.sanitized_acc_number, ''), b.acc_number) = cnt.acc_key
+                GROUP BY b.partner_id
+            )
             SELECT
                 rp.id AS beneficiary_id,
                 rp.name AS beneficiary_name,
@@ -46,22 +78,25 @@ class OpenG2PDatabase:
                 COALESCE(rp.income, 0) AS income,
                 COALESCE(rp.z_ind_grp_num_individuals, 0) AS household_size,
                 COALESCE(rp.z_ind_grp_num_children, 0) AS nb_children,
+                COALESCE(rp.z_ind_grp_num_elderly, 0) AS nb_elderly,
                 CASE
-                    WHEN rp.z_ind_grp_is_hh_with_disabled IS TRUE THEN 'yes'
-                    ELSE 'no'
-                END AS disability_status,
+                    WHEN rp.z_ind_grp_is_hh_with_disabled IS TRUE THEN 1
+                    ELSE 0
+                END AS disability_flag,
                 CASE
-                    WHEN rp.z_cst_indv_receive_government_benefits IS TRUE THEN 'yes'
-                    ELSE 'no'
-                END AS immigration_status,
+                    WHEN rp.z_cst_indv_receive_government_benefits IS TRUE THEN 1
+                    ELSE 0
+                END AS receive_government_benefits,
                 CASE
-                    WHEN rp.z_ind_grp_is_single_head_hh IS TRUE THEN 'yes'
-                    ELSE 'no'
-                END AS own_home,
+                    WHEN rp.z_ind_grp_is_single_head_hh IS TRUE THEN 1
+                    ELSE 0
+                END AS single_head_hh,
                 0 AS vehicles_owned,
-                1 AS shared_phone_count,
-                1 AS shared_account_count
+                COALESCE(pc.shared_phone_count, 0) AS shared_phone_count,
+                COALESCE(bc.shared_account_count, 0) AS shared_account_count
             FROM res_partner rp
+            LEFT JOIN phone_counts pc ON rp.id = pc.partner_id
+            LEFT JOIN bank_counts bc ON rp.id = bc.partner_id
             LIMIT :limit
         """)
         try:
@@ -72,6 +107,38 @@ class OpenG2PDatabase:
 
     def get_beneficiary(self, beneficiary_id: str) -> Optional[dict]:
         query = text("""
+            WITH phone_counts AS (
+                SELECT
+                    p.partner_id,
+                    MAX(cnt.shared_phone_count) AS shared_phone_count
+                FROM g2p_phone_number p
+                JOIN (
+                    SELECT
+                        phone_sanitized,
+                        COUNT(DISTINCT partner_id) AS shared_phone_count
+                    FROM g2p_phone_number
+                    WHERE phone_sanitized IS NOT NULL
+                    GROUP BY phone_sanitized
+                ) cnt
+                    ON p.phone_sanitized = cnt.phone_sanitized
+                GROUP BY p.partner_id
+            ),
+            bank_counts AS (
+                SELECT
+                    b.partner_id,
+                    MAX(cnt.shared_account_count) AS shared_account_count
+                FROM res_partner_bank b
+                JOIN (
+                    SELECT
+                        COALESCE(NULLIF(sanitized_acc_number, ''), acc_number) AS acc_key,
+                        COUNT(DISTINCT partner_id) AS shared_account_count
+                    FROM res_partner_bank
+                    WHERE COALESCE(NULLIF(sanitized_acc_number, ''), acc_number) IS NOT NULL
+                    GROUP BY COALESCE(NULLIF(sanitized_acc_number, ''), acc_number)
+                ) cnt
+                    ON COALESCE(NULLIF(b.sanitized_acc_number, ''), b.acc_number) = cnt.acc_key
+                GROUP BY b.partner_id
+            )
             SELECT
                 rp.id AS beneficiary_id,
                 rp.name AS beneficiary_name,
@@ -84,22 +151,25 @@ class OpenG2PDatabase:
                 COALESCE(rp.income, 0) AS income,
                 COALESCE(rp.z_ind_grp_num_individuals, 0) AS household_size,
                 COALESCE(rp.z_ind_grp_num_children, 0) AS nb_children,
+                COALESCE(rp.z_ind_grp_num_elderly, 0) AS nb_elderly,
                 CASE
-                    WHEN rp.z_ind_grp_is_hh_with_disabled IS TRUE THEN 'yes'
-                    ELSE 'no'
-                END AS disability_status,
+                    WHEN rp.z_ind_grp_is_hh_with_disabled IS TRUE THEN 1
+                    ELSE 0
+                END AS disability_flag,
                 CASE
-                    WHEN rp.z_cst_indv_receive_government_benefits IS TRUE THEN 'yes'
-                    ELSE 'no'
-                END AS immigration_status,
+                    WHEN rp.z_cst_indv_receive_government_benefits IS TRUE THEN 1
+                    ELSE 0
+                END AS receive_government_benefits,
                 CASE
-                    WHEN rp.z_ind_grp_is_single_head_hh IS TRUE THEN 'yes'
-                    ELSE 'no'
-                END AS own_home,
+                    WHEN rp.z_ind_grp_is_single_head_hh IS TRUE THEN 1
+                    ELSE 0
+                END AS single_head_hh,
                 0 AS vehicles_owned,
-                1 AS shared_phone_count,
-                1 AS shared_account_count
+                COALESCE(pc.shared_phone_count, 0) AS shared_phone_count,
+                COALESCE(bc.shared_account_count, 0) AS shared_account_count
             FROM res_partner rp
+            LEFT JOIN phone_counts pc ON rp.id = pc.partner_id
+            LEFT JOIN bank_counts bc ON rp.id = bc.partner_id
             WHERE rp.id = :bid
             LIMIT 1
         """)
@@ -159,19 +229,12 @@ class FraudDatabase:
         except Exception as e:
             print(f"[Fraud DB Error] {e}")
             return []
+
     def _normalize_gender(self, value: Any) -> int:
         if value is None:
             return 0
         s = str(value).strip().lower()
         if s in ["female", "f", "1"]:
-            return 1
-        return 0
-
-    def _normalize_flag(self, value: Any) -> int:
-        if value is None:
-            return 0
-        s = str(value).strip().lower()
-        if s in ["yes", "true", "1", "owned", "own_home", "immigrant", "migrant", "disabled", "has_disability"]:
             return 1
         return 0
 
@@ -186,10 +249,13 @@ class FraudDatabase:
     def _row_to_features(self, row: Dict[str, Any]) -> Dict[str, Any]:
         household_size = self._safe_float(row.get("household_size"), 0.0)
         nb_children = self._safe_float(row.get("nb_children"), 0.0)
+        nb_elderly = self._safe_float(row.get("nb_elderly"), 0.0)
         income = self._safe_float(row.get("income"), 0.0)
 
-        nb_adults = max(household_size - nb_children, 0.0)
-        dependency_ratio = (nb_children / nb_adults) if nb_adults > 0 else 0.0
+        dependants = nb_children + nb_elderly
+        nb_adults = max(household_size - dependants, 0.0)
+
+        dependency_ratio = (dependants / nb_adults) if nb_adults > 0 else 0.0
         income_per_person = (income / household_size) if household_size > 0 else 0.0
 
         return {
@@ -202,11 +268,13 @@ class FraudDatabase:
             "vehicles_owned": self._safe_float(row.get("vehicles_owned"), 0.0),
             "dependency_ratio": dependency_ratio,
             "income_per_person": income_per_person,
-            "disability_flag": self._normalize_flag(row.get("disability_status")),
-            "immigration_flag": self._normalize_flag(row.get("immigration_status")),
-            "own_home_flag": self._normalize_flag(row.get("own_home")),
-            "shared_phone_count": self._safe_float(row.get("shared_phone_count"), 1.0),
-            "shared_account_count": self._safe_float(row.get("shared_account_count"), 1.0),
+            "disability_flag": int(self._safe_float(row.get("disability_flag"), 0.0)),
+            "immigration_flag": 0,
+            "own_home_flag": 0,
+            "shared_phone_count": self._safe_float(row.get("shared_phone_count"), 0.0),
+            "shared_account_count": self._safe_float(row.get("shared_account_count"), 0.0),
+            "receive_government_benefits": int(self._safe_float(row.get("receive_government_benefits"), 0.0)),
+            "single_head_hh": int(self._safe_float(row.get("single_head_hh"), 0.0)),
         }
 
     def get_beneficiary_features(self, beneficiary_id: int) -> Optional[Dict[str, Any]]:
@@ -230,7 +298,7 @@ class FraudDatabase:
             "final_score": result["final_score"],
             "risk_level": result["risk_level"],
             "action": result.get("recommended_action", "No immediate action"),
-            "rule_flags": [],
+            "rule_flags": result.get("rule_flags", []),
             "explanation": result.get("explanation", ""),
         })
 

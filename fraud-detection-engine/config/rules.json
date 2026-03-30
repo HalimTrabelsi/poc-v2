@@ -1,0 +1,38 @@
+[
+  {
+    "code": "R001",
+    "condition": "shared_phone_count >= 3",
+    "score": 0.30,
+    "reason": "Téléphone partagé par plusieurs bénéficiaires"
+  },
+  {
+    "code": "R002",
+    "condition": "shared_account_count >= 2",
+    "score": 0.35,
+    "reason": "Compte bancaire partagé"
+  },
+  {
+    "code": "R003",
+    "condition": "household_size >= 6 and income_per_person < 30",
+    "score": 0.20,
+    "reason": "Grand ménage avec revenu par personne très faible"
+  },
+  {
+    "code": "R004",
+    "condition": "program_membership_count >= 3",
+    "score": 0.15,
+    "reason": "Bénéficiaire inscrit à plusieurs programmes"
+  },
+  {
+    "code": "R005",
+    "condition": "has_birth_certificate == 0",
+    "score": 0.10,
+    "reason": "Pièce justificative manquante"
+  },
+  {
+    "code": "R006",
+    "condition": "dependency_ratio > 2.0",
+    "score": 0.15,
+    "reason": "Ratio de dépendance élevé"
+  }
+]
