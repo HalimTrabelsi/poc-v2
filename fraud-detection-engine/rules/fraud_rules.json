@@ -6,7 +6,8 @@
       "condition": "shared_account_count >= 2",
       "weight": 0.35,
       "severity": "HIGH",
-      "flag": "SHARED_ACCOUNT"
+      "flag": "SHARED_ACCOUNT",
+      "enabled": true
     },
     {
       "id": "R002",
@@ -14,7 +15,8 @@
       "condition": "shared_phone_count >= 3",
       "weight": 0.25,
       "severity": "HIGH",
-      "flag": "SHARED_PHONE"
+      "flag": "SHARED_PHONE",
+      "enabled": true
     },
     {
       "id": "R003",
@@ -22,7 +24,8 @@
       "condition": "nb_programs >= 4",
       "weight": 0.25,
       "severity": "HIGH",
-      "flag": "MULTI_PROGRAM_ENROLLMENT"
+      "flag": "MULTI_PROGRAM_ENROLLMENT",
+      "enabled": true
     },
     {
       "id": "R004",
@@ -30,7 +33,8 @@
       "condition": "pmt_score <= 0.25",
       "weight": 0.15,
       "severity": "MEDIUM",
-      "flag": "LOW_PMT_SCORE"
+      "flag": "LOW_PMT_SCORE",
+      "enabled": true
     },
     {
       "id": "R005",
@@ -38,7 +42,8 @@
       "condition": "gap_ratio >= 0.50",
       "weight": 0.30,
       "severity": "HIGH",
-      "flag": "LARGE_PAYMENT_GAP"
+      "flag": "LARGE_PAYMENT_GAP",
+      "enabled": false
     },
     {
       "id": "R006",
@@ -46,7 +51,8 @@
       "condition": "high_amount_flag == 1",
       "weight": 0.20,
       "severity": "MEDIUM",
-      "flag": "HIGH_AMOUNT"
+      "flag": "HIGH_AMOUNT",
+      "enabled": false
     },
     {
       "id": "R007",
@@ -54,7 +60,8 @@
       "condition": "dependency_ratio >= 2.5 and income_per_person < 60",
       "weight": 0.15,
       "severity": "MEDIUM",
-      "flag": "HIGH_DEPENDENCY_LOW_INCOME"
+      "flag": "HIGH_DEPENDENCY_LOW_INCOME",
+      "enabled": true
     },
     {
       "id": "R008",
@@ -62,7 +69,8 @@
       "condition": "network_risk >= 0.60",
       "weight": 0.30,
       "severity": "HIGH",
-      "flag": "NETWORK_RISK"
+      "flag": "NETWORK_RISK",
+      "enabled": false
     },
     {
       "id": "R009",
@@ -70,7 +78,8 @@
       "condition": "household_size >= 5 and nb_children >= 4 and income_per_person < 80",
       "weight": 0.15,
       "severity": "MEDIUM",
-      "flag": "HOUSEHOLD_STRESS_PATTERN"
+      "flag": "HOUSEHOLD_STRESS_PATTERN",
+      "enabled": true
     },
     {
       "id": "R010",
@@ -78,7 +87,8 @@
       "condition": "gap_ratio >= 0.30 and (shared_phone_count >= 2 or shared_account_count >= 2)",
       "weight": 0.35,
       "severity": "CRITICAL",
-      "flag": "PAYMENT_NETWORK_COMBO"
+      "flag": "PAYMENT_NETWORK_COMBO",
+      "enabled": false
     }
   ]
 }
