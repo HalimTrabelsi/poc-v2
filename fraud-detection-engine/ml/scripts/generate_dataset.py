@@ -482,8 +482,17 @@ def inject(df, db_url):
 # ════════════════════════════════════════════════════════
 
 def main():
+    SCRIPT_DIR = Path(__file__).resolve().parent
+    PROJECT_ROOT = SCRIPT_DIR.parent.parent
+    DEFAULT_OUTPUT = PROJECT_ROOT / "ml" / "data" / "synthetic" / "dataset_ml.csv"
+        # DEBUG - À retirer après test
+    print(f"📂 SCRIPT_DIR: {SCRIPT_DIR}")
+    print(f"📂 PROJECT_ROOT: {PROJECT_ROOT}")
+    print(f"📂 DEFAULT_OUTPUT: {DEFAULT_OUTPUT}")
+    print()
+
     ap = argparse.ArgumentParser()
-    ap.add_argument("--output",     default="ml/data/synthetic/dataset_ml.csv")
+    ap.add_argument("--output",     default=str(DEFAULT_OUTPUT))
     ap.add_argument("--inject",     action="store_true")
     ap.add_argument("--db-url",     default=os.getenv(
         "OPENG2P_DB_URL","postgresql://odoo:openg2p@postgresql:5432/openg2p"))
