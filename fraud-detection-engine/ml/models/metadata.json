@@ -1,0 +1,33 @@
+{
+  "feature_cols": [
+    "age",
+    "gender",
+    "income",
+    "household_size",
+    "dependency_ratio",
+    "income_per_person",
+    "program_overlap_flag",
+    "pmt_score",
+    "total_amount_issued",
+    "total_amount_paid",
+    "payment_count",
+    "payment_count_in_cycle",
+    "active_group_memberships"
+  ],
+  "numeric_cols": [
+    "age",
+    "income",
+    "household_size",
+    "dependency_ratio",
+    "income_per_person",
+    "program_overlap_flag",
+    "pmt_score",
+    "total_amount_issued",
+    "total_amount_paid",
+    "payment_count",
+    "payment_count_in_cycle",
+    "active_group_memberships"
+  ],
+  "rows": 2000,
+  "fraud_rate_pred": 0.022
+}
