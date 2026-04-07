@@ -1,9 +1,14 @@
 """
-Train Script — Modèles hybrides fraude OpenG2P (FINAL ROBUST)
+Train Script — Modèles hybrides fraude OpenG2P
+===============================================
+Features alignées avec feature_extractor.py (schéma officiel).
+Modèles : Logistic Regression, Random Forest, Isolation Forest.
+Structure prête pour l'ajout d'un challenger XGBoost.
 """
 
 from __future__ import annotations
 
+import json
 import numpy as np
 import pandas as pd
 from pathlib import Path
@@ -19,242 +24,237 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report, roc_auc_score
 
 
-# ─────────────────────────────
 SEED = 42
 np.random.seed(SEED)
 
-MODELS_DIR = Path("ml/models")
-OUTPUT_SCORED = Path("ml/data/openg2p_scored.csv")
+SCRIPT_DIR  = Path(__file__).resolve().parent
+REPO_ROOT   = SCRIPT_DIR.parents[2]          # fraud-detection-engine/
+MODELS_DIR  = REPO_ROOT / "models_saved"     # read by the API service
+DATA_DIR    = SCRIPT_DIR.parent / "data"
+
+# Chemin du CSV synthétique généré par generate_dataset.py
+DATASET_CSV = DATA_DIR / "synthetic" / "dataset_ml.csv"
+
+TARGET = "is_fraud"
+
+# ─────────────────────────────────────────────────────────────
+# Features — miroir exact de ML_FEATURES dans feature_extractor.py
+# ─────────────────────────────────────────────────────────────
+ML_FEATURES = [
+    # Démographie
+    "age", "income", "income_per_person",
+    "household_size", "nb_children", "nb_elderly",
+    "dependency_ratio",
+    "has_disabled", "single_head",
+    # Programmes
+    "nb_programs", "nb_active_programs",
+    "pmt_score", "pmt_score_min",
+    "avg_enrollment_days",
+    # Paiements
+    "payment_count", "payment_gap_ratio",
+    "payment_success_rate", "amount_variance",
+    "cycle_count",
+    # Réseau
+    "shared_phone_count", "shared_account_count",
+    "network_risk",
+    # Groupes
+    "group_membership_count",
+    # Flags dérivés
+    "high_amount_flag", "income_program_inconsistency",
+]
+
+# Valeurs par défaut pour les colonnes éventuellement absentes du CSV
+FEATURE_DEFAULTS: dict[str, float] = {
+    "age": 35,
+    "income": 0.0,
+    "income_per_person": 0.0,
+    "household_size": 1.0,
+    "nb_children": 0.0,
+    "nb_elderly": 0.0,
+    "dependency_ratio": 0.0,
+    "has_disabled": 0,
+    "single_head": 0,
+    "nb_programs": 1,
+    "nb_active_programs": 1,
+    "pmt_score": 0.5,
+    "pmt_score_min": 0.5,
+    "avg_enrollment_days": 365,
+    "payment_count": 1,
+    "payment_gap_ratio": 0.0,
+    "payment_success_rate": 1.0,
+    "amount_variance": 0.0,
+    "cycle_count": 1,
+    "shared_phone_count": 0,
+    "shared_account_count": 0,
+    "network_risk": 0.0,
+    "group_membership_count": 0,
+    "high_amount_flag": 0,
+    "income_program_inconsistency": 0,
+}
 
 
-# ─────────────────────────────
-def load_data():
-    return pd.read_csv("../data/openg2p_features.csv")
+# ─────────────────────────────────────────────────────────────
+def load_data(path: Path = DATASET_CSV) -> pd.DataFrame:
+    if not path.exists():
+        raise FileNotFoundError(f"Dataset introuvable : {path}")
+    df = pd.read_csv(path)
+    print(f"📂 Chargé : {path}  ({len(df)} lignes, {df.shape[1]} colonnes)")
+    return df
 
 
-# ─────────────────────────────
-def with_fallback_columns(df: pd.DataFrame):
+def prepare_features(df: pd.DataFrame) -> tuple[pd.DataFrame, list[str]]:
+    """
+    Applique les fallbacks sur les colonnes manquantes et retourne
+    (df enrichi, liste effective des features disponibles).
+    """
     out = df.copy()
 
-    # ID
-    if "partner_id" not in out.columns:
-        out["partner_id"] = np.arange(len(out))
-
-    # LABEL
-    if "is_fraud" not in out.columns:
+    # Label
+    if TARGET not in out.columns:
         if "synthetic_label" in out.columns:
-            out["is_fraud"] = out["synthetic_label"]
+            out[TARGET] = out["synthetic_label"]
         else:
-            out["is_fraud"] = 0
+            raise ValueError(f"Colonne cible '{TARGET}' introuvable.")
 
-    # FALLBACK FEATURES
-    defaults = {
-        "income": 0.0,
-        "income_per_person": 0.0,
-        "pmt_score": 0.5,
-        "nb_programs": 0,
-        "payment_count": 1,
-        "household_size": 1,
-        "nb_children": 0,
-        "nb_elderly": 0,
-    }
+    # Alias rétrocompatible
+    if "payment_gap_ratio" not in out.columns and "gap_ratio" in out.columns:
+        out["payment_gap_ratio"] = out["gap_ratio"]
 
-    for col, val in defaults.items():
+    # Colonnes manquantes → valeur par défaut
+    missing = []
+    for col in ML_FEATURES:
         if col not in out.columns:
-            out[col] = val
+            out[col] = FEATURE_DEFAULTS.get(col, 0.0)
+            missing.append(col)
 
-    # RULE FEATURES fallback
-    if "payment_gap_ratio" not in out.columns:
-        if "gap_ratio" in out.columns:
-            out["payment_gap_ratio"] = out["gap_ratio"]
-        else:
-            out["payment_gap_ratio"] = 0.0
+    if missing:
+        print(f"⚠️  Colonnes absentes (fallback appliqué) : {missing}")
 
-    for col in ["shared_phone_count", "shared_account_count"]:
-        if col not in out.columns:
-            out[col] = 0
-
-    # FEATURES DERIVEES
-    out["dependency_ratio"] = (out["nb_children"] + out["nb_elderly"]) / (out["household_size"] + 1)
-    out["risk_density"] = out["nb_programs"] / (out["household_size"] + 1)
-    out["financial_stress"] = out["income_per_person"] / (out["pmt_score"] + 0.01)
-    out["behavior_score"] = out["payment_count"] / (out["nb_programs"] + 1)
-
-    return out
+    effective_features = [f for f in ML_FEATURES if f in out.columns]
+    return out, effective_features
 
 
-# ─────────────────────────────
-def make_rule_graph_scores(df: pd.DataFrame):
-    out = df.copy()
-
-    def safe(col, default=0):
-        return out[col] if col in out.columns else default
-
-    out["rule_score"] = (
-        (safe("shared_account_count") > 0) * 0.30
-        + (safe("shared_phone_count") > 0) * 0.25
-        + (safe("payment_gap_ratio") > 0.5) * 0.20
-        + (safe("nb_programs") > 3) * 0.15
-    ).clip(0, 1)
-
-    out["graph_score"] = (
-        np.tanh(safe("shared_phone_count") / 3.0) * 0.5
-        + np.tanh(safe("shared_account_count") / 3.0) * 0.5
-    ).clip(0, 1)
-
-    return out
-
-
-# ─────────────────────────────
-def build_pipeline(numeric_cols):
+# ─────────────────────────────────────────────────────────────
+def build_preprocessor(numeric_cols: list[str]) -> ColumnTransformer:
     return ColumnTransformer([
         ("num", Pipeline([
             ("imputer", SimpleImputer(strategy="median")),
-            ("scaler", StandardScaler())
+            ("scaler",  StandardScaler()),
         ]), numeric_cols)
     ])
 
 
-# ─────────────────────────────
-def train_models(df):
-
-    target = "is_fraud"
-
-    feature_cols = [
-        "age", "income", "household_size",
-        "dependency_ratio", "income_per_person",
-        "pmt_score",
-        "risk_density", "financial_stress", "behavior_score"
-    ]
-
-    existing_features = [f for f in feature_cols if f in df.columns]
-
-    print("\n🧪 Features utilisées:")
-    print(existing_features)
-
-    X = df[existing_features]
-    y = df[target]
-
-    preprocessor = build_pipeline(existing_features)
-
-    x_train, x_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, stratify=y, random_state=SEED
-    )
+def train_supervised(X_train, y_train, X_test, y_test, feature_cols):
+    preprocessor = build_preprocessor(feature_cols)
 
     logreg = Pipeline([
         ("prep", preprocessor),
-        # C=0.1 → regularisation L2 forte pour eviter l'overfitting
-        ("clf", LogisticRegression(max_iter=800, C=0.1, class_weight="balanced"))
+        ("clf",  LogisticRegression(max_iter=800, C=0.1, class_weight="balanced")),
     ])
 
     rf = Pipeline([
-        ("prep", preprocessor),
-        ("clf", RandomForestClassifier(
-            n_estimators=200,       # reduit de 400
-            max_depth=8,            # limite la profondeur (etait illimite)
-            min_samples_leaf=10,    # au moins 10 samples par feuille
-            max_features="sqrt",    # sous-echantillonnage features
+        ("prep", build_preprocessor(feature_cols)),
+        ("clf",  RandomForestClassifier(
+            n_estimators=200,
+            max_depth=8,
+            min_samples_leaf=10,
+            max_features="sqrt",
             class_weight="balanced",
             random_state=SEED,
-        ))
+        )),
     ])
 
-    logreg.fit(x_train, y_train)
-    rf.fit(x_train, y_train)
+    # === Futur challenger XGBoost ===
+    # from xgboost import XGBClassifier
+    # xgb = Pipeline([("prep", build_preprocessor(feature_cols)),
+    #                 ("clf", XGBClassifier(n_estimators=200, max_depth=5,
+    #                                       scale_pos_weight=..., eval_metric="auc",
+    #                                       random_state=SEED))])
+    # xgb.fit(X_train, y_train)
 
-    # Evaluation
-    log_proba = logreg.predict_proba(x_test)[:, 1]
-    rf_proba = rf.predict_proba(x_test)[:, 1]
+    logreg.fit(X_train, y_train)
+    rf.fit(X_train, y_train)
 
-    print("\n📊 Logistic Regression")
-    print(classification_report(y_test, (log_proba >= 0.5).astype(int)))
-    print("AUC:", roc_auc_score(y_test, log_proba))
+    for name, model in [("Logistic Regression", logreg), ("Random Forest", rf)]:
+        proba = model.predict_proba(X_test)[:, 1]
+        pred  = (proba >= 0.5).astype(int)
+        print(f"\n📊 {name}")
+        print(classification_report(y_test, pred, zero_division=0))
+        print(f"AUC : {roc_auc_score(y_test, proba):.4f}")
 
-    print("\n📊 Random Forest")
-    print(classification_report(y_test, (rf_proba >= 0.5).astype(int)))
-    print("AUC:", roc_auc_score(y_test, rf_proba))
-
-    # Importance
-    print("\n🧠 Feature importance:")
+    # Feature importance RF
     importances = rf.named_steps["clf"].feature_importances_
-    for f, imp in sorted(zip(existing_features, importances), key=lambda x: -x[1]):
-        print(f"{f}: {round(imp,3)}")
+    print("\n🧠 Feature importance (RF) :")
+    for feat, imp in sorted(zip(feature_cols, importances), key=lambda x: -x[1])[:15]:
+        print(f"  {feat:<35} {round(imp, 4)}")
 
-    # contamination=0.12 correspond au vrai taux de fraude dans le dataset
-    iso = IsolationForest(n_estimators=200, contamination=0.12, random_state=SEED)
-    iso.fit(df[existing_features])
-
-    return {
-        "logreg": logreg,
-        "rf": rf,
-        "iso": iso,
-        "feature_cols": existing_features
-    }
+    return logreg, rf
 
 
-# ─────────────────────────────
-def score_dataset(df, model_pack):
-
-    out = make_rule_graph_scores(df.copy())
-
-    X = out[model_pack["feature_cols"]]
-
-    out["ml_score"] = model_pack["rf"].predict_proba(X)[:, 1]
-
-    decision = model_pack["iso"].decision_function(X)
-    out["anomaly_score"] = 1 - (decision - decision.min()) / (decision.max() - decision.min())
-
-    out["risk_score"] = (
-        0.35 * out["rule_score"]
-        + 0.35 * out["ml_score"]
-        + 0.20 * out["anomaly_score"]
-        + 0.10 * out["graph_score"]
+def train_anomaly(X_train, feature_cols):
+    iso = IsolationForest(
+        n_estimators=200,
+        contamination=0.12,  # correspond au taux de fraude du dataset
+        random_state=SEED,
     )
-
-    out["risk_level"] = pd.cut(
-        out["risk_score"],
-        bins=[-1, 0.35, 0.65, 1],
-        labels=["low", "medium", "high"]
-    )
-
-    return out
+    iso.fit(X_train[feature_cols])
+    return iso
 
 
-# ─────────────────────────────
-def save_artifacts(model_pack, df):
-
+# ─────────────────────────────────────────────────────────────
+def save_artifacts(logreg, rf, iso, feature_cols: list[str]):
     MODELS_DIR.mkdir(parents=True, exist_ok=True)
-    OUTPUT_SCORED.parent.mkdir(parents=True, exist_ok=True)
 
-    dump(model_pack["rf"], MODELS_DIR / "random_forest.joblib")
-    dump(model_pack["logreg"], MODELS_DIR / "logreg.joblib")
-    dump(model_pack["iso"], MODELS_DIR / "isolation_forest.joblib")
+    dump(rf,     MODELS_DIR / "random_forest.joblib")
+    dump(logreg, MODELS_DIR / "logreg.joblib")
+    dump(iso,    MODELS_DIR / "isolation_forest.joblib")
 
-    df.to_csv(OUTPUT_SCORED, index=False)
+    metadata = {
+        "feature_columns": feature_cols,
+        "target_column": TARGET,
+        "supervised_model_default": "random_forest",
+        "available_models": {
+            "random_forest": "random_forest.joblib",
+            "logreg": "logreg.joblib",
+            "isolation_forest": "isolation_forest.joblib",
+        },
+    }
+    meta_path = MODELS_DIR / "metadata.json"
+    meta_path.write_text(json.dumps(metadata, indent=2, ensure_ascii=False))
 
-    print("\n✅ Sauvegarde OK")
+    print(f"\n✅ Artefacts sauvegardés dans {MODELS_DIR}/")
+    print(f"   metadata.json — {len(feature_cols)} features enregistrées")
 
 
-# ─────────────────────────────
+# ─────────────────────────────────────────────────────────────
 def train():
-
     print("\n🚀 Chargement données...")
     df = load_data()
 
-    df = with_fallback_columns(df)
+    df, feature_cols = prepare_features(df)
 
-    model_pack = train_models(df)
+    print(f"\n🧪 Features utilisées ({len(feature_cols)}) :")
+    print(feature_cols)
 
-    scored = score_dataset(df, model_pack)
+    fraud_rate = df[TARGET].mean()
+    print(f"\n📈 Taux de fraude : {fraud_rate:.2%}  ({df[TARGET].sum()} / {len(df)})")
 
-    print("\n📈 Distribution:")
-    print(scored["risk_level"].value_counts())
+    X = df[feature_cols]
+    y = df[TARGET]
 
-    save_artifacts(model_pack, scored)
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, stratify=y, random_state=SEED
+    )
+
+    logreg, rf = train_supervised(X_train, y_train, X_test, y_test, feature_cols)
+
+    # Isolation Forest entraîné uniquement sur le train set
+    iso = train_anomaly(X_train, feature_cols)
+
+    save_artifacts(logreg, rf, iso, feature_cols)
 
     print("\n🎯 DONE")
 
 
-# ─────────────────────────────
 if __name__ == "__main__":
     train()

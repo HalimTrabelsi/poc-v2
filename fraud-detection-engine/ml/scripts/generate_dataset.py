@@ -62,21 +62,40 @@ def _n(sigma):
 # ════════════════════════════════════════════════════════
 
 def build_legitimate(idx):
-    birth_year  = random.randint(1950, 2003)
-    hh_size     = _clip(int(np.random.normal(4.0, 2.0)), 1, 14)
-    nb_children = _clip(int(np.random.normal(hh_size * 0.38, 1.5)), 0, hh_size - 1)
-    nb_elderly  = _clip(int(np.random.normal(0.4, 0.7)), 0, 4)
-    income      = _clip(np.random.normal(900, 500) + _n(150), 60, 8000)
+    birth_year     = random.randint(1950, 2003)
+    hh_size        = _clip(int(np.random.normal(4.0, 2.0)), 1, 14)
+    nb_children    = _clip(int(np.random.normal(hh_size * 0.38, 1.5)), 0, hh_size - 1)
+    nb_elderly     = _clip(int(np.random.normal(0.4, 0.7)), 0, 4)
+    income         = _clip(np.random.normal(900, 500) + _n(150), 60, 8000)
     # Légitimes peuvent parfois s'inscrire à 3-4 programmes (ex: cumul autorisé)
-    nb_prog     = int(np.random.choice([1,2,3,4], p=[0.35, 0.40, 0.20, 0.05]))
+    nb_prog        = int(np.random.choice([1,2,3,4], p=[0.35, 0.40, 0.20, 0.05]))
     # pmt_score légitimes : distribution plus large, overlap avec fraudes
-    pmt_score   = _clip(np.random.normal(0.60, 0.18) + _n(0.06), 0.08, 1.0)
-    n_pay       = nb_prog * N_CYCLES
-    n_paid      = _clip(int(n_pay * np.random.uniform(0.60, 1.0)), 0, n_pay)
-    gap_ratio   = round(1 - n_paid / max(n_pay, 1), 3)
+    pmt_score      = _clip(np.random.normal(0.60, 0.18) + _n(0.06), 0.08, 1.0)
+    # pmt_score_min : légèrement inférieur au score moyen (variabilité entre programmes)
+    pmt_score_min  = _clip(pmt_score - abs(_n(0.08)), 0.05, pmt_score)
+    n_pay          = nb_prog * N_CYCLES
+    n_paid         = _clip(int(n_pay * np.random.uniform(0.60, 1.0)), 0, n_pay)
+    gap_ratio      = round(1 - n_paid / max(n_pay, 1), 3)
     # Légitimes peuvent partager des téléphones (famille, rural)
     shared_phone   = int(np.random.choice([0,1,2,3], p=[0.72, 0.18, 0.07, 0.03]))
     shared_account = int(np.random.choice([0,1,2], p=[0.78, 0.17, 0.05]))
+    amount         = round(random.uniform(150, 500), 2)
+    enrollment_date = date(random.randint(2020, 2023), random.randint(1,12), 1)
+    # registration_age_days : jours depuis enrollment_date (même logique que feature_extractor)
+    reg_age_days   = (date.today() - enrollment_date).days
+    # avg_enrollment_days : même valeur (1 seule date d'inscription disponible)
+    avg_enroll_days = reg_age_days
+    # cycle_count : nombre de cycles distincts couverts
+    cycle_count    = min(nb_prog * N_CYCLES, N_CYCLES)
+    # amount_variance : approximée par la variance d'une distribution binomiale de paiements
+    # paid=amount, failed=0 → variance ≈ p*(1-p)*amount²  où p = success_rate
+    p_success      = round(1 - gap_ratio, 3)
+    amount_variance = round(p_success * (1 - p_success) * (amount ** 2), 2)
+    # total_issued / total_paid (pour dériver high_amount_flag après)
+    total_issued   = round(n_pay * amount, 2)
+    total_paid     = round(n_paid * amount, 2)
+    # group_membership_count : 0 ou 1 (individus dans un ménage)
+    group_membership_count = random.randint(0, 1)
     return {
         "partner_idx": idx, "is_fraud": 0, "scenario": "legitimate",
         "gender": random.choice(["male","female"]),
@@ -89,22 +108,33 @@ def build_legitimate(idx):
         "has_disabled": random.random() < 0.07,
         "single_head": random.random() < 0.14,
         "elderly_head": random.random() < 0.08,
-        "enrollment_date": date(random.randint(2020, 2023), random.randint(1,12), 1),
+        "enrollment_date": enrollment_date,
         "nb_programs": nb_prog,
+        # nb_active_programs : tous les programmes considérés actifs (enrolled, pas d'exit_date)
+        "nb_active_programs": nb_prog,
         "prog_indices": random.sample(range(N_PROGRAMS), nb_prog),
         "pmt_score": round(pmt_score, 4),
+        "pmt_score_min": round(pmt_score_min, 4),
         "payment_count": n_pay,
         "payment_count_paid": n_paid,
         "gap_ratio": gap_ratio,
-        "payment_success_rate": round(1 - gap_ratio, 3),
-        "amount_per_payment": round(random.uniform(150, 500), 2),
+        "payment_success_rate": p_success,
+        "amount_per_payment": amount,
+        "avg_entitlement_amount": amount,
+        "total_issued": total_issued,
+        "total_paid": total_paid,
+        "amount_variance": amount_variance,
+        "cycle_count": cycle_count,
         "shared_phone_count": shared_phone,
         "shared_account_count": shared_account,
-        "group_count": random.randint(0, 1),
+        "group_count": group_membership_count,
+        "group_membership_count": group_membership_count,
         "income_per_person": round(income / max(hh_size, 1), 2),
         "network_risk": round(
             min(shared_phone/5, 1)*0.4 + min(shared_account/5, 1)*0.6 + abs(_n(0.05)), 3
         ),
+        "registration_age_days": reg_age_days,
+        "avg_enrollment_days": avg_enroll_days,
     }
 
 
@@ -258,19 +288,48 @@ def generate_dataset(n_total=N_TOTAL, fraud_rate=FRAUD_RATE):
     df["partner_id"] = df["partner_idx"]
     df["synthetic_label"] = df["is_fraud"]
 
+    # Aliases pour aligner avec feature_extractor.py
     df["payment_gap_ratio"] = df["gap_ratio"]
     df["network_risk_score"] = df["network_risk"]
-    
-    
+
+    # dependency_ratio : (enfants + âgés) / adultes (même formule que feature_extractor)
+    adults = (df["household_size"] - df["nb_children"] - df["nb_elderly"]).clip(lower=1)
+    df["dependency_ratio"] = ((df["nb_children"] + df["nb_elderly"]) / adults).round(3)
+
+    # high_amount_flag : total_issued > 95e percentile (même logique que feature_extractor)
+    q95 = df["total_issued"].quantile(0.95)
+    df["high_amount_flag"] = (df["total_issued"] > q95).astype(int)
+
+    # income_program_inconsistency : revenu/personne < 15e percentile ET ≥ 3 programmes
+    q15 = df["income_per_person"].quantile(0.15)
+    df["income_program_inconsistency"] = (
+        (df["income_per_person"] < q15) & (df["nb_programs"] >= 3)
+    ).astype(int)
+
     return df.sample(frac=1, random_state=SEED).reset_index(drop=True)
 
 
 ML_FEATURES = [
-    "age","income","income_per_person","household_size","nb_children",
-    "nb_elderly","has_disabled","single_head",
-    "nb_programs","pmt_score","gap_ratio","payment_success_rate",
-    "payment_count","shared_phone_count","shared_account_count",
-    "network_risk","group_count",
+    # Démographie
+    "age", "income", "income_per_person",
+    "household_size", "nb_children", "nb_elderly",
+    "dependency_ratio",
+    "has_disabled", "single_head",
+    # Programmes
+    "nb_programs", "nb_active_programs",
+    "pmt_score", "pmt_score_min",
+    "avg_enrollment_days",
+    # Paiements
+    "payment_count", "payment_gap_ratio",
+    "payment_success_rate", "amount_variance",
+    "cycle_count",
+    # Réseau
+    "shared_phone_count", "shared_account_count",
+    "network_risk",
+    # Groupes
+    "group_membership_count",
+    # Flags dérivés
+    "high_amount_flag", "income_program_inconsistency",
 ]
 
 
@@ -504,14 +563,19 @@ def main():
     out   = Path(args.output)
     out.parent.mkdir(parents=True, exist_ok=True)
     cols = ML_FEATURES + [
-    "is_fraud",
-    "synthetic_label",
-    "partner_idx",
-    "partner_id",
-    "scenario",
-    "payment_gap_ratio",
-    "network_risk_score"
-    ]    
+        "is_fraud",
+        "synthetic_label",
+        "partner_idx",
+        "partner_id",
+        "scenario",
+        # Colonnes brutes utiles pour debug/injection
+        "registration_age_days",
+        "avg_entitlement_amount",
+        "total_issued",
+        "total_paid",
+        "network_risk_score",
+        "elderly_head",
+    ]
     df[[c for c in cols if c in df.columns]].to_csv(out, index=False)
     print(f"\n✅ CSV → {out}  ({len(df)} lignes)")
 

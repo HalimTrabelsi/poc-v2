@@ -11,7 +11,7 @@ from app.schemas.fraud       import (
     FraudScoreResponse, RiskLevel, Action, ShapFactor
 )
 
-RULES_PATH  = os.getenv("RULES_PATH",  "ml/rules/fraud_rules.json")
+RULES_PATH  = os.getenv("RULES_PATH",  "rules/fraud_rules.json")  # ← corrigé aussi (ml/rules → rules)
 MODELS_DIR  = os.getenv("MODELS_DIR",  "models_saved")
 
 
@@ -30,7 +30,7 @@ class FraudPipeline:
         bid = features["beneficiary_id"]
 
         # 1 — Rule Engine
-        rules = self.rule_engine.evaluate(features)
+        result = self.rule_engine.evaluate_one(features)  # ← CHANGÉ (rules → result, evaluate → evaluate_one)
 
         # 2 — ML Scoring
         ml = self.ml_scorer.score(features)
@@ -39,7 +39,7 @@ class FraudPipeline:
         graph = self.graph.get_risk(bid)
 
         # 4 — Aggregate scores (Rule 25% + ML 50% + Graph 25%)
-        rule_s  = rules["rule_score"]
+        rule_s  = result.rule_score   # ← CHANGÉ (rules["rule_score"] → result.rule_score)
         ml_s    = ml["ml_score"]
         graph_s = graph["graph_score"]
         final   = round(0.25 * rule_s + 0.50 * ml_s + 0.25 * graph_s, 3)
@@ -59,7 +59,7 @@ class FraudPipeline:
 
         # 7 — LLM natural language explanation
         explanation = self.llm.explain(
-            bid, final, level.value, factors, rules["flags"]
+            bid, final, level.value, factors, result.triggered_flags  # ← CHANGÉ (rules["flags"] → result.triggered_flags)
         )
 
         ms = int((time.time() - t0) * 1000)
@@ -72,7 +72,7 @@ class FraudPipeline:
             final_score    = final,
             risk_level     = level,
             action         = action,
-            rule_flags     = rules["flags"],
+            rule_flags     = result.triggered_flags,  # ← CHANGÉ (rules["flags"] → result.triggered_flags)
             shap_factors   = [ShapFactor(**f) for f in factors],
             explanation    = explanation,
             processing_ms  = ms,

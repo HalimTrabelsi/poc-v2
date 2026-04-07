@@ -9,7 +9,6 @@ router = APIRouter()
 async def list_rules():
     engine = get_pipeline().rule_engine
     return {
-        "version": engine.version,
-        "count":   len(engine.rules),
-        "rules":   engine.rules,
+        "count": engine.active_rule_count,      
+        "rules": engine.get_rules_summary(),     
     }
