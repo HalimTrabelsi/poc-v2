@@ -1,0 +1,36 @@
+{
+  "feature_columns": [
+    "age",
+    "income",
+    "income_per_person",
+    "household_size",
+    "nb_children",
+    "nb_elderly",
+    "dependency_ratio",
+    "has_disabled",
+    "single_head",
+    "nb_programs",
+    "nb_active_programs",
+    "pmt_score",
+    "pmt_score_min",
+    "avg_enrollment_days",
+    "payment_count",
+    "payment_gap_ratio",
+    "payment_success_rate",
+    "amount_variance",
+    "cycle_count",
+    "shared_phone_count",
+    "shared_account_count",
+    "network_risk",
+    "group_membership_count",
+    "high_amount_flag",
+    "income_program_inconsistency"
+  ],
+  "target_column": "is_fraud",
+  "supervised_model_default": "random_forest",
+  "available_models": {
+    "random_forest": "random_forest.joblib",
+    "logreg": "logreg.joblib",
+    "isolation_forest": "isolation_forest.joblib"
+  }
+}

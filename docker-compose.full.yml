@@ -107,9 +107,7 @@ services:
     ports:
       - "8002:8001"
     environment:
-      # DB OpenG2P — lecture des bénéficiaires
       OPENG2P_DB_URL: postgresql://${POSTGRES_USER:-odoo}:${POSTGRES_PASSWORD}@postgresql:5432/${POSTGRES_DB:-openg2p}
-      # DB Fraud — stockage des alertes
       DB_URL: postgresql://fraud:fraud123@fraud-db:5432/fraud_engine
       MLFLOW_TRACKING_URI: http://mlflow:5000
       CHROMADB_HOST: chromadb
@@ -119,7 +117,7 @@ services:
       MODELS_DIR: /app/models_saved
       ENV: development
     volumes:
-      - ./fraud-detection-engine/ml/rules:/app/ml/rules
+      - ./fraud-detection-engine/rules:/app/ml/rules
       - ./fraud-detection-engine/models_saved:/app/models_saved
     depends_on:
       postgresql:
@@ -131,8 +129,8 @@ services:
       chromadb:
         condition: service_started
     networks:
-      - openg2p-internal   # pour lire les données OpenG2P
-      - fraud-net          # pour parler à MLflow, ChromaDB, Ollama
+      - openg2p-internal
+      - fraud-net
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
       interval: 30s

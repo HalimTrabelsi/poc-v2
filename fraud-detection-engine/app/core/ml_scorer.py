@@ -7,8 +7,7 @@ import joblib
 import pandas as pd
 
 
-BASE_DIR = Path(__file__).resolve().parents[2]
-MODELS_DIR = Path(os.getenv("MODELS_DIR", str(BASE_DIR / "models_saved")))
+MODELS_DIR = Path(os.getenv("MODELS_DIR", "/app/models_saved"))
 DEFAULT_MODEL_NAME = os.getenv("DEFAULT_MODEL_NAME", "random_forest")
 
 METADATA_FILE = MODELS_DIR / "metadata.json"
@@ -16,7 +15,10 @@ RF_MODEL_FILE = MODELS_DIR / "random_forest.joblib"
 LOGREG_MODEL_FILE = MODELS_DIR / "logreg.joblib"
 ISO_MODEL_FILE = MODELS_DIR / "isolation_forest.joblib"
 
-SUPPORTED_SUPERVISED = {"random_forest": RF_MODEL_FILE, "logreg": LOGREG_MODEL_FILE}
+SUPPORTED_SUPERVISED = {
+    "random_forest": RF_MODEL_FILE,
+    "logreg": LOGREG_MODEL_FILE,
+}
 
 
 class MLScorer:
@@ -66,7 +68,7 @@ class MLScorer:
             self.ready = True
             print(f"[MLScorer] Loaded model: {self.model_name} ({model_path})")
             print(f"[MLScorer] Features ({len(self.features)}): {self.features}")
-            if self.iso_model:
+            if self.iso_model is not None:
                 print(f"[MLScorer] Isolation Forest loaded: {ISO_MODEL_FILE}")
 
         except Exception as e:
@@ -76,7 +78,10 @@ class MLScorer:
             print(f"[MLScorer] Failed to load model: {e}")
 
     def _build_dataframe(self, payload: Dict[str, Any]) -> pd.DataFrame:
-        row = {feat: (payload.get(feat) or 0) for feat in self.features}
+        row = {
+            feat: (0 if payload.get(feat) is None else payload.get(feat))
+            for feat in self.features
+        }
         return pd.DataFrame([row], columns=self.features).fillna(0)
 
     def score(self, payload: Dict[str, Any]) -> Dict[str, Any]:
@@ -87,6 +92,7 @@ class MLScorer:
                 "ml_prediction": None,
                 "ml_probability": 0.0,
                 "ml_score": 0.0,
+                "anomaly_score": 0.0,
                 "error": "Model is not loaded. Check server logs for details.",
             }
 
@@ -106,12 +112,11 @@ class MLScorer:
                 "ml_prediction": prediction,
                 "ml_probability": round(proba, 6),
                 "ml_score": round(proba, 6),
+                "anomaly_score": 0.0,
                 "features_used": self.features,
             }
 
             if self.iso_model is not None:
-                # score_samples returns negative values; more negative = more anomalous.
-                # Invert and normalise to [0, 1] using the expected range [-0.5, 0.5].
                 raw_score = float(self.iso_model.score_samples(X)[0])
                 anomaly_score = round(max(0.0, min(1.0, (-raw_score - 0.1) / 0.4)), 6)
                 result["anomaly_score"] = anomaly_score
@@ -125,5 +130,6 @@ class MLScorer:
                 "ml_prediction": None,
                 "ml_probability": 0.0,
                 "ml_score": 0.0,
+                "anomaly_score": 0.0,
                 "error": str(e),
             }

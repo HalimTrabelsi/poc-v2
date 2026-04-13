@@ -9,9 +9,11 @@ Structure prête pour l'ajout d'un challenger XGBoost.
 from __future__ import annotations
 
 import json
+import os
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
-from pathlib import Path
 from joblib import dump
 
 from sklearn.compose import ColumnTransformer
@@ -27,13 +29,10 @@ from sklearn.metrics import classification_report, roc_auc_score
 SEED = 42
 np.random.seed(SEED)
 
-SCRIPT_DIR  = Path(__file__).resolve().parent
-REPO_ROOT   = SCRIPT_DIR.parents[2]          # fraud-detection-engine/
-MODELS_DIR  = REPO_ROOT / "models_saved"     # read by the API service
-DATA_DIR    = SCRIPT_DIR.parent / "data"
-
-# Chemin du CSV synthétique généré par generate_dataset.py
-DATASET_CSV = DATA_DIR / "synthetic" / "dataset_ml.csv"
+SCRIPT_DIR = Path(__file__).resolve().parent
+MODELS_DIR = Path(os.getenv("MODELS_DIR", "/app/models_saved"))
+DATA_DIR = SCRIPT_DIR.parent / "data"
+DATASET_CSV = Path(os.getenv("DATASET_PATH", str(DATA_DIR / "synthetic" / "dataset_ml.csv")))
 
 TARGET = "is_fraud"
 
@@ -63,7 +62,6 @@ ML_FEATURES = [
     "high_amount_flag", "income_program_inconsistency",
 ]
 
-# Valeurs par défaut pour les colonnes éventuellement absentes du CSV
 FEATURE_DEFAULTS: dict[str, float] = {
     "age": 35,
     "income": 0.0,
@@ -93,7 +91,6 @@ FEATURE_DEFAULTS: dict[str, float] = {
 }
 
 
-# ─────────────────────────────────────────────────────────────
 def load_data(path: Path = DATASET_CSV) -> pd.DataFrame:
     if not path.exists():
         raise FileNotFoundError(f"Dataset introuvable : {path}")
@@ -103,24 +100,27 @@ def load_data(path: Path = DATASET_CSV) -> pd.DataFrame:
 
 
 def prepare_features(df: pd.DataFrame) -> tuple[pd.DataFrame, list[str]]:
-    """
-    Applique les fallbacks sur les colonnes manquantes et retourne
-    (df enrichi, liste effective des features disponibles).
-    """
     out = df.copy()
 
-    # Label
     if TARGET not in out.columns:
         if "synthetic_label" in out.columns:
             out[TARGET] = out["synthetic_label"]
         else:
             raise ValueError(f"Colonne cible '{TARGET}' introuvable.")
 
-    # Alias rétrocompatible
+    # Alias rétrocompatibles
     if "payment_gap_ratio" not in out.columns and "gap_ratio" in out.columns:
         out["payment_gap_ratio"] = out["gap_ratio"]
 
-    # Colonnes manquantes → valeur par défaut
+    if "group_membership_count" not in out.columns and "group_count" in out.columns:
+        out["group_membership_count"] = out["group_count"]
+
+    if "network_risk" not in out.columns and "network_risk_score" in out.columns:
+        out["network_risk"] = out["network_risk_score"]
+
+    if "amount_variance" not in out.columns and "amount_variannce" in out.columns:
+        out["amount_variance"] = out["amount_variannce"]
+
     missing = []
     for col in ML_FEATURES:
         if col not in out.columns:
@@ -134,12 +134,11 @@ def prepare_features(df: pd.DataFrame) -> tuple[pd.DataFrame, list[str]]:
     return out, effective_features
 
 
-# ─────────────────────────────────────────────────────────────
 def build_preprocessor(numeric_cols: list[str]) -> ColumnTransformer:
     return ColumnTransformer([
         ("num", Pipeline([
             ("imputer", SimpleImputer(strategy="median")),
-            ("scaler",  StandardScaler()),
+            ("scaler", StandardScaler()),
         ]), numeric_cols)
     ])
 
@@ -149,12 +148,12 @@ def train_supervised(X_train, y_train, X_test, y_test, feature_cols):
 
     logreg = Pipeline([
         ("prep", preprocessor),
-        ("clf",  LogisticRegression(max_iter=800, C=0.1, class_weight="balanced")),
+        ("clf", LogisticRegression(max_iter=800, C=0.1, class_weight="balanced")),
     ])
 
     rf = Pipeline([
         ("prep", build_preprocessor(feature_cols)),
-        ("clf",  RandomForestClassifier(
+        ("clf", RandomForestClassifier(
             n_estimators=200,
             max_depth=8,
             min_samples_leaf=10,
@@ -164,25 +163,31 @@ def train_supervised(X_train, y_train, X_test, y_test, feature_cols):
         )),
     ])
 
-    # === Futur challenger XGBoost ===
+    # Futur challenger XGBoost
     # from xgboost import XGBClassifier
-    # xgb = Pipeline([("prep", build_preprocessor(feature_cols)),
-    #                 ("clf", XGBClassifier(n_estimators=200, max_depth=5,
-    #                                       scale_pos_weight=..., eval_metric="auc",
-    #                                       random_state=SEED))])
-    # xgb.fit(X_train, y_train)
+    # xgb = Pipeline([
+    #     ("prep", build_preprocessor(feature_cols)),
+    #     ("clf", XGBClassifier(
+    #         n_estimators=200,
+    #         max_depth=5,
+    #         learning_rate=0.05,
+    #         subsample=0.9,
+    #         colsample_bytree=0.9,
+    #         eval_metric="auc",
+    #         random_state=SEED,
+    #     ))
+    # ])
 
     logreg.fit(X_train, y_train)
     rf.fit(X_train, y_train)
 
     for name, model in [("Logistic Regression", logreg), ("Random Forest", rf)]:
         proba = model.predict_proba(X_test)[:, 1]
-        pred  = (proba >= 0.5).astype(int)
+        pred = (proba >= 0.5).astype(int)
         print(f"\n📊 {name}")
         print(classification_report(y_test, pred, zero_division=0))
         print(f"AUC : {roc_auc_score(y_test, proba):.4f}")
 
-    # Feature importance RF
     importances = rf.named_steps["clf"].feature_importances_
     print("\n🧠 Feature importance (RF) :")
     for feat, imp in sorted(zip(feature_cols, importances), key=lambda x: -x[1])[:15]:
@@ -194,20 +199,19 @@ def train_supervised(X_train, y_train, X_test, y_test, feature_cols):
 def train_anomaly(X_train, feature_cols):
     iso = IsolationForest(
         n_estimators=200,
-        contamination=0.12,  # correspond au taux de fraude du dataset
+        contamination=0.12,
         random_state=SEED,
     )
     iso.fit(X_train[feature_cols])
     return iso
 
 
-# ─────────────────────────────────────────────────────────────
 def save_artifacts(logreg, rf, iso, feature_cols: list[str]):
     MODELS_DIR.mkdir(parents=True, exist_ok=True)
 
-    dump(rf,     MODELS_DIR / "random_forest.joblib")
+    dump(rf, MODELS_DIR / "random_forest.joblib")
     dump(logreg, MODELS_DIR / "logreg.joblib")
-    dump(iso,    MODELS_DIR / "isolation_forest.joblib")
+    dump(iso, MODELS_DIR / "isolation_forest.joblib")
 
     metadata = {
         "feature_columns": feature_cols,
@@ -219,14 +223,14 @@ def save_artifacts(logreg, rf, iso, feature_cols: list[str]):
             "isolation_forest": "isolation_forest.joblib",
         },
     }
+
     meta_path = MODELS_DIR / "metadata.json"
-    meta_path.write_text(json.dumps(metadata, indent=2, ensure_ascii=False))
+    meta_path.write_text(json.dumps(metadata, indent=2, ensure_ascii=False), encoding="utf-8")
 
     print(f"\n✅ Artefacts sauvegardés dans {MODELS_DIR}/")
     print(f"   metadata.json — {len(feature_cols)} features enregistrées")
 
 
-# ─────────────────────────────────────────────────────────────
 def train():
     print("\n🚀 Chargement données...")
     df = load_data()
@@ -247,8 +251,6 @@ def train():
     )
 
     logreg, rf = train_supervised(X_train, y_train, X_test, y_test, feature_cols)
-
-    # Isolation Forest entraîné uniquement sur le train set
     iso = train_anomaly(X_train, feature_cols)
 
     save_artifacts(logreg, rf, iso, feature_cols)
