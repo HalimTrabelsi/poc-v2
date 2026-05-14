@@ -59,6 +59,14 @@ class MLScorer:
                 )
 
             self.model = joblib.load(model_path)
+            
+            # ✅ Initialisation SHAP si disponible
+            try:
+                from app.core.shap_explainer import SHAPExplainer
+                self.shap_explainer = SHAPExplainer(self.model)
+            except Exception as e:
+                print(f"[MLScorer] SHAP non disponible : {e}")
+                self.shap_explainer = None
 
             if ISO_MODEL_FILE.exists():
                 self.iso_model = joblib.load(ISO_MODEL_FILE)

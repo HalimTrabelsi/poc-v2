@@ -1,10 +1,15 @@
 {
   "_meta": {
     "version": "2.0",
-    "updated": "2025-04",
+    "updated": "2025-05",
     "author": "Halim Trabelsi — PFE EY",
-    "description": "Règles métier anti-fraude pour OpenG2P. Couvre 6 scénarios.",
-    "scoring": "rule_score = sum(weight) capped à 1.0. CRITICAL>=0.80, HIGH>=0.55, MEDIUM>=0.30"
+    "description": "Règles métier anti-fraude v2 avec apprentissage dynamique",
+    "features": [
+      "Versionning complet",
+      "Seuils adaptatifs",
+      "Feedback loop integration",
+      "Audit trail"
+    ]
   },
   "rules": [
     {
@@ -16,7 +21,10 @@
       "weight": 0.35,
       "severity": "HIGH",
       "flag": "SHARED_ACCOUNT",
-      "enabled": true
+      "enabled": true,
+      "adaptive": true,
+      "min_threshold": 1,
+      "max_threshold": 5
     },
     {
       "id": "R002",
@@ -27,95 +35,116 @@
       "weight": 0.30,
       "severity": "HIGH",
       "flag": "SHARED_PHONE",
-      "enabled": true
+      "enabled": true,
+      "adaptive": true,
+      "min_threshold": 2,
+      "max_threshold": 6
     },
     {
       "id": "R003",
       "name": "too_many_programs",
-      "description": "Inscription simultanée à 4+ programmes (plafond normal = 3)",
+      "description": "Inscription simultanée à 4+ programmes",
       "scenario": "multi_enrollment",
       "condition": "nb_programs >= 4",
       "weight": 0.30,
       "severity": "HIGH",
       "flag": "MULTI_PROGRAM_ENROLLMENT",
-      "enabled": true
+      "enabled": true,
+      "adaptive": true,
+      "min_threshold": 3,
+      "max_threshold": 6
     },
     {
       "id": "R004",
       "name": "very_low_pmt_score",
-      "description": "Score PMT anormalement bas (critère d'éligibilité suspect)",
+      "description": "Score PMT anormalement bas",
       "scenario": "income_underreporting",
       "condition": "pmt_score <= 0.20",
       "weight": 0.20,
       "severity": "MEDIUM",
       "flag": "SUSPICIOUS_PMT_SCORE",
-      "enabled": true
+      "enabled": true,
+      "adaptive": true,
+      "min_threshold": 0.05,
+      "max_threshold": 0.35
     },
     {
       "id": "R005",
       "name": "large_payment_gap",
-      "description": "Taux d'échec de paiement > 50% (manipulations)",
+      "description": "Taux d'échec de paiement > 50%",
       "scenario": "payment_manipulation",
       "condition": "payment_gap_ratio >= 0.50",
       "weight": 0.30,
       "severity": "HIGH",
       "flag": "LARGE_PAYMENT_GAP",
-      "enabled": true
+      "enabled": true,
+      "adaptive": true,
+      "min_threshold": 0.30,
+      "max_threshold": 0.70
     },
     {
       "id": "R006",
       "name": "ghost_household",
-      "description": "Ménage très large avec revenus très faibles = ménage fantôme",
+      "description": "Ménage très large avec revenus très faibles",
       "scenario": "ghost_household",
       "condition": "household_size >= 8 and income_per_person < 70",
       "weight": 0.25,
       "severity": "HIGH",
       "flag": "GHOST_HOUSEHOLD",
-      "enabled": true
+      "enabled": true,
+      "adaptive": true
     },
     {
       "id": "R007",
       "name": "phone_and_account_combo",
-      "description": "Partage téléphone ET compte bancaire = réseau frauduleux",
+      "description": "Partage téléphone ET compte bancaire",
       "scenario": "identity_fraud",
       "condition": "shared_phone_count >= 2 and shared_account_count >= 2",
       "weight": 0.40,
       "severity": "CRITICAL",
       "flag": "FRAUD_NETWORK_COMBO",
-      "enabled": true
+      "enabled": true,
+      "adaptive": false
     },
     {
       "id": "R008",
       "name": "network_risk_high",
-      "description": "Score de risque réseau élevé (analyse graphe)",
+      "description": "Score de risque réseau élevé",
       "scenario": "shared_phone",
       "condition": "network_risk_score >= 0.60",
       "weight": 0.30,
       "severity": "HIGH",
       "flag": "HIGH_NETWORK_RISK",
-      "enabled": true
+      "enabled": true,
+      "adaptive": true,
+      "min_threshold": 0.40,
+      "max_threshold": 0.80
     },
     {
       "id": "R009",
       "name": "income_underreporting_pattern",
-      "description": "Revenu déclaré très faible mais inscrit à beaucoup de programmes",
+      "description": "Revenu très faible mais beaucoup de programmes",
       "scenario": "income_underreporting",
       "condition": "income_per_person < 50 and nb_programs >= 3",
       "weight": 0.20,
       "severity": "MEDIUM",
       "flag": "INCOME_UNDERREPORTING",
-      "enabled": true
+      "enabled": true,
+      "adaptive": true,
+      "min_threshold": 30,
+      "max_threshold": 80
     },
     {
       "id": "R010",
       "name": "payment_manipulation_combo",
-      "description": "Écart de paiements + téléphone/compte partagé = manipulation organisée",
+      "description": "Écart paiements + ressources partagées",
       "scenario": "payment_manipulation",
       "condition": "payment_gap_ratio >= 0.30 and (shared_phone_count >= 2 or shared_account_count >= 2)",
       "weight": 0.35,
       "severity": "CRITICAL",
       "flag": "PAYMENT_NETWORK_COMBO",
-      "enabled": true
+      "enabled": true,
+      "adaptive": false
     }
   ]
 }

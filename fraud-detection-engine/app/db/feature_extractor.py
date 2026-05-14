@@ -62,12 +62,13 @@ def extract_features(limit: Optional[int] = None) -> pd.DataFrame:
     /* fallback PMT si la table registrant info n'existe pas */
     pmt_agg AS (
         SELECT
-            pb.partner_id,
-            0.5 AS pmt_score,
-            0.5 AS pmt_score_min
-        FROM partner_base pb
+            pri.registrant_id AS partner_id,
+            AVG(COALESCE(pri.latest_pmt_score, pri.pmt_score)) AS pmt_score,
+            MIN(COALESCE(pri.latest_pmt_score, pri.pmt_score)) AS pmt_score_min
+        FROM g2p_program_registrant_info pri
+        WHERE COALESCE(pri.latest_pmt_score, pri.pmt_score) IS NOT NULL
+        GROUP BY pri.registrant_id
     ),
-
     pay_agg AS (
         SELECT
             ent.partner_id,
@@ -115,6 +116,7 @@ def extract_features(limit: Optional[int] = None) -> pd.DataFrame:
          AND rb.partner_id != rb2.partner_id
          AND rb.active = true
          AND rb2.active = true
+         AND COALESCE(NULLIF(rb.sanitized_acc_number, ''), rb.acc_number) IS NOT NULL
         GROUP BY rb.partner_id
     ),
 

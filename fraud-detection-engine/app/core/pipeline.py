@@ -1,6 +1,7 @@
 """Pipeline Orchestrator — Rule Engine + ML + Graph + XAI + LLM"""
 import os
 import time
+import logging
 
 from app.core.rule_engine import RuleEngine
 from app.core.ml_scorer import MLScorer
@@ -8,10 +9,11 @@ from app.core.graph_analyzer import FraudGraphAnalyzer
 from app.core.shap_explainer import SHAPExplainer
 from app.core.llm_explainer import LLMExplainer
 from app.schemas.fraud import FraudScoreResponse, RiskLevel, Action, ShapFactor
+from app.core.graph_analyzer import FraudGraphAnalyzer
 
 
 RULES_PATH = os.getenv("RULES_PATH", "/app/ml/rules/fraud_rules.json")
-
+logger = logging.getLogger(__name__)
 
 class FraudPipeline:
     def __init__(self):
@@ -65,7 +67,8 @@ class FraudPipeline:
         factors = []
         try:
             factors = self.shap.get_top_factors(features)
-        except Exception:
+        except Exception as e:
+            logger.warning(f"SHAP non disponible : {e}")
             factors = []
 
         # 7 — LLM explanation

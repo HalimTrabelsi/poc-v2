@@ -1,57 +1,124 @@
-"""Graph Analyzer — NetworkX fraud network detection"""
-import networkx as nx
-import pandas as pd
+﻿import logging
+import time
+from typing import Dict, Any
+
+try:
+    import networkx as nx
+    NETWORKX_AVAILABLE = True
+except ImportError:
+    NETWORKX_AVAILABLE = False
+
+logger = logging.getLogger(__name__)
 
 
 class FraudGraphAnalyzer:
-    def __init__(self):
-        self.G = nx.Graph()
+    """
+    Analyse réseau de fraude — partage téléphones + comptes bancaires.
+    Lazy loading : graphe construit à la première requête.
+    Cache TTL : rebuild toutes les 5 minutes.
+    """
 
-    def build_from_df(self, df: pd.DataFrame):
-        self.G.clear()
-        for _, row in df.iterrows():
-            self.G.add_node(str(row["id"]), name=row.get("name", ""))
+    def __init__(self, cache_ttl_seconds: int = 300):
+        self.enabled = NETWORKX_AVAILABLE
+        self.G = None
+        self.pagerank = {}
+        self.last_build_time = 0.0
+        self.cache_ttl = cache_ttl_seconds
 
-        for attr, weight in [
-            ("phone",        0.9),
-            ("address_hash", 0.7),
-            ("agent_id",     0.4),
-            ("bank_account", 1.0),
-        ]:
-            if attr in df.columns:
-                self._link_by(df, attr, weight)
+        if not self.enabled:
+            logger.warning("NetworkX non installé — graph_score = 0.0")
 
-    def _link_by(self, df: pd.DataFrame, attr: str, weight: float):
-        grouped = df.groupby(attr)["id"].apply(list)
-        for _, ids in grouped.items():
-            if len(ids) > 1:
-                for i in range(len(ids)):
-                    for j in range(i + 1, len(ids)):
-                        a, b = str(ids[i]), str(ids[j])
-                        if self.G.has_edge(a, b):
-                            self.G[a][b]["weight"] = max(
-                                self.G[a][b]["weight"], weight)
-                        else:
-                            self.G.add_edge(a, b, weight=weight)
+    def _build_graph(self):
+        if not self.enabled:
+            return
 
-    def get_risk(self, beneficiary_id: str) -> dict:
-        bid = str(beneficiary_id)
-        if bid not in self.G or len(self.G) < 2:
-            return {
-                "graph_score": 0.0,
-                "connections": 0,
-                "is_hub":      False,
-                "neighbors":   [],
-            }
+        now = time.time()
+        if self.G is not None and (now - self.last_build_time) < self.cache_ttl:
+            return
 
-        neighbors   = list(self.G.neighbors(bid))
-        degree      = self.G.degree(bid)
-        pr          = nx.pagerank(self.G, weight="weight")
-        graph_score = min(pr.get(bid, 0) * 200, 1.0)
+        try:
+            from sqlalchemy import text
+            from app.db.postgres import get_openg2p_db
+
+            db     = get_openg2p_db()
+            engine = db.engine
+
+            phone_q = text("""
+                SELECT partner_id,
+                       COALESCE(NULLIF(phone_sanitized, ''), phone_no) AS phone
+                FROM   g2p_phone_number
+                WHERE  COALESCE(NULLIF(phone_sanitized, ''), phone_no) IS NOT NULL
+            """)
+
+            bank_q = text("""
+                SELECT partner_id,
+                       COALESCE(NULLIF(sanitized_acc_number, ''), acc_number) AS account
+                FROM   res_partner_bank
+                WHERE  active = true
+                  AND  COALESCE(NULLIF(sanitized_acc_number, ''), acc_number) IS NOT NULL
+            """)
+
+            with engine.connect() as conn:
+                phones = conn.execute(phone_q).fetchall()
+                banks  = conn.execute(bank_q).fetchall()
+
+            G = nx.Graph()
+
+            for partner_id, phone in phones:
+                G.add_edge(f"P{partner_id}", f"TEL:{phone}")
+
+            for partner_id, account in banks:
+                G.add_edge(f"P{partner_id}", f"BANK:{account}")
+
+            self.G        = G
+            self.pagerank = nx.pagerank(G, alpha=0.85, max_iter=100) if G.number_of_nodes() > 0 else {}
+            self.last_build_time = now
+
+            logger.info(f"Graphe : {G.number_of_nodes()} noeuds, {G.number_of_edges()} aretes")
+
+        except Exception as e:
+            logger.error(f"Erreur graphe : {e}")
+            self.G        = nx.Graph() if NETWORKX_AVAILABLE else None
+            self.pagerank = {}
+
+    def get_risk(self, beneficiary_id: Any) -> Dict[str, Any]:
+        default = {"graph_score": 0.0, "pagerank": 0.0, "degree": 0, "clustering": 0.0}
+
+        if not self.enabled:
+            return default
+
+        self._build_graph()
+
+        if self.G is None:
+            return default
+
+        node_id = f"P{beneficiary_id}"
+
+        if node_id not in self.G:
+            return default
+
+        pr         = self.pagerank.get(node_id, 0.0)
+        degree     = self.G.degree(node_id)
+        clustering = nx.clustering(self.G, node_id)
+
+        pr_norm     = min(pr * 5000, 1.0)
+        degree_norm = min(degree / 20.0, 1.0)
+
+        graph_score = round(0.50 * pr_norm + 0.30 * degree_norm + 0.20 * clustering, 4)
 
         return {
-            "graph_score": round(graph_score, 3),
-            "connections": len(neighbors),
-            "is_hub":      degree > 5,
-            "neighbors":   neighbors[:5],
+            "graph_score": graph_score,
+            "pagerank":    round(pr, 6),
+            "degree":      degree,
+            "clustering":  round(clustering, 4),
+        }
+
+    def get_stats(self) -> Dict[str, Any]:
+        if not self.enabled or self.G is None:
+            return {"enabled": False, "nodes": 0, "edges": 0}
+        return {
+            "enabled":    True,
+            "nodes":      self.G.number_of_nodes(),
+            "edges":      self.G.number_of_edges(),
+            "components": nx.number_connected_components(self.G),
         }
