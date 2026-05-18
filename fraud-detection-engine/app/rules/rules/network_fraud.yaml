@@ -1,0 +1,30 @@
+version: "1.0"
+scenario: "network_fraud"
+rules:
+  - id: "NF001"
+    name: "Shared Bank Account"
+    weight: 0.35
+    alert_level: "HIGH"
+    condition: "shared_account_count >= 2"
+    evidence_template: "Bank account shared with {shared_account_count} other beneficiaries"
+
+  - id: "NF002"
+    name: "Shared Phone Number"
+    weight: 0.30
+    alert_level: "HIGH"
+    condition: "shared_phone_count >= 3"
+    evidence_template: "Phone number shared with {shared_phone_count} other beneficiaries"
+
+  - id: "NF003"
+    name: "Phone and Account Network"
+    weight: 0.40
+    alert_level: "CRITICAL"
+    condition: "shared_phone_count >= 2 and shared_account_count >= 2"
+    evidence_template: "Shares both phone and bank account with multiple beneficiaries"
+
+  - id: "NF004"
+    name: "High Network Risk Score"
+    weight: 0.30
+    alert_level: "HIGH"
+    condition: "network_risk >= 0.60"
+    evidence_template: "Network risk score: {network_risk:.2f} (threshold: 0.60)"

@@ -1,0 +1,23 @@
+version: "1.0"
+scenario: "payment_anomalies"
+rules:
+  - id: "PA001"
+    name: "Large Payment Gap"
+    weight: 0.30
+    alert_level: "HIGH"
+    condition: "payment_gap_ratio >= 0.50"
+    evidence_template: "Payment failure rate: {payment_gap_ratio:.0%} (threshold: 50%)"
+
+  - id: "PA002"
+    name: "Payment Network Combination"
+    weight: 0.35
+    alert_level: "CRITICAL"
+    condition: "payment_gap_ratio >= 0.30 and (shared_phone_count >= 2 or shared_account_count >= 2)"
+    evidence_template: "High payment gap combined with network fraud indicators"
+
+  - id: "PA003"
+    name: "High Amount Anomaly"
+    weight: 0.20
+    alert_level: "MEDIUM"
+    condition: "high_amount_flag >= 1"
+    evidence_template: "Payment amounts significantly above 95th percentile"

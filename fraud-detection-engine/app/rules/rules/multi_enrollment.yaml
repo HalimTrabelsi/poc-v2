@@ -1,0 +1,18 @@
+version: "1.0"
+scenario: "multi_enrollment"
+rules:
+  - id: "ME001"
+    name: "Multiple Program Enrollment"
+    description: "Beneficiary enrolled in 4+ programs simultaneously"
+    weight: 0.30
+    alert_level: "HIGH"
+    condition: "nb_programs >= 4"
+    evidence_template: "Enrolled in {nb_programs} programs simultaneously (threshold: 4)"
+
+  - id: "ME002"
+    name: "Rapid Multi-Enrollment"
+    description: "Many active programs with recent enrollment"
+    weight: 0.35
+    alert_level: "HIGH"
+    condition: "nb_active_programs >= 3 and avg_enrollment_days < 180"
+    evidence_template: "{nb_active_programs} active programs, enrolled {avg_enrollment_days} days ago"
