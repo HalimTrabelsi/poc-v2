@@ -25,6 +25,15 @@ class Settings(BaseSettings):
     # API
     api_secret_key: str = "dev-secret-change-in-prod"
 
+    # Alert system  (set ALERT_WEBHOOK_URL in .env to enable)
+    alert_webhook_url: str = ""          # Slack / Teams / generic webhook URL
+    alert_min_risk_level: str = "CRITICAL"   # CRITICAL | HIGH
+    alert_odoo_enabled: bool = True      # also write mail.message into Odoo
+
+    # MLflow tracking (local SQLite by default, no server needed)
+    mlflow_tracking_uri: str = "sqlite:///app/models_saved/mlflow.db"
+    mlflow_experiment_name: str = "fraud-detection-engine"
+
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
 

@@ -4,7 +4,9 @@ import time
 from datetime import date
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, BackgroundTasks, Depends, File, HTTPException, Query, UploadFile
+from fastapi.responses import Response, StreamingResponse
+from pydantic import BaseModel
 
 from app.api.errors import BeneficiaryNotFoundError, ModelNotReadyError
 from app.api.models import (
@@ -287,6 +289,279 @@ async def list_beneficiaries(limit: int = Query(100, ge=1, le=5000)) -> list[dic
         return [{"partner_id": int(row)} for row in df["partner_id"].tolist()]
     except Exception as exc:
         logger.exception("Failed to list beneficiaries")
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+# ── Geospatial endpoints ─────────────────────────────────────────────────────
+
+@router.get("/v1/geo/heatmap", summary="Fraud score heatmap points (lat/lon + score)")
+async def geo_heatmap() -> list[dict]:
+    """Return one point per scored beneficiary with lat, lon, fraud_score.
+    Suitable for feeding directly into a pydeck HeatmapLayer.
+    """
+    try:
+        from app.services.geo_service import GeoService
+        return GeoService().get_heatmap_data()
+    except Exception as exc:
+        logger.exception("Heatmap failed")
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+@router.get("/v1/geo/hotspots", summary="DBSCAN fraud cluster hotspots")
+async def geo_hotspots() -> list[dict]:
+    """Cluster scored beneficiaries geographically and return fraud-density per cluster."""
+    try:
+        from app.services.geo_service import GeoService
+        return GeoService().get_hotspots()
+    except Exception as exc:
+        logger.exception("Hotspots failed")
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+# ── Feedback loop endpoints ───────────────────────────────────────────────────
+
+class FeedbackPayload(BaseModel):
+    verdict: str   # "confirmed_fraud" | "false_positive" | "uncertain"
+    notes: str = ""
+    investigator: str = "investigator"
+
+
+@router.post(
+    "/v1/cases/{case_id}/feedback",
+    status_code=201,
+    summary="Submit investigator verdict for a fraud case",
+)
+async def submit_feedback(case_id: str, body: FeedbackPayload) -> dict:
+    """Record an investigator verdict (confirmed_fraud / false_positive / uncertain).
+
+    Verdicts are stored in fraud_feedback and used to retrain XGBoost weekly,
+    so the model learns from real investigator decisions over time.
+    """
+    allowed = {"confirmed_fraud", "false_positive", "uncertain"}
+    if body.verdict not in allowed:
+        raise HTTPException(
+            status_code=422,
+            detail=f"verdict must be one of {sorted(allowed)}",
+        )
+    try:
+        from app.services.retraining_service import get_retrainer
+        feedback_id = get_retrainer().save_feedback(
+            case_id, body.verdict, body.notes, body.investigator
+        )
+        if not feedback_id:
+            raise HTTPException(status_code=404, detail=f"Case {case_id} not found")
+        return {
+            "feedback_id": feedback_id,
+            "case_id": case_id,
+            "verdict": body.verdict,
+            "status": "recorded",
+        }
+    except HTTPException:
+        raise
+    except Exception as exc:
+        logger.exception("Feedback submission failed for case %s", case_id)
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+@router.get("/v1/feedback/stats", summary="Investigator feedback statistics")
+async def feedback_stats() -> dict:
+    """Return verdict counts, estimated model precision, and retraining history."""
+    try:
+        from app.services.retraining_service import get_retrainer
+        return get_retrainer().get_feedback_stats()
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+@router.post("/v1/retrain", summary="Manually trigger XGBoost retraining on feedback labels")
+async def trigger_retrain(background_tasks: BackgroundTasks) -> dict:
+    """Start a retraining job in the background. Returns immediately with status 'started'."""
+    from app.services.retraining_service import get_retrainer
+    retrainer = get_retrainer()
+    background_tasks.add_task(retrainer.retrain)
+    return {"status": "started", "message": "Retraining running in background — check /feedback/stats for progress"}
+
+
+# ── Report / export endpoints ─────────────────────────────────────────────────
+
+@router.get(
+    "/v1/cases/{case_id}/report/pdf",
+    summary="Download PDF investigation report for a case",
+    response_class=Response,
+)
+async def download_pdf_report(case_id: str) -> Response:
+    """Generate and return a PDF audit report for the given fraud case."""
+    from app.data.repository import FraudCaseRepository
+    from app.services.report_service import generate_pdf_report
+
+    repo = FraudCaseRepository()
+    cases = repo.list_cases(limit=1000)
+    case = next((c for c in cases if str(c.get("case_id", "")) == case_id), None)
+    if not case:
+        raise HTTPException(status_code=404, detail=f"Case {case_id} not found")
+    try:
+        pdf_bytes = generate_pdf_report(case)
+        return Response(
+            content=pdf_bytes,
+            media_type="application/pdf",
+            headers={"Content-Disposition": f'attachment; filename="fraud_case_{case_id[:8]}.pdf"'},
+        )
+    except Exception as exc:
+        logger.exception("PDF generation failed for case %s", case_id)
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+@router.get(
+    "/v1/cases/export/csv",
+    summary="Export all fraud cases as CSV",
+    response_class=Response,
+)
+async def export_cases_csv(
+    risk_level: Optional[RiskLevel] = Query(None),
+    limit: int = Query(5000, ge=1, le=50000),
+) -> Response:
+    """Download a CSV of all (or filtered) fraud cases for compliance / audit."""
+    from app.data.repository import FraudCaseRepository
+    from app.services.report_service import generate_csv_report
+
+    repo = FraudCaseRepository()
+    risk_levels = [risk_level.value] if risk_level else None
+    cases = repo.list_cases(risk_levels=risk_levels, limit=limit)
+    csv_bytes = generate_csv_report(cases)
+    return Response(
+        content=csv_bytes,
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=fraud_cases_export.csv"},
+    )
+
+
+# ── Batch CSV upload scoring (Feature 8) ─────────────────────────────────────
+
+@router.post(
+    "/v1/score/batch",
+    summary="Upload a CSV of beneficiary IDs and score all of them",
+)
+async def score_batch_csv(
+    file: UploadFile = File(..., description="CSV with a 'beneficiary_id' column"),
+    background: bool = Query(False, description="Run in background; returns job_id immediately"),
+    background_tasks: BackgroundTasks = None,
+) -> Response:
+    """Accept a CSV file, score every listed beneficiary, and return a results CSV.
+
+    CSV must have at least one column named ``beneficiary_id``.
+    All other columns are ignored.  Returns a new CSV with scores appended.
+    """
+    import asyncio
+    import csv
+    import io
+    import concurrent.futures
+
+    if not file.filename or not file.filename.lower().endswith(".csv"):
+        raise HTTPException(status_code=422, detail="Uploaded file must be a .csv")
+
+    raw = await file.read()
+    try:
+        text = raw.decode("utf-8-sig")  # handle BOM
+        reader = csv.DictReader(io.StringIO(text))
+        rows = list(reader)
+    except Exception as exc:
+        raise HTTPException(status_code=422, detail=f"Could not parse CSV: {exc}") from exc
+
+    if not rows:
+        raise HTTPException(status_code=422, detail="CSV has no data rows")
+
+    # Detect beneficiary_id column (case-insensitive)
+    col_map = {c.lower().strip(): c for c in rows[0].keys()}
+    bid_col = col_map.get("beneficiary_id") or col_map.get("partner_id") or col_map.get("id")
+    if not bid_col:
+        raise HTTPException(
+            status_code=422,
+            detail="CSV must have a column named 'beneficiary_id', 'partner_id', or 'id'",
+        )
+
+    beneficiary_ids = [str(r[bid_col]).strip() for r in rows if r.get(bid_col, "").strip()]
+    if not beneficiary_ids:
+        raise HTTPException(status_code=422, detail="No valid beneficiary IDs found in CSV")
+
+    if len(beneficiary_ids) > 10_000:
+        raise HTTPException(status_code=422, detail="Batch limit is 10,000 beneficiaries per request")
+
+    def _score_one(bid: str) -> dict:
+        try:
+            from app.services.decision_service import DecisionOrchestrator
+            orch = DecisionOrchestrator()
+            result = orch.score_beneficiary(bid)
+            return {
+                "beneficiary_id": bid,
+                "case_id": result.get("case_id", ""),
+                "final_score": round(result.get("final_score", 0.0), 4),
+                "rule_score": round(result.get("rule_score", 0.0), 4),
+                "ml_score": round(result.get("ml_score", 0.0), 4),
+                "graph_score": round(result.get("graph_score", 0.0), 4),
+                "risk_level": result.get("risk_level", ""),
+                "recommendation": result.get("recommendation", ""),
+                "status": "scored",
+                "error": "",
+            }
+        except Exception as exc:
+            return {
+                "beneficiary_id": bid,
+                "case_id": "",
+                "final_score": "",
+                "rule_score": "",
+                "ml_score": "",
+                "graph_score": "",
+                "risk_level": "",
+                "recommendation": "",
+                "status": "error",
+                "error": str(exc)[:120],
+            }
+
+    max_workers = min(8, len(beneficiary_ids))
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as pool:
+        results = list(pool.map(_score_one, beneficiary_ids))
+
+    out = io.StringIO()
+    fieldnames = [
+        "beneficiary_id", "case_id", "final_score", "rule_score",
+        "ml_score", "graph_score", "risk_level", "recommendation", "status", "error",
+    ]
+    writer = csv.DictWriter(out, fieldnames=fieldnames)
+    writer.writeheader()
+    writer.writerows(results)
+
+    return Response(
+        content=out.getvalue().encode("utf-8"),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=batch_scores.csv"},
+    )
+
+
+# ── MLflow model versioning endpoints ────────────────────────────────────────
+
+@router.get("/v1/models/versions", summary="List recent MLflow training runs")
+async def list_model_versions() -> list[dict]:
+    """Return recent retraining runs from MLflow with accuracy and sample counts."""
+    try:
+        from app.services.retraining_service import get_retrainer
+        return get_retrainer().get_mlflow_runs()
+    except Exception as exc:
+        logger.warning("Could not fetch model versions: %s", exc)
+        return []
+
+
+@router.post("/v1/models/rollback/{run_id}", summary="Restore model artifact from an MLflow run")
+async def rollback_model(run_id: str) -> dict:
+    """Download the XGBoost model from the given MLflow run and make it the active model."""
+    try:
+        from app.services.retraining_service import get_retrainer
+        result = get_retrainer().rollback_to_run(run_id)
+        if result.get("status") == "error":
+            raise HTTPException(status_code=500, detail=result.get("error", "Rollback failed"))
+        return result
+    except HTTPException:
+        raise
+    except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
 
 

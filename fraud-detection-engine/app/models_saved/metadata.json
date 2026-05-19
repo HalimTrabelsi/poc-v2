@@ -26,7 +26,7 @@
     "high_amount_flag",
     "income_program_inconsistency"
   ],
-  "training_date": "2026-05-18T10:37:48.121110+00:00",
+  "training_date": "2026-05-19T08:35:55.865363+00:00",
   "metrics": {
     "xgboost": {
       "accuracy": 0.996,
@@ -47,10 +47,14 @@
     },
     "isolation_forest": {
       "roc_auc": 0.855
+    },
+    "xgboost_feedback": {
+      "accuracy": 0.7
     }
   },
   "model_files": {
     "supervised": "xgboost.joblib",
     "anomaly": "isolation_forest.joblib"
-  }
+  },
+  "feedback_samples": 10
 }

@@ -166,4 +166,11 @@ class DecisionOrchestrator:
         except Exception as exc:
             logger.warning("Failed to persist decision for %s: %s", beneficiary_id, exc)
 
+        # 9. Alert (fire-and-forget, never blocks pipeline)
+        try:
+            from app.services.alert_service import get_alert_service
+            get_alert_service().send(decision)
+        except Exception as exc:
+            logger.debug("Alert dispatch error: %s", exc)
+
         return decision

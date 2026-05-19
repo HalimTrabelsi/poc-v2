@@ -5,8 +5,9 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y gcc g++ libpq-dev && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install --upgrade pip && \
+    pip install -r requirements.txt
 
 # ── Runtime ──────────────────────────────────────────────────
 FROM python:3.11-slim
@@ -20,6 +21,7 @@ COPY --from=builder /usr/local/bin /usr/local/bin
 
 COPY app/ ./app/
 COPY ml/ ./ml/
+COPY scripts/ ./scripts/
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1

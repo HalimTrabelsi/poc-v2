@@ -114,6 +114,9 @@ services:
       MODELS_DIR: /app/app/models_saved
       RULES_DIR: /app/app/rules/rules
       ENV: development
+      ALERT_ODOO_ENABLED: "true"
+      ALERT_MIN_RISK_LEVEL: "HIGH"
+      FRAUD_API_BASE: "http://localhost:8000/api/v1"
     volumes:
       - ./fraud-detection-engine/app/rules/rules:/app/app/rules/rules
       - ./fraud-detection-engine/app/models_saved:/app/app/models_saved
@@ -167,7 +170,7 @@ services:
   dashboard:
     build:
       context: ./fraud-detection-engine
-      dockerfile: docker/Dockerfile.dashboard
+      dockerfile: Dockerfile.dashboard
     container_name: streamlit-dashboard
     restart: unless-stopped
     ports:

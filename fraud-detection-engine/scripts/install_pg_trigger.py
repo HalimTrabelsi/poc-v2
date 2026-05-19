@@ -20,7 +20,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 logger = logging.getLogger(__name__)
 
-OPENG2P_DB_URL = "postgresql://odoo:openg2p@localhost:5432/openg2p"
+import os
+OPENG2P_DB_URL = os.getenv("OPENG2P_DB_URL", "postgresql://odoo:openg2p@localhost:5432/openg2p")
 
 TRIGGER_FUNCTION_SQL = """
 CREATE OR REPLACE FUNCTION notify_fraud_queue()

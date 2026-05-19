@@ -20,16 +20,25 @@ async def lifespan(app: FastAPI):
     # Start background scanner on startup
     try:
         from app.services.scanner_service import get_scanner
-        scanner = get_scanner()
-        scanner.start()
+        get_scanner().start()
     except Exception as exc:
         import logging
         logging.getLogger(__name__).warning("Scanner could not start: %s", exc)
+    try:
+        from app.services.retraining_service import get_retrainer
+        get_retrainer().start()
+    except Exception as exc:
+        import logging
+        logging.getLogger(__name__).warning("Retraining scheduler could not start: %s", exc)
     yield
-    # Cleanup on shutdown
     try:
         from app.services.scanner_service import get_scanner
         get_scanner().stop()
+    except Exception:
+        pass
+    try:
+        from app.services.retraining_service import get_retrainer
+        get_retrainer().stop()
     except Exception:
         pass
 

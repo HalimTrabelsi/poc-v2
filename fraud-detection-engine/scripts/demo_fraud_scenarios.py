@@ -18,8 +18,9 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 logger = logging.getLogger(__name__)
 
-OPENG2P_DB_URL = "postgresql://odoo:openg2p@localhost:5432/openg2p"
-API_BASE = "http://localhost:8002/api/v1"
+import os
+OPENG2P_DB_URL = os.getenv("OPENG2P_DB_URL", "postgresql://odoo:openg2p@localhost:5432/openg2p")
+API_BASE = os.getenv("FRAUD_API_BASE", "http://localhost:8000/api/v1")
 HEADERS = {"X-API-Key": "dev-secret-change-in-prod", "Content-Type": "application/json"}
 
 
