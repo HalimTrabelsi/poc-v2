@@ -21,6 +21,7 @@ class APIKeyMiddleware(BaseHTTPMiddleware):
         "/",
         "/health",
         "/api/v1/health",
+        "/api/v1/webhook/beneficiary-saved",  # authenticated via X-Webhook-Secret inside handler
         "/docs",
         "/redoc",
         "/openapi.json",

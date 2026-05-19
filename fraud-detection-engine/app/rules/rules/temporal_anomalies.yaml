@@ -1,0 +1,37 @@
+version: "1.0"
+scenario: "temporal_anomaly"
+rules:
+  - id: "TA001"
+    name: "Rapid Multi-Enrollment"
+    weight: 0.40
+    alert_level: "HIGH"
+    condition: "enroll_last_30d >= 3"
+    evidence_template: "Enrolled in {enroll_last_30d} programs within the last 30 days — abnormal velocity"
+
+  - id: "TA002"
+    name: "Ghost Beneficiary — Instant Payment"
+    weight: 0.55
+    alert_level: "CRITICAL"
+    condition: "days_reg_to_first_payment >= 0 and days_reg_to_first_payment < 7"
+    evidence_template: "Received first payment only {days_reg_to_first_payment} day(s) after registration — possible ghost identity"
+
+  - id: "TA003"
+    name: "High Enrollment Velocity"
+    weight: 0.30
+    alert_level: "HIGH"
+    condition: "enrollment_velocity > 0.5"
+    evidence_template: "Enrollment velocity: {enrollment_velocity:.2f} programs/month — far above normal"
+
+  - id: "TA004"
+    name: "Rushed Disbursement"
+    weight: 0.35
+    alert_level: "HIGH"
+    condition: "payments_within_7d_of_enroll >= 1"
+    evidence_template: "Payment disbursed within 7 days of enrollment — bypassed normal approval timeline"
+
+  - id: "TA005"
+    name: "Enrollment Surge — 90-Day Window"
+    weight: 0.25
+    alert_level: "MEDIUM"
+    condition: "enroll_last_90d >= 4 and registration_age_days < 180"
+    evidence_template: "{enroll_last_90d} enrollments in 90 days for a beneficiary registered only {registration_age_days} days ago"

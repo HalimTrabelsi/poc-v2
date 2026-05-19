@@ -140,3 +140,7 @@ g2p_document_tag
 
 #To run jupyter :
 python -m jupyterlab
+💡run to make a demo
+python scripts/demo_fraud_scenarios.py
+
+💡docker compose -f docker-compose.full.yml build fraud-engine

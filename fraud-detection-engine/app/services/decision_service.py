@@ -85,12 +85,16 @@ class DecisionOrchestrator:
         rule_score: float = rule_result.get("rule_score", 0.0)
         triggered_rules: list = rule_result.get("triggered_rules", [])
 
-        # 3. Graph analysis
+        # 3. Graph analysis (fraud-aware: seed PageRank with known case scores)
         try:
-            graph_result = self.graph_analyzer.analyze_network(beneficiary_id)
+            known_scores = self.repository.get_known_fraud_scores()
+            graph_result = self.graph_analyzer.analyze_network(
+                beneficiary_id, known_fraud_scores=known_scores
+            )
         except Exception as exc:
             logger.warning("Graph analysis failed for %s: %s", beneficiary_id, exc)
-            graph_result = {"network_score": 0.0, "network_size": 0, "density": 0.0,
+            graph_result = {"network_score": 0.0, "pagerank_score": 0.0,
+                            "community_risk": 0.0, "network_size": 0, "density": 0.0,
                             "fraud_connections": 0, "risk_factors": []}
 
         graph_score: float = graph_result.get("network_score", 0.0)

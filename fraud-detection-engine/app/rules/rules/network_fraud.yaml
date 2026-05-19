@@ -28,3 +28,17 @@ rules:
     alert_level: "HIGH"
     condition: "network_risk >= 0.60"
     evidence_template: "Network risk score: {network_risk:.2f} (threshold: 0.60)"
+
+  - id: "NF005"
+    name: "OpenG2P Duplicate Flag"
+    weight: 0.50
+    alert_level: "HIGH"
+    condition: "is_dedup_flagged >= 1"
+    evidence_template: "Flagged as duplicate by OpenG2P deduplication engine ({dedup_flag_count} membership(s) affected)"
+
+  - id: "NF006"
+    name: "Multiple Deduplication Records"
+    weight: 0.60
+    alert_level: "CRITICAL"
+    condition: "dedup_record_count >= 2"
+    evidence_template: "Found in {dedup_record_count} formal duplicate records across programs"
