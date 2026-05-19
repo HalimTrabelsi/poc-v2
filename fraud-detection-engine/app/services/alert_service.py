@@ -149,23 +149,44 @@ class AlertService:
                 ).fetchone()
                 author_id = author_row[0] if author_row else None
 
-                conn.execute(text("""
+                # Insert mail_message
+                msg_row = conn.execute(text("""
                     INSERT INTO mail_message
                         (subject, body, model, res_id, message_type,
                          subtype_id, author_id, create_uid, write_uid,
                          create_date, write_date, date)
                     VALUES
-                        (:subject, :body, 'res.partner', :res_id, 'comment',
+                        (:subject, :body, 'res.partner', :res_id, 'notification',
                          1, :author_id, 1, 1,
                          NOW(), NOW(), NOW())
+                    RETURNING id
                 """), {
                     "subject": f"Fraud Alert [{risk}] — Beneficiary {bid}",
                     "body":    body,
                     "res_id":  int(bid),
                     "author_id": author_id,
-                })
+                }).fetchone()
 
-            logger.info("Odoo mail.message inserted for beneficiary %s", bid)
+                msg_id = msg_row[0] if msg_row else None
+
+                # Insert mail_notification for every internal user so it
+                # appears in each investigator's Odoo inbox (is_read=false)
+                if msg_id:
+                    internal_partners = conn.execute(text("""
+                        SELECT partner_id FROM res_users
+                        WHERE active = true AND share = false
+                        AND partner_id IS NOT NULL
+                    """)).fetchall()
+                    for (partner_id,) in internal_partners:
+                        conn.execute(text("""
+                            INSERT INTO mail_notification
+                                (mail_message_id, res_partner_id,
+                                 notification_type, notification_status, is_read)
+                            VALUES
+                                (:msg_id, :partner_id, 'inbox', 'sent', false)
+                        """), {"msg_id": msg_id, "partner_id": partner_id})
+
+            logger.info("Odoo inbox notification sent for beneficiary %s", bid)
 
         except Exception as exc:
             logger.warning("Odoo alert failed: %s", exc)
