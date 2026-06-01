@@ -177,7 +177,13 @@ class AlertService:
                         WHERE active = true AND share = false
                         AND partner_id IS NOT NULL
                     """)).fetchall()
+
+                    # Get the database name for the bus channel
+                    db_row = conn.execute(text("SELECT current_database()")).fetchone()
+                    db_name = db_row[0] if db_row else "openg2p"
+
                     for (partner_id,) in internal_partners:
+                        # mail_notification makes it appear in the inbox list
                         conn.execute(text("""
                             INSERT INTO mail_notification
                                 (mail_message_id, res_partner_id,
@@ -185,6 +191,28 @@ class AlertService:
                             VALUES
                                 (:msg_id, :partner_id, 'inbox', 'sent', false)
                         """), {"msg_id": msg_id, "partner_id": partner_id})
+
+                        # bus_bus triggers the live push — browser updates instantly
+                        import json
+                        bus_channel = json.dumps([db_name, "res.partner", partner_id])
+                        bus_message = json.dumps({
+                            "type": "mail.message/inbox",
+                            "payload": {
+                                "id": msg_id,
+                                "subject": f"Fraud Alert [{risk}] — Beneficiary {bid}",
+                                "body": body,
+                                "model": "res.partner",
+                                "res_id": int(bid),
+                                "author": {"id": author_id},
+                                "needaction_partner_ids": [partner_id],
+                            }
+                        })
+                        conn.execute(text("""
+                            INSERT INTO bus_bus
+                                (create_uid, write_uid, create_date, write_date, channel, message)
+                            VALUES
+                                (1, 1, NOW(), NOW(), :channel, :message)
+                        """), {"channel": bus_channel, "message": bus_message})
 
             logger.info("Odoo inbox notification sent for beneficiary %s", bid)
 

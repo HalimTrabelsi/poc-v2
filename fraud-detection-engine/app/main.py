@@ -7,6 +7,7 @@ from prometheus_client import make_asgi_app
 
 from app.api.errors import register_error_handlers
 from app.api.routes import router as v1_router
+from app.api.routes_rules import router as rules_router
 from app.api.webhook import router as webhook_router
 from app.logging_config import setup_logging
 from app.middleware.auth import APIKeyMiddleware
@@ -96,6 +97,7 @@ app.mount("/metrics", metrics_app)
 
 # ── Routers ──────────────────────────────────────────────────
 app.include_router(v1_router, prefix="/api", tags=["Fraud Detection v2"])
+app.include_router(rules_router, prefix="/api/v1", tags=["Rules"])
 app.include_router(webhook_router, prefix="/api", tags=["Webhook"])
 
 

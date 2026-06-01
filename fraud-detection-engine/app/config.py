@@ -13,9 +13,14 @@ class Settings(BaseSettings):
     models_dir: Path = Path("app/models_saved")
     rules_dir: Path = Path("app/rules/rules")
 
-    # ML
+    # ML (XGBoost / Isolation Forest internal mix)
     xgboost_weight: float = 0.70
     isolation_forest_weight: float = 0.30
+
+    # Ensemble weights (rules / ML / graph) — optimised by grid search
+    ensemble_rules_weight: float = 0.25
+    ensemble_ml_weight: float = 0.30
+    ensemble_graph_weight: float = 0.45
 
     # Scoring thresholds
     critical_threshold: float = 0.80

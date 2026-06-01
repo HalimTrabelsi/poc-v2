@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <menuitem id="menu_fraud_root"
+            name="Fraud Detection"
+            sequence="50"
+            web_icon="g2p_fraud_detection,static/description/icon.png"/>
+
+  <menuitem id="menu_fraud_dashboard"
+            name="Live Alert Monitor"
+            parent="menu_fraud_root"
+            action="action_fraud_dashboard"
+            sequence="10"/>
+
+  <menuitem id="menu_fraud_cases"
+            name="All Cases"
+            parent="menu_fraud_root"
+            action="action_fraud_case"
+            sequence="20"/>
+
+  <!-- External-dashboard links: open Streamlit in a new tab via URL actions -->
+  <record id="action_open_heatmap" model="ir.actions.act_url">
+    <field name="name">Geographic Heatmap</field>
+    <field name="url">http://localhost:8501/?page=geo</field>
+    <field name="target">new</field>
+  </record>
+  <menuitem id="menu_fraud_heatmap"
+            name="Geographic Heatmap"
+            parent="menu_fraud_root"
+            action="action_open_heatmap"
+            sequence="30"/>
+
+  <record id="action_open_analytics" model="ir.actions.act_url">
+    <field name="name">Analytics Dashboard</field>
+    <field name="url">http://localhost:8501/?page=cases</field>
+    <field name="target">new</field>
+  </record>
+  <menuitem id="menu_fraud_analytics"
+            name="Analytics Dashboard"
+            parent="menu_fraud_root"
+            action="action_open_analytics"
+            sequence="40"/>
+
+  <record id="action_open_swagger" model="ir.actions.act_url">
+    <field name="name">API Documentation</field>
+    <field name="url">http://localhost:8002/docs</field>
+    <field name="target">new</field>
+  </record>
+  <menuitem id="menu_fraud_swagger"
+            name="API Documentation"
+            parent="menu_fraud_root"
+            action="action_open_swagger"
+            sequence="50"/>
+</odoo>

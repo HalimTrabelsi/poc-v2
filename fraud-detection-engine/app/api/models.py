@@ -62,6 +62,9 @@ class CaseItem(BaseModel):
     created_at: datetime
     updated_at: Optional[datetime] = None
     notes: Optional[str] = None
+    rules_triggered: Optional[list] = None
+    explanation: Optional[str] = None
+    llm_explanation: Optional[str] = None
 
 
 class CaseListResponse(BaseModel):

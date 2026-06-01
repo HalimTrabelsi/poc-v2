@@ -60,7 +60,7 @@ class DecisionOrchestrator:
             2. Rule evaluation
             3. Graph / network analysis
             4. ML scoring
-            5. Score aggregation  (0.30 * rule + 0.50 * ml + 0.20 * graph)
+            5. Score aggregation  (0.25 * rule + 0.30 * ml + 0.45 * graph) — optimised weights
             6. Risk level and recommendation
             7. Explainability
             8. Persist to repository
@@ -108,9 +108,12 @@ class DecisionOrchestrator:
 
         ml_score: float = ml_result.get("combined_score", 0.0)
 
-        # 5. Aggregate
+        # 5. Aggregate (weights optimised by grid search — see metadata.json)
         final_score = round(
-            0.30 * rule_score + 0.50 * ml_score + 0.20 * graph_score, 4
+            settings.ensemble_rules_weight * rule_score
+            + settings.ensemble_ml_weight * ml_score
+            + settings.ensemble_graph_weight * graph_score,
+            4,
         )
         final_score = max(0.0, min(1.0, final_score))
 

@@ -27,6 +27,9 @@
 !openg2p-g2p-bridge
 !openg2p-g2p-bridge/**
 
+!odoo-fraud-module
+!odoo-fraud-module/**
+
 !openg2p-g2p-bridge-bank-connectors
 !openg2p-g2p-bridge-bank-connectors/**
 

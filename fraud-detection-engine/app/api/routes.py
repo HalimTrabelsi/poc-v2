@@ -82,6 +82,46 @@ async def list_cases(
     return CaseListResponse(total=len(cases), cases=cases)
 
 
+@router.get(
+    "/v1/cases/{case_id}",
+    summary="Get a single fraud case with full detail",
+)
+async def get_case_detail(case_id: str) -> dict:
+    """Return full case detail including rules_triggered and LLM explanation."""
+    from app.data.repository import FraudCaseRepository
+
+    repo = FraudCaseRepository()
+    case = repo.get_case(case_id)
+    if not case:
+        raise HTTPException(status_code=404, detail=f"Case {case_id} not found")
+    # Serialize datetime fields and ensure JSON-safe response
+    return {
+        k: (v.isoformat() if hasattr(v, "isoformat") else v)
+        for k, v in case.items()
+    }
+
+
+@router.post(
+    "/v1/cases/{case_id}/llm_explain",
+    summary="Generate an LLM-based natural-language explanation",
+)
+async def generate_llm_explanation(case_id: str) -> dict:
+    """Generate (or refresh) a human-readable explanation via Ollama."""
+    from app.data.repository import FraudCaseRepository
+    from app.services.llm_explainer_service import LLMExplainer
+
+    repo = FraudCaseRepository()
+    case = repo.get_case(case_id)
+    if not case:
+        raise HTTPException(status_code=404, detail=f"Case {case_id} not found")
+
+    explainer = LLMExplainer()
+    text_explanation = explainer.explain_case(case)
+    if text_explanation:
+        repo.update_llm_explanation(case_id, text_explanation)
+    return {"case_id": case_id, "llm_explanation": text_explanation}
+
+
 @router.patch(
     "/v1/cases/{case_id}/status",
     summary="Update the status of a fraud case",
@@ -150,28 +190,45 @@ async def score_from_features(features: dict) -> FraudDecisionResponse:
     The dict must contain the beneficiary_id key plus all 25 ML feature columns.
     """
     t0 = time.perf_counter()
+
+    # Validate beneficiary_id is present and non-empty
+    bid_raw = features.get("beneficiary_id")
+    if not bid_raw or not str(bid_raw).strip():
+        raise HTTPException(
+            status_code=422,
+            detail="Field 'beneficiary_id' is required and must be a non-empty string",
+        )
+    bid = str(bid_raw).strip()
+
     try:
         from app.services.rules_service import RuleService
         from app.services.ml_service import MLScorer
-        from app.services.graph_service import GraphAnalyzer
         from app.services.explainability_service import Explainer
+        from app.services.features_service import _DEFAULTS
         from app.data.repository import FraudCaseRepository
         from app.config import settings
 
-        bid = str(features.get("beneficiary_id", "unknown"))
+        # Apply feature defaults so missing fields (e.g. temporal counters not
+        # supplied by synthetic batch jobs) do not produce phantom rule triggers.
+        complete_features = {**_DEFAULTS, **{k: v for k, v in features.items()
+                                              if k != "beneficiary_id" and v is not None}}
 
         rule_svc = RuleService()
-        rule_result = rule_svc.evaluate(features)
+        rule_result = rule_svc.evaluate(complete_features)
 
         ml_scorer = MLScorer()
-        ml_result = ml_scorer.score(features)
+        ml_result = ml_scorer.score(complete_features)
 
         rule_score = float(rule_result.get("rule_score", 0.0))
         ml_score = float(ml_result.get("combined_score", 0.0))
-        graph_score = 0.0  # no graph available for synthetic data
+        graph_score = 0.0  # no graph available for ad-hoc feature scoring
 
+        # Use optimized weights from config (same as DecisionOrchestrator)
         final_score = round(
-            0.30 * rule_score + 0.50 * ml_score + 0.20 * graph_score, 4
+            settings.ensemble_rules_weight * rule_score
+            + settings.ensemble_ml_weight * ml_score
+            + settings.ensemble_graph_weight * graph_score,
+            4,
         )
 
         if final_score >= settings.critical_threshold:
@@ -193,7 +250,8 @@ async def score_from_features(features: dict) -> FraudDecisionResponse:
             "risk_level": risk_level.value,
             "recommendation": recommendation.value,
             "rules_triggered": rule_result.get("triggered_rules", []),
-            "features": features,
+            "features": complete_features,
+            "model": ml_result.get("model"),  # required for SHAP
         }
         explanation = explainer.explain(decision_data)
 

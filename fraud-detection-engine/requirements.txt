@@ -39,3 +39,6 @@ reportlab>=4.0.0
 
 # MLflow Model Versioning
 mlflow>=2.13.0
+
+# Model comparison (optional, installed separately if needed)
+lightgbm>=4.0.0

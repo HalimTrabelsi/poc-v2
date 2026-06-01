@@ -32,6 +32,10 @@ class APIKeyMiddleware(BaseHTTPMiddleware):
         if request.url.path in self.EXEMPT_PATHS:
             return await call_next(request)
 
+        # Let CORS preflight pass through so the browser receives CORS headers
+        if request.method == "OPTIONS":
+            return await call_next(request)
+
         api_key = request.headers.get("X-API-Key", "")
         if api_key != settings.api_secret_key:
             logger.warning(

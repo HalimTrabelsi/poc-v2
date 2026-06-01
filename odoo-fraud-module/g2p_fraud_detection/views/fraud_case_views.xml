@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <record id="view_fraud_case_kanban" model="ir.ui.view">
+    <field name="name">fraud.case.kanban</field>
+    <field name="model">fraud.case</field>
+    <field name="arch" type="xml">
+      <kanban default_group_by="risk_level" class="o_kanban_small_column"
+              records_draggable="false">
+        <field name="case_id"/>
+        <field name="beneficiary_id"/>
+        <field name="risk_level"/>
+        <field name="final_score"/>
+        <field name="recommendation"/>
+        <field name="state"/>
+        <field name="rules_count"/>
+        <field name="detected_at"/>
+        <field name="color"/>
+        <field name="score_pct"/>
+        <field name="partner_id"/>
+        <progressbar field="state" colors='{"open": "warning", "investigating": "info", "confirmed": "danger", "dismissed": "muted", "closed": "success"}'/>
+        <templates>
+          <t t-name="kanban-box">
+            <div t-attf-class="oe_kanban_card oe_kanban_global_click o_kanban_record_has_image_fill #{record.risk_level.raw_value === 'CRITICAL' ? 'o_kanban_color_1' : ''}">
+              <div class="o_kanban_record_top">
+                <div class="o_kanban_record_headings">
+                  <strong class="o_kanban_record_title">
+                    <field name="beneficiary_id"/>
+                  </strong>
+                  <div class="text-muted">
+                    Case: <field name="case_id"/>
+                  </div>
+                </div>
+                <div class="o_kanban_record_top_right">
+                  <span class="badge badge-pill"
+                        t-attf-style="background-color: #{record.risk_level.raw_value === 'CRITICAL' ? '#e74c3c' : record.risk_level.raw_value === 'HIGH' ? '#e67e22' : record.risk_level.raw_value === 'MEDIUM' ? '#f1c40f' : '#2ecc71'}; color: white;">
+                    <field name="risk_level"/>
+                  </span>
+                </div>
+              </div>
+              <div class="o_kanban_record_body">
+                <div>
+                  <strong>Score:</strong> <field name="score_pct"/>
+                </div>
+                <div>
+                  <strong>Recommendation:</strong> <field name="recommendation"/>
+                </div>
+                <div t-if="record.rules_count.raw_value">
+                  <strong>Rules:</strong> <field name="rules_count"/> triggered
+                </div>
+                <div class="text-muted small mt-1">
+                  <field name="detected_at" widget="relative"/>
+                </div>
+              </div>
+            </div>
+          </t>
+        </templates>
+      </kanban>
+    </field>
+  </record>
+
+  <record id="view_fraud_case_tree" model="ir.ui.view">
+    <field name="name">fraud.case.tree</field>
+    <field name="model">fraud.case</field>
+    <field name="arch" type="xml">
+      <tree decoration-danger="risk_level == 'CRITICAL'"
+            decoration-warning="risk_level == 'HIGH'"
+            decoration-info="risk_level == 'MEDIUM'">
+        <field name="detected_at"/>
+        <field name="case_id"/>
+        <field name="beneficiary_id"/>
+        <field name="partner_id"/>
+        <field name="risk_level"/>
+        <field name="score_pct"/>
+        <field name="recommendation"/>
+        <field name="rules_count"/>
+        <field name="state"/>
+        <field name="assigned_to"/>
+      </tree>
+    </field>
+  </record>
+
+  <record id="view_fraud_case_form" model="ir.ui.view">
+    <field name="name">fraud.case.form</field>
+    <field name="model">fraud.case</field>
+    <field name="arch" type="xml">
+      <form>
+        <header>
+          <button name="action_mark_investigating" type="object"
+                  string="Start Investigation" class="btn-primary"
+                  invisible="state != 'open'"/>
+          <button name="action_mark_confirmed" type="object"
+                  string="Confirm Fraud" class="btn-danger"
+                  invisible="state in ('confirmed', 'dismissed', 'closed')"/>
+          <button name="action_mark_dismissed" type="object"
+                  string="Dismiss (False Positive)" class="btn-warning"
+                  invisible="state in ('confirmed', 'dismissed', 'closed')"/>
+          <button name="action_close" type="object"
+                  string="Close Case"
+                  invisible="state == 'closed'"/>
+          <button name="action_generate_llm_explanation" type="object"
+                  string="Generate AI Explanation" class="btn-secondary"/>
+          <field name="state" widget="statusbar"
+                 statusbar_visible="open,investigating,confirmed,closed"/>
+        </header>
+        <sheet>
+          <div class="oe_button_box" name="button_box">
+            <button name="action_open_beneficiary" type="object"
+                    class="oe_stat_button" icon="fa-user"
+                    invisible="not partner_id">
+              <div class="o_field_widget o_stat_info">
+                <span class="o_stat_text">Beneficiary</span>
+                <span class="o_stat_text">Record</span>
+              </div>
+            </button>
+            <button name="action_view_on_heatmap" type="object"
+                    class="oe_stat_button" icon="fa-map-marker">
+              <div class="o_field_widget o_stat_info">
+                <span class="o_stat_text">View on</span>
+                <span class="o_stat_text">Heatmap</span>
+              </div>
+            </button>
+          </div>
+          <div class="oe_title">
+            <h1>
+              <field name="beneficiary_id" readonly="1"/>
+            </h1>
+            <h3>Case <field name="case_id" readonly="1"/></h3>
+          </div>
+          <group>
+            <group string="Scoring">
+              <field name="risk_level" readonly="1"/>
+              <field name="final_score" readonly="1"/>
+              <field name="score_pct" readonly="1"/>
+              <field name="recommendation" readonly="1"/>
+            </group>
+            <group string="Detection">
+              <field name="detected_at" readonly="1"/>
+              <field name="partner_id" readonly="1"/>
+              <field name="assigned_to"/>
+              <field name="rules_count" readonly="1"/>
+            </group>
+          </group>
+          <notebook>
+            <page string="AI Explanation">
+              <field name="llm_explanation" readonly="1" widget="text"
+                     placeholder="Click 'Generate AI Explanation' above to produce a plain-English summary via the local LLM."/>
+            </page>
+            <page string="Rules Triggered">
+              <field name="rules_triggered" readonly="1" widget="text"/>
+            </page>
+            <page string="Technical Explanation">
+              <field name="explanation" readonly="1" widget="text"/>
+            </page>
+            <page string="Investigation Notes">
+              <field name="notes" placeholder="Add investigation notes here..."/>
+            </page>
+          </notebook>
+        </sheet>
+        <div class="oe_chatter">
+          <field name="message_follower_ids"/>
+          <field name="activity_ids"/>
+          <field name="message_ids"/>
+        </div>
+      </form>
+    </field>
+  </record>
+
+  <record id="view_fraud_case_search" model="ir.ui.view">
+    <field name="name">fraud.case.search</field>
+    <field name="model">fraud.case</field>
+    <field name="arch" type="xml">
+      <search>
+        <field name="case_id"/>
+        <field name="beneficiary_id"/>
+        <field name="partner_id"/>
+        <separator/>
+        <filter name="filter_critical" string="Critical" domain="[('risk_level', '=', 'CRITICAL')]"/>
+        <filter name="filter_high" string="High" domain="[('risk_level', '=', 'HIGH')]"/>
+        <filter name="filter_medium" string="Medium" domain="[('risk_level', '=', 'MEDIUM')]"/>
+        <separator/>
+        <filter name="filter_open" string="Open" domain="[('state', '=', 'open')]"/>
+        <filter name="filter_investigating" string="Investigating" domain="[('state', '=', 'investigating')]"/>
+        <filter name="filter_active" string="Active (Open + Investigating)" domain="[('state', 'in', ('open', 'investigating'))]"/>
+        <separator/>
+        <filter name="filter_mine" string="Assigned to me" domain="[('assigned_to', '=', uid)]"/>
+        <group expand="0" string="Group By">
+          <filter name="group_risk" string="Risk Level" context="{'group_by': 'risk_level'}"/>
+          <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
+          <filter name="group_assigned" string="Assigned To" context="{'group_by': 'assigned_to'}"/>
+        </group>
+      </search>
+    </field>
+  </record>
+
+  <record id="action_fraud_case" model="ir.actions.act_window">
+    <field name="name">Fraud Cases</field>
+    <field name="res_model">fraud.case</field>
+    <field name="view_mode">kanban,tree,form</field>
+    <field name="context">{"search_default_filter_active": 1}</field>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">No fraud cases yet</p>
+      <p>Cases will appear here automatically as the fraud-detection-engine
+         scores beneficiaries. Use <b>Sync Now</b> to pull immediately.</p>
+    </field>
+  </record>
+
+</odoo>

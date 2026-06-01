@@ -3,16 +3,9 @@
     "age",
     "income",
     "income_per_person",
-    "household_size",
-    "nb_children",
-    "nb_elderly",
     "dependency_ratio",
-    "has_disabled",
-    "single_head",
     "nb_programs",
     "nb_active_programs",
-    "pmt_score",
-    "pmt_score_min",
     "avg_enrollment_days",
     "payment_count",
     "payment_gap_ratio",
@@ -26,35 +19,88 @@
     "high_amount_flag",
     "income_program_inconsistency"
   ],
-  "training_date": "2026-05-19T08:35:55.865363+00:00",
+  "removed_features": [
+    "household_size",
+    "nb_children",
+    "nb_elderly",
+    "has_disabled",
+    "single_head",
+    "elderly_head",
+    "pmt_score",
+    "pmt_score_min"
+  ],
+  "training_date": "2026-05-31T19:28:01.086987+00:00",
+  "calibrated": true,
+  "calibration_method": "isotonic",
+  "ensemble_weights": {
+    "rules": 0.25,
+    "ml": 0.3,
+    "graph": 0.45,
+    "optimized_auc": 1.0
+  },
   "metrics": {
-    "xgboost": {
-      "accuracy": 0.996,
-      "precision": 0.9259,
-      "recall": 1.0,
-      "f1": 0.9615,
-      "roc_auc": 0.9998,
+    "xgboost_calibrated": {
+      "roc_auc": 0.9951,
+      "pr_auc": 0.9592,
+      "f1": 0.8817,
+      "precision": 0.9535,
+      "recall": 0.82,
       "confusion_matrix": [
         [
-          946,
-          4
+          948,
+          2
         ],
         [
-          0,
-          50
+          9,
+          41
         ]
-      ]
+      ],
+      "true_positives": 41,
+      "false_positives": 2,
+      "true_negatives": 948,
+      "false_negatives": 9,
+      "score_mean": 0.0497,
+      "score_std": 0.2001,
+      "score_min": 0.0,
+      "score_max": 1.0
     },
-    "isolation_forest": {
-      "roc_auc": 0.855
+    "model_comparison": {
+      "Logistic Regression (baseline)": {
+        "roc_auc": 0.9537,
+        "pr_auc": 0.826,
+        "f1": 0.5844,
+        "precision": 0.4327,
+        "recall": 0.9
+      },
+      "Random Forest": {
+        "roc_auc": 0.9917,
+        "pr_auc": 0.9425,
+        "f1": 0.8936,
+        "precision": 0.9545,
+        "recall": 0.84
+      },
+      "XGBoost (calibr\u00e9)": {
+        "roc_auc": 0.9951,
+        "pr_auc": 0.9592,
+        "f1": 0.8817,
+        "precision": 0.9535,
+        "recall": 0.82
+      },
+      "LightGBM (calibr\u00e9)": {
+        "roc_auc": 0.9948,
+        "pr_auc": 0.9345,
+        "f1": 0.9149,
+        "precision": 0.9773,
+        "recall": 0.86
+      }
     },
     "xgboost_feedback": {
-      "accuracy": 0.7
+      "accuracy": 0.75
     }
   },
   "model_files": {
     "supervised": "xgboost.joblib",
     "anomaly": "isolation_forest.joblib"
   },
-  "feedback_samples": 10
+  "feedback_samples": 12
 }

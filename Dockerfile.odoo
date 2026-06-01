@@ -8,6 +8,13 @@ COPY ./odoo-openg2p-bot /opt/bitnami/odoo/extra-addons/odoo-openg2p-bot
 COPY ./server-tools /opt/bitnami/odoo/extra-addons/server-tools
 COPY ./connector /opt/bitnami/odoo/extra-addons/connector
 COPY ./openg2p-g2p-bridge /opt/bitnami/odoo/extra-addons/openg2p-g2p-bridge
+COPY ./odoo-fraud-module /opt/bitnami/odoo/extra-addons/odoo-fraud-module
+
+# Bitnami's runtime adds each direct subdirectory of /opt/bitnami/odoo/extraaddons/
+# to addons_path. So we need a PARENT directory there that contains the module
+# subdirectory — mirroring the layout of openg2p-program, openg2p-registry, etc.
+RUN cp -r /opt/bitnami/odoo/extra-addons/odoo-fraud-module \
+          /opt/bitnami/odoo/extraaddons/odoo-fraud-module
 
 
 

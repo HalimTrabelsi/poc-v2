@@ -33,8 +33,17 @@ FEATURE_NAMES = [
     "group_membership_count",
     "high_amount_flag",
     "income_program_inconsistency",
+    # Temporal features (referenced by rules TA001-TA005)
+    "days_reg_to_first_payment",
+    "enroll_last_30d",
+    "enroll_last_90d",
+    "enrollment_velocity",
+    "payments_within_7d_of_enroll",
+    "registration_age_days",
 ]
 
+# Sentinel: 999 days = "no payment yet" so the < 7 ghost-payment rule (TA002)
+# does NOT trigger on missing data. Same idea for the other temporal counters.
 _DEFAULTS: dict = {
     "age": 35,
     "income": 0.0,
@@ -61,6 +70,13 @@ _DEFAULTS: dict = {
     "group_membership_count": 0,
     "high_amount_flag": 0,
     "income_program_inconsistency": 0,
+    # Temporal defaults (sentinels chosen so missing data does NOT trigger rules)
+    "days_reg_to_first_payment": 999,
+    "enroll_last_30d": 0,
+    "enroll_last_90d": 0,
+    "enrollment_velocity": 0.0,
+    "payments_within_7d_of_enroll": 0,
+    "registration_age_days": 365,
 }
 
 

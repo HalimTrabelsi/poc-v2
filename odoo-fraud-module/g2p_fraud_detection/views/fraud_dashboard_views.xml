@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <record id="view_fraud_dashboard_kanban" model="ir.ui.view">
+    <field name="name">fraud.dashboard.kanban</field>
+    <field name="model">fraud.case</field>
+    <field name="arch" type="xml">
+      <kanban class="o_fraud_dashboard" js_class="fraud_live_monitor"
+              create="false" records_draggable="false"
+              default_order="risk_level,detected_at desc">
+        <field name="case_id"/>
+        <field name="beneficiary_id"/>
+        <field name="risk_level"/>
+        <field name="final_score"/>
+        <field name="score_pct"/>
+        <field name="recommendation"/>
+        <field name="state"/>
+        <field name="rules_triggered"/>
+        <field name="detected_at"/>
+        <templates>
+          <t t-name="kanban-box">
+            <div t-attf-class="oe_kanban_card fraud-alert-card risk-#{record.risk_level.raw_value}">
+              <div class="fraud-alert-header">
+                <span t-attf-class="risk-badge risk-#{record.risk_level.raw_value}">
+                  <field name="risk_level"/>
+                </span>
+                <span class="fraud-score">
+                  <field name="score_pct"/>
+                </span>
+              </div>
+              <div class="fraud-alert-body">
+                <div class="fraud-bid">
+                  Beneficiary #<field name="beneficiary_id"/>
+                </div>
+                <div class="fraud-meta">
+                  <field name="recommendation"/> | Case: <field name="case_id"/>
+                </div>
+                <div class="fraud-rules text-muted small">
+                  Rules: <field name="rules_triggered"/>
+                </div>
+                <div class="fraud-ts text-muted small">
+                  <field name="detected_at" widget="relative"/>
+                </div>
+              </div>
+            </div>
+          </t>
+        </templates>
+      </kanban>
+    </field>
+  </record>
+
+  <record id="action_fraud_dashboard" model="ir.actions.act_window">
+    <field name="name">Live Alert Monitor</field>
+    <field name="res_model">fraud.case</field>
+    <field name="view_mode">kanban</field>
+    <field name="view_id" ref="view_fraud_dashboard_kanban"/>
+    <field name="domain">[('state', 'in', ('open', 'investigating'))]</field>
+    <field name="context">{"search_default_filter_active": 1}</field>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">No active alerts</p>
+      <p>This dashboard auto-refreshes when new CRITICAL or HIGH cases arrive.</p>
+    </field>
+  </record>
+
+</odoo>

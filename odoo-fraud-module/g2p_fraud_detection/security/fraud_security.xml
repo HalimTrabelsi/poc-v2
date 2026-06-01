@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <record id="module_category_fraud" model="ir.module.category">
+    <field name="name">Fraud Detection</field>
+    <field name="description">Manage fraud detection and case investigation.</field>
+    <field name="sequence">20</field>
+  </record>
+
+  <record id="group_fraud_officer" model="res.groups">
+    <field name="name">Fraud Officer</field>
+    <field name="category_id" ref="module_category_fraud"/>
+    <field name="comment">Can view and investigate fraud cases.</field>
+  </record>
+
+  <record id="group_fraud_supervisor" model="res.groups">
+    <field name="name">Fraud Supervisor</field>
+    <field name="category_id" ref="module_category_fraud"/>
+    <field name="implied_ids" eval="[(4, ref('group_fraud_officer'))]"/>
+    <field name="users" eval="[(4, ref('base.user_admin'))]"/>
+    <field name="comment">Can close cases and reassign investigations.</field>
+  </record>
+
+  <record id="rule_fraud_case_officer" model="ir.rule">
+    <field name="name">Fraud Officers: open + investigating cases only</field>
+    <field name="model_id" ref="model_fraud_case"/>
+    <field name="domain_force">[('state', 'in', ['open', 'investigating'])]</field>
+    <field name="groups" eval="[(4, ref('group_fraud_officer'))]"/>
+    <field name="perm_read" eval="True"/>
+    <field name="perm_write" eval="True"/>
+    <field name="perm_create" eval="False"/>
+    <field name="perm_unlink" eval="False"/>
+  </record>
+
+  <record id="rule_fraud_case_supervisor" model="ir.rule">
+    <field name="name">Fraud Supervisors: all cases</field>
+    <field name="model_id" ref="model_fraud_case"/>
+    <field name="domain_force">[(1, '=', 1)]</field>
+    <field name="groups" eval="[(4, ref('group_fraud_supervisor'))]"/>
+  </record>
+
+</odoo>

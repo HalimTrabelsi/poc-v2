@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_fraud_case_officer,fraud.case officer,model_fraud_case,group_fraud_officer,1,1,0,0
+access_fraud_case_supervisor,fraud.case supervisor,model_fraud_case,group_fraud_supervisor,1,1,1,1

@@ -80,21 +80,33 @@ class Explainer:
         import shap
         import pandas as pd
 
-        feature_names = list(features.keys())
-        X = pd.DataFrame([features])[feature_names]
+        # CalibratedClassifierCV wraps the real tree model — TreeExplainer cannot
+        # handle it directly. Unwrap to the underlying XGBoost/RF estimator first.
+        tree_model = self._unwrap_tree_estimator(model)
+
+        # Constrain to the EXACT features the model was trained on. Feeding
+        # extra/missing columns to XGBoost's C backend triggers a segfault.
+        model_features = self._get_model_feature_names(tree_model)
+        if model_features:
+            feature_names = [f for f in model_features if f in features]
+        else:
+            feature_names = list(features.keys())
+        X = pd.DataFrame([{f: float(features.get(f, 0.0) or 0.0) for f in feature_names}])
 
         try:
-            explainer = shap.TreeExplainer(model)
+            explainer = shap.TreeExplainer(tree_model)
             shap_values = explainer.shap_values(X)
 
             # For binary classifiers shap_values may be a list [class0, class1]
             if isinstance(shap_values, list):
                 vals = shap_values[1][0]
             else:
-                vals = shap_values[0]
-        except Exception:
-            # Fall back to LinearExplainer for non-tree models
-            explainer = shap.LinearExplainer(model, X)
+                arr = shap_values[0]
+                # Some explainers return shape (n_features, n_classes) per row
+                vals = arr[:, 1] if hasattr(arr, "ndim") and arr.ndim == 2 else arr
+        except Exception as exc:
+            logger.debug("TreeExplainer failed, falling back to LinearExplainer: %s", exc)
+            explainer = shap.LinearExplainer(tree_model, X)
             shap_values = explainer.shap_values(X)
             vals = shap_values[0] if isinstance(shap_values, list) else shap_values[0]
 
@@ -110,6 +122,49 @@ class Explainer:
 
         contributions.sort(key=lambda x: abs(x["shap_value"]), reverse=True)
         return contributions[:5]
+
+    @staticmethod
+    def _get_model_feature_names(model) -> list[str]:
+        """Read the feature names the tree model was actually trained on."""
+        # XGBoost classifier
+        if hasattr(model, "get_booster"):
+            try:
+                names = model.get_booster().feature_names
+                if names:
+                    return list(names)
+            except Exception:
+                pass
+        # sklearn estimators (>=1.0) store the input column names here
+        names = getattr(model, "feature_names_in_", None)
+        if names is not None:
+            return list(names)
+        return []
+
+    @staticmethod
+    def _unwrap_tree_estimator(model):
+        """Extract the underlying tree estimator from CalibratedClassifierCV.
+
+        CalibratedClassifierCV stores fitted base estimators in
+        `.calibrated_classifiers_[i].estimator` (sklearn 1.2+). When SHAP's
+        TreeExplainer sees the wrapper it errors; we hand it the raw XGBoost
+        booster instead.
+        """
+        # Already a tree model
+        if hasattr(model, "get_booster") or hasattr(model, "tree_"):
+            return model
+        # CalibratedClassifierCV (sklearn 1.2+)
+        if hasattr(model, "calibrated_classifiers_") and model.calibrated_classifiers_:
+            inner = model.calibrated_classifiers_[0]
+            for attr in ("estimator", "base_estimator"):
+                est = getattr(inner, attr, None)
+                if est is not None:
+                    return est
+        # Pipeline-like
+        if hasattr(model, "named_steps"):
+            for step in reversed(list(model.named_steps.values())):
+                if hasattr(step, "get_booster") or hasattr(step, "tree_"):
+                    return step
+        return model
 
     def _explain_from_features(self, features: dict) -> list[dict]:
         """Fallback when SHAP is unavailable: rank by heuristic importance."""

@@ -117,6 +117,9 @@ services:
       ALERT_ODOO_ENABLED: "true"
       ALERT_MIN_RISK_LEVEL: "HIGH"
       FRAUD_API_BASE: "http://localhost:8000/api/v1"
+      OLLAMA_URL: "http://ollama:11434"
+      OLLAMA_MODEL: "llama3.2:1b"
+      OLLAMA_TIMEOUT: "60"
     volumes:
       - ./fraud-detection-engine/app/rules/rules:/app/app/rules/rules
       - ./fraud-detection-engine/app/models_saved:/app/app/models_saved
@@ -167,6 +170,17 @@ services:
     networks:
       - fraud-net
 
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    networks:
+      - fraud-net
+
   dashboard:
     build:
       context: ./fraud-detection-engine
@@ -177,6 +191,7 @@ services:
       - "8501:8501"
     environment:
       FRAUD_ENGINE_URL: http://fraud-engine:8000
+      FRAUD_API_KEY: dev-secret-change-in-prod
     networks:
       - fraud-net
     depends_on:
@@ -202,3 +217,5 @@ volumes:
   odoo-data:
   fraud_pgdata:
   grafana_data:
+  ollama_data:
+    name: poc-v2_ollama_data

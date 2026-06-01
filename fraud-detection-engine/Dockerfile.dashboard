@@ -2,7 +2,16 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-RUN pip install --no-cache-dir streamlit>=1.35.0 requests pandas plotly
+# Pinned versions — known compatible set, avoids pip resolver dead-ends.
+# pyarrow is installed explicitly first because streamlit pulls it in as a
+# transitive dep, and pip's resolver can fail to find a binary wheel for it.
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
+    pip install --no-cache-dir pyarrow==18.1.0 && \
+    pip install --no-cache-dir \
+        streamlit==1.40.2 \
+        requests==2.32.3 \
+        pandas==2.2.3 \
+        plotly==5.24.1
 
 COPY dashboard/ ./dashboard/
 

@@ -437,3 +437,617 @@
 * Tests d'intégration end-to-end
 * Préparation démonstration jury
 
+---
+
+## 📅 Date : 10–14/04/2026
+
+### 🎯 Objectif du jour
+
+* Connexion réelle à la base PostgreSQL OpenG2P
+* Remplacer le dataset synthétique par des données live
+* Construire le `FeaturesService` exploitant les tables OpenG2P
+
+### ✅ Travail réalisé
+
+* Configuration des credentials Docker pour double connexion DB :
+  * `OPENG2P_DB_URL` → base Odoo (`openg2p-postgresql:5432/openg2p`)
+  * `FEATURE_STORE_URL` → base fraude dédiée (`fraud-db:5432/fraud_engine`)
+* Création du `FeaturesService` avec extraction directe SQL :
+  * Démographie : `age`, `gender`, `income`, `dependency_ratio`
+  * Programme : `nb_programs`, `nb_active_programs`, `avg_enrollment_days`
+  * Paiement : `payment_count`, `payment_gap_ratio`, `payment_success_rate`
+* Mise en place du schéma `feature_store` dans `fraud-db`
+* Tests d'extraction sur les 151 registrants présents
+
+### 📊 Résultats
+
+* Connexion DB stable
+* 18 features extraites depuis la DB live
+* Latence d'extraction : ~3-5s par bénéficiaire
+
+### ⚠️ Problèmes rencontrés
+
+* Volumes de données très faibles (151 registrants, 12 paiements)
+* Plusieurs colonnes attendues sont vides (`res_partner.phone`, `email`, `g2p_reg_id`)
+* Latence élevée à cause des jointures multiples
+
+### 🧠 Solutions apportées
+
+* Sentinelles pour valeurs manquantes (sentinel values plutôt que NaN)
+* Fallback sur données synthétiques quand DB pauvre
+* Identification des index DB nécessaires (à créer plus tard)
+
+### 📌 État actuel du système
+
+* Moteur connecté à la DB OpenG2P réelle
+* Pipeline `DB → FeaturesService → ML → Score` opérationnel
+
+### 🚀 Prochaine étape
+
+* Implémentation du Graph Intelligence
+* Analyse réseau bénéficiaires
+
+---
+
+## 📅 Date : 15–19/04/2026
+
+### 🎯 Objectif du jour
+
+* Développer la couche Graph Intelligence (NetworkX)
+* Détecter les clusters suspects via analyse réseau
+* Calculer le `network_risk` par bénéficiaire
+
+### ✅ Travail réalisé
+
+* Implémentation du `GraphService` :
+  * Construction graphe bipartite bénéficiaire ↔ ressources (téléphones, comptes)
+  * Détection de composantes connexes
+  * Centralité de degré et betweenness
+* Features dérivées :
+  * `shared_phone_count`
+  * `shared_account_count`
+  * `network_risk` (score 0-1 basé sur taille cluster + centralité)
+  * `group_membership_count`
+* Tests sur la DB : détection effective de 5 numéros partagés (3-15 utilisations)
+* Le numéro `+224 666 SHARED 99` ressort comme hub avec 15 connexions
+
+### 📊 Résultats
+
+* GraphService opérationnel
+* Détection automatique des clusters frauduleux
+* Visualisation des composantes connexes (export JSON pour le dashboard)
+
+### ⚠️ Problèmes rencontrés
+
+* Performance NetworkX dégradée sur les graphes > 10 000 nœuds
+* Calcul de betweenness centrality très coûteux (O(N³))
+
+### 🧠 Solutions apportées
+
+* Limitation aux composantes connexes > 1 nœud (filtrage)
+* Caching des calculs de centralité dans Redis (envisagé)
+* Approximation de betweenness sur échantillon
+
+### 📌 État actuel du système
+
+* Triple scoring : Rules + ML + Graph
+* Ensemble pondéré (Rules 25% / ML 50% / Graph 25%)
+
+### 🚀 Prochaine étape
+
+* Implémentation analyse géographique (DBSCAN clusters)
+
+---
+
+## 📅 Date : 22–25/04/2026
+
+### 🎯 Objectif du jour
+
+* Ajouter la dimension géographique au scoring
+* Détecter les hotspots de fraude
+* Visualiser via une heatmap
+
+### ✅ Travail réalisé
+
+* Implémentation du `GeoService` :
+  * Mapping bénéficiaire → coordonnées (lat/lon)
+  * Clustering DBSCAN (eps=0.5km, min_samples=3)
+  * Calcul du `geo_risk_score` par cluster
+* Endpoints API :
+  * `GET /api/v1/geo/heatmap` — points pour la carte
+  * `GET /api/v1/geo/hotspots` — clusters DBSCAN
+* Génération de coordonnées synthétiques (Conakry, Mamou, Kankan, Faranah)
+* Intégration dans le dashboard Streamlit (onglet "Geographic Analysis")
+
+### 📊 Résultats
+
+* 14 hotspots détectés sur les données live
+* Heatmap fonctionnelle avec Plotly
+* Endpoint `/geo/hotspots` répond en < 200ms
+
+### ⚠️ Problèmes rencontrés
+
+* Pas de vraies coordonnées dans `res_partner` (champ `address` texte libre)
+* Quelques `partner_id` non numériques (cas de test) plantent `int()`
+
+### 🧠 Solutions apportées
+
+* Génération déterministe via hash de l'ID
+* Fallback sur centre géographique du pays par défaut
+* (Bug `int('AUDIT-001')` identifié mais non corrigé immédiatement)
+
+### 📌 État actuel du système
+
+* 4 couches de scoring : Rules + ML + Graph + Geo
+* Dashboard avec visualisation cartographique
+
+### 🚀 Prochaine étape
+
+* Explainability (SHAP) pour le moteur ML
+
+---
+
+## 📅 Date : 28/04 – 02/05/2026
+
+### 🎯 Objectif du jour
+
+* Implémenter l'explicabilité des scores ML (SHAP)
+* Générer des explications human-readable pour chaque cas
+* Ajouter onglet "Explainability" au dashboard
+
+### ✅ Travail réalisé
+
+* Implémentation du `ExplainabilityService` :
+  * `shap.TreeExplainer` sur le modèle XGBoost
+  * Top-5 features avec direction (`increases_risk` / `decreases_risk`)
+  * Génération de résumés textuels (`_synthesize_summary()`)
+  * Mapping risk_level → message (`_RISK_SUMMARIES`)
+* Endpoint `GET /api/v1/cases/{case_id}/explain`
+* Intégration au dashboard avec waterfall plot SHAP
+* Tests sur 50 cas — SHAP renvoie systématiquement des valeurs cohérentes
+
+### 📊 Résultats
+
+* Explications structurées (summary, top_reasons, rule_explanations, feature_contributions)
+* Onglet "Explainability" opérationnel
+* Latence acceptable (~500ms par explication)
+
+### ⚠️ Problèmes rencontrés
+
+* Avertissement intermittent "SHAP explanation failed" dans les logs
+* Symptômes : `shap_value: 0.0` pour toutes les features (bug latent, non identifié à ce stade)
+* Cause suspectée : interaction `CalibratedClassifierCV` × `TreeExplainer` (à investiguer)
+
+### 🧠 Solutions apportées
+
+* `try/except` autour de l'appel SHAP avec fallback heuristique
+* Log warning au lieu de planter l'API
+* Documentation des features high-importance en dur (fallback)
+
+### 📌 État actuel du système
+
+* Pipeline complet : Rules + ML + Graph + Geo + Explainability
+* Dashboard avec 5 onglets opérationnels
+
+### 🚀 Prochaine étape
+
+* Calibration probabiliste du modèle XGBoost
+* Comparaison multi-modèles (RF, XGB, LGBM)
+
+---
+
+## 📅 Date : 05–09/05/2026
+
+### 🎯 Objectif du jour
+
+* Calibrer les probabilités du modèle XGBoost (isotonic)
+* Comparer plusieurs modèles (RF, XGB, LGBM)
+* Améliorer les métriques de performance
+
+### ✅ Travail réalisé
+
+* Calibration isotonic via `CalibratedClassifierCV(cv=3)`
+* Entraînement et comparaison de 4 modèles :
+  * Logistic Regression (baseline) : ROC-AUC 0.9537
+  * Random Forest : ROC-AUC 0.9917
+  * **XGBoost calibré** : ROC-AUC 0.9951, F1 0.8817
+  * LightGBM calibré : ROC-AUC 0.9948, F1 0.9149
+* Sélection finale : XGBoost calibré (meilleure precision/recall trade-off)
+* Sauvegarde des artefacts dans `app/models_saved/` :
+  * `xgboost.joblib`, `random_forest.joblib`, `logreg.joblib`, `isolation_forest.joblib`
+  * `metadata.json` avec features, metrics, ensemble weights
+
+### 📊 Résultats
+
+* Modèle XGBoost calibré : F1=0.8817, Precision=0.9535, Recall=0.82
+* Pondérations ensemble révisées : Rules 0.25 / ML 0.30 / Graph 0.45
+* Probabilités calibrées (Brier score < 0.05)
+
+### ⚠️ Problèmes rencontrés
+
+* Quelques features supprimées car peu signifiantes : `pmt_score`, `pmt_score_min`, `household_size`
+* `feedback_samples` encore très faible (12 cas annotés)
+
+### 🧠 Solutions apportées
+
+* Mise à jour de `metadata.json` avec `removed_features`
+* Mécanisme de feedback en attente d'enrichissement
+
+### 📌 État actuel du système
+
+* Modèle production-ready (artefacts calibrés)
+* Ensemble pondéré optimisé sur AUC
+
+### 🚀 Prochaine étape
+
+* Système d'alertes temps réel via PostgreSQL NOTIFY/LISTEN
+* Page HTML standalone "Alert Monitor"
+
+---
+
+## 📅 Date : 12–16/05/2026
+
+### 🎯 Objectif du jour
+
+* Mettre en place le système d'alertes temps réel
+* Page HTML "Alert Monitor" pour le suivi en direct
+* Trigger PostgreSQL sur nouveaux cas HIGH/CRITICAL
+
+### ✅ Travail réalisé
+
+* Création de la table `fraud_cases` dans `fraud-db`
+* Trigger PostgreSQL `NOTIFY` sur INSERT avec risk_level ∈ {HIGH, CRITICAL}
+* Listener Python (asyncio) côté fraud-engine pour broadcast WebSocket
+* Création du fichier `dashboard/alert_monitor.html` :
+  * Polling toutes les 3 secondes via `/api/v1/cases`
+  * Toast notifications pour CRITICAL/HIGH
+  * Statistiques live (compteurs par niveau de risque)
+  * Animations CSS (`slideIn`, `pulse`, `fadeout`)
+* Endpoint `GET /api/v1/cases?limit=100` pour la liste
+* Endpoint `POST /api/v1/score/features` créateur de cas
+
+### 📊 Résultats
+
+* Alertes temps réel fonctionnelles
+* Délai de notification : < 3 secondes après création du cas
+* Toast notifications visibles à l'écran
+
+### ⚠️ Problèmes rencontrés
+
+* CORS bloqué sur les premiers tests browser (`Origin: file://`)
+* `alert_monitor.html` servi via Streamlit ne s'affiche pas correctement (Streamlit intercepte les URLs — bug identifié plus tard)
+
+### 🧠 Solutions apportées
+
+* CORS middleware FastAPI avec `allow_origins=["*"]`
+* (Solution nginx dédié reportée à plus tard)
+
+### 📌 État actuel du système
+
+* Système d'alertes opérationnel
+* Page HTML de monitoring disponible (mais problème d'hébergement)
+
+### 🚀 Prochaine étape
+
+* Module de gestion des règles (CRUD)
+* Hot-reload des règles sans redémarrage
+
+---
+
+## 📅 Date : 19–23/05/2026
+
+### 🎯 Objectif du jour
+
+* Implémenter la gestion dynamique des règles métier
+* Permettre le hot-reload sans redémarrage du conteneur
+* Ajouter des règles temporelles (fenêtres glissantes)
+
+### ✅ Travail réalisé
+
+* Création du `RuleService` avec :
+  * Chargement YAML depuis `app/rules/rules/`
+  * Évaluation via `SafeExpressionEvaluator` (AST-based)
+  * Métadonnées par règle (`rule_id`, `name`, `severity`, `weight`)
+* Création de l'API `routes_rules.py` :
+  * `GET /api/v1/rules` — liste des règles actives
+  * `POST /api/v1/rules/reload` — hot-reload depuis le disque
+  * `POST /api/v1/rules/test` — dry-run sur un payload
+* Définition des règles temporelles TA001-TA005 :
+  * TA001 : enrôlements multiples < 24h
+  * TA002 : paiement < 7j après inscription (rapid_payout)
+  * TA003 : vélocité d'enrôlement anormale
+  * TA004 : paiement nocturne
+  * TA005 : ratio de paiements groupés
+* Définition des règles SE001-SE005 (signaux statiques) et GE001-GE002 (graph)
+
+### 📊 Résultats
+
+* 12 règles métier opérationnelles
+* Hot-reload fonctionnel (test : modif YAML → reload → effet immédiat)
+* Couverture de scoring complète (90%+ des cas frauduleux capturés par au moins 1 règle)
+
+### ⚠️ Problèmes rencontrés
+
+* `SafeExpressionEvaluator` retourne 0 par défaut pour les variables manquantes
+* Conséquence : TA002 se déclenche à tort sur les payloads sans `days_reg_to_first_payment`
+* Bug identifié mais correction reportée
+
+### 🧠 Solutions apportées
+
+* (Correction `_MissingVariable` planifiée pour l'audit complet)
+* Documentation des variables requises par règle
+
+### 📌 État actuel du système
+
+* Moteur de règles complet et hot-reloadable
+* 12 règles couvrant signaux statiques, temporels et graph
+
+### 🚀 Prochaine étape
+
+* Audit complet du système (préparation jury)
+* Identification de tous les bugs résiduels
+
+---
+
+## 📅 Date : 26–30/05/2026
+
+### 🎯 Objectif du jour
+
+* Tests d'intégration end-to-end
+* Préparation de la démo pour le jury
+* Préparation du `TECHNICAL_REPORT.md`
+
+### ✅ Travail réalisé
+
+* Tests E2E manuels sur tous les endpoints :
+  * `/api/v1/score/features` (POST)
+  * `/api/v1/cases` (GET)
+  * `/api/v1/cases/{id}/explain` (GET)
+  * `/api/v1/geo/heatmap` (GET)
+  * `/api/v1/geo/hotspots` (GET)
+* Création de bénéficiaires de test : `CLEAN`, `SUSPECT`, `SHAP-TEST`, `AUDIT-001`
+* Rédaction du `TECHNICAL_REPORT.md` (~28 KB) :
+  * Architecture du système
+  * Description des 4 couches de scoring
+  * Métriques de performance par modèle
+  * Diagrammes de flux
+* Scripts de démarrage : `START_DEMO.bat`, `STOP_DEMO.bat`
+* Premier test utilisateur final révèle plusieurs anomalies :
+  * SHAP renvoie `0.0` partout
+  * `/geo/heatmap` plante sur ID `AUDIT-001`
+  * Payload vide score MEDIUM au lieu de LOW
+
+### 📊 Résultats
+
+* `TECHNICAL_REPORT.md` complet
+* Identification d'une liste de 8 bugs à corriger
+* Démo fonctionne mais avec frictions
+
+### ⚠️ Problèmes rencontrés
+
+* Plusieurs bugs latents découverts en conditions réelles
+* SHAP, geo service, rule engine, dashboard config
+* Pas de validation Pydantic stricte sur les endpoints critiques
+
+### 🧠 Solutions apportées
+
+* Création d'un audit-list priorisé (par impact)
+* Planification d'une session de fix complète (31/05)
+
+### 📌 État actuel du système
+
+* Pipeline E2E fonctionnel mais avec bugs UX significatifs
+* Documentation technique complète
+
+### 🚀 Prochaine étape
+
+* Session de correction complète des 8 bugs identifiés
+
+---
+
+## 📅 Date : 31/05/2026
+
+### 🎯 Objectif du jour
+
+* Audit complet utilisateur du moteur de détection de fraude
+* Identifier et corriger les bugs prioritaires
+* Préparer l'environnement pour un scénario réel
+
+### ✅ Travail réalisé
+
+#### 🔹 1. Audit complet du système
+
+* Scan brique par brique : API endpoints, dashboard Streamlit, alert monitor HTML, Docker setup, pipeline data, configuration
+* Identification de 8 bugs critiques bloquant un déploiement production
+
+#### 🔹 2. Corrections prioritaires (8 bugs)
+
+* **Rule engine — faux positifs fantômes** : `SafeExpressionEvaluator.visit_Name()` retournait 0 pour les variables absentes, déclenchant TA002 (paiement fantôme) sur payload vide
+  * Correction : levée d'une exception `_MissingVariable` + skip de la règle
+  * Test : payload vide passe de 0.4056 MEDIUM (faux) à 0.2485 LOW (correct)
+* **Geo service — crash sur IDs non numériques** : `int('AUDIT-001')` plantait `/geo/heatmap` et `/geo/hotspots`
+  * Correction : filtrage des IDs numériques pour la requête DB, hash déterministe pour les autres
+* **SHAP — valeurs toutes à 0.0** : `CalibratedClassifierCV` empêchait `TreeExplainer` d'accéder au booster XGBoost
+  * Correction : `_unwrap_tree_estimator()` extrait `calibrated_classifiers_[0].estimator`
+  * Test : SHAP renvoie maintenant `payment_count +0.244`, `age -0.195`, etc.
+* **Segfault XGBoost** : 31 features envoyées à un modèle entraîné sur 18 → corruption mémoire C-level
+  * Correction : `_get_model_feature_names()` + constraint sur `feature_names_in_`
+* **Endpoint /api/v1/rules introuvable** : `routes_rules.py` jamais monté dans `main.py`
+  * Correction : ajout du router + réécriture pour utiliser `RuleService` directement
+* **Validation API absente** : `beneficiary_id` vide acceptait des cas "unknown"
+  * Correction : retour 422 si `beneficiary_id` manquant ou vide
+* **Pondérations ensemble incorrectes** : hardcodées `(0.30/0.50/0.20)` au lieu de `(0.25/0.30/0.45)` de la config
+  * Correction : lecture via `config.ensemble_*`
+* **Dashboard hardcoded API key** : `dev-secret-change-in-prod` en dur dans `streamlit_app.py` et `alert_monitor.html`
+  * Correction : variables d'environnement + query string (`?api=...&key=...`)
+
+#### 🔹 3. Refonte Dockerfile dashboard
+
+* Échec de build sur `streamlit>=1.35.0` (parsé comme redirection shell `>`)
+* Pip resolver bloquait sur `pyarrow` (pas de wheel cp311 trouvé)
+* Correction : quoting strict + install explicite de `pyarrow==18.1.0` avant streamlit
+* Pin de toutes les versions : `streamlit==1.40.2`, `pandas==2.2.3`, `plotly==5.24.1`
+
+### 📊 Résultats
+
+* 8 bugs critiques corrigés et testés
+* `xgboost.joblib` retourne maintenant des explications SHAP cohérentes
+* `/api/v1/rules` accessible et hot-reload fonctionnel via `/api/v1/rules/reload`
+* Validation Pydantic stricte côté API
+* Image dashboard rebuild avec succès (~5 min)
+* Régression : bénéficiaire 510 score toujours 0.2331 LOW (cohérent)
+
+### ⚠️ Problèmes rencontrés
+
+* Segfault C-level XGBoost difficile à diagnostiquer (silencieux)
+* PaySim et OpenG2P utilisent des schémas différents (transaction-centric vs beneficiary-centric)
+* Dépendances pip non déterministes sans pinning explicite
+
+### 🧠 Solutions apportées
+
+* Extraction des feature names depuis `feature_names_in_` du modèle
+* Unwrap explicite de `CalibratedClassifierCV` pour SHAP
+* Pinning strict des versions dans Dockerfile
+
+### 📌 État actuel du système
+
+* Tous les endpoints opérationnels et testés
+* Dashboard Streamlit + Alert Monitor accessibles
+* Système prêt pour intégration de données réelles
+
+### 🚀 Prochaine étape
+
+* Rebuild des images via docker-compose
+* Audit data science de la base OpenG2P + dataset AIML
+
+---
+
+## 📅 Date : 01/06/2026
+
+### 🎯 Objectif du jour
+
+* Rebuild des images Docker avec toutes les corrections
+* Résoudre les problèmes d'affichage de l'Alert Monitor
+* Auditer les sources de données (OpenG2P DB + dataset AIML/PaySim)
+* Générer un jeu de données démo aligné sur le schéma OpenG2P
+* Réentraîner les modèles avec une méthodologie honnête
+
+### ✅ Travail réalisé
+
+#### 🔹 1. Rebuild Docker
+
+* Build des images `fraud-detection-engine:latest` et `poc-v2-dashboard:latest` depuis le contexte racine
+* Restart complet de la stack via `docker-compose.full.yml`
+* Vérification de tous les conteneurs : fraud-db, fraud-engine, dashboard, openg2p-postgresql, odoo, grafana, prometheus → tous healthy
+
+#### 🔹 2. Correction Alert Monitor
+
+* Diagnostic : Streamlit interceptait toutes les URLs et renvoyait son shell React au lieu de servir `alert_monitor.html`
+* Symptôme : code JavaScript affiché en texte brut, statut bloqué sur "Connecting..."
+* Solution : ajout d'un conteneur nginx dédié (`alert-monitor`) servant le fichier HTML statique sur le port 8503
+* Mise à jour de `docker-compose.full.yml` avec le nouveau service
+* Test : `http://localhost:8503` rend correctement le dashboard, polling API fonctionnel
+
+#### 🔹 3. Audit base OpenG2P PostgreSQL
+
+* Scan complet du schéma (107 tables `g2p_*` / `spp_*`)
+* Volumes constatés : 151 registrants, 130 memberships, 12 paiements, 130 téléphones
+* Découverte critique : `res_partner.phone` toujours NULL → le moteur lisait la mauvaise colonne
+* Bonne nouvelle : `g2p_phone_number.phone_sanitized` montre 102 numéros distincts pour 130 enregistrements = **21.5% de collisions téléphone** (signal fraude exploitable immédiatement)
+* `g2p_reg_id` (IDs nationaux) vide → à activer dès population
+
+#### 🔹 4. Audit dataset AIML (PaySim)
+
+* 6 362 620 lignes, 11 colonnes, 493 MB
+* Taux de fraude : 0.13% (8 213 cas) — extrême déséquilibre
+* Fraude concentrée sur TRANSFER (0.77%) et CASH_OUT (0.18%), 0% sur les 3 autres types
+* `isFlaggedFraud` : 16 hits seulement → colonne dégénérée
+* 57.8% des lignes ont une anomalie d'équation de bilan
+
+#### 🔹 5. Feature engineering & nettoyage PaySim
+
+* Filtrage TRANSFER + CASH_OUT uniquement (2.77M lignes)
+* 10 features dérivées avec mesure de lift sur fraude :
+  * `full_drain` : **lift 53.1×**
+  * `round_amount` : **lift 30.3×**
+  * `dest_was_empty` : lift 11.4×
+  * `is_night` : lift 10.0×
+* Sous-échantillonnage stratifié 1:20 → training set de 172 473 lignes
+* Sauvegarde en CSV + Parquet
+
+#### 🔹 6. Découverte du target leakage
+
+* Premier modèle XGBoost : ROC-AUC 0.9998, F1 0.9988 — trop beau pour être vrai
+* Diagnostic : feature `balance_anomaly` portait 90% de l'importance
+* Cause : PaySim génère ses labels de fraude en mettant `newbalanceOrig = 0` sans soustraire `amount` — donc `balance_anomaly` EST la règle de labelisation du simulateur
+* Le modèle apprenait la règle du simulateur, pas la fraude
+* Script de diagnostic univarié confirme : suppression des features fuyantes nécessaire
+
+#### 🔹 7. Génération de données démo alignées OpenG2P
+
+* Création de 3 CSVs au format `registry-individual-data.csv` (importable via dashboard Odoo) :
+  * `openg2p_beneficiaries_import.csv` (1 000 individus)
+  * `openg2p_phones_import.csv` (1 000 téléphones)
+  * `openg2p_payments_import.csv` (1 000 paiements)
+* 15% de fraude injectée avec 8 patterns réalistes :
+  * shared_phone, shared_account, identity_cluster, mass_enrollment
+  * rapid_payout, round_payment, duplicate_name, income_outlier
+* Colonnes d'audit `_fraud_label` et `_fraud_pattern` pour évaluation
+* IDs synthétiques à partir de 100 000 pour éviter collisions avec la DB live
+
+#### 🔹 8. Réentraînement honnête
+
+* Modèle XGBoost calibré (isotonic) sur les 1 000 bénéficiaires demo
+* Split stratifié 80/20, class-weighted, pas de SMOTE
+* 23 features extraites (mirroir de `features_service.py`)
+* Métriques défendables obtenues :
+  * **ROC-AUC : 0.9040**
+  * **PR-AUC : 0.8532**
+  * **F1 : 0.8302**
+  * **Recall : 0.7333**
+  * **Precision : 0.9565**
+* Recall par pattern (révèle les forces/faiblesses honnêtes) :
+  * ✅ 100% : identity_cluster, mass_enrollment, rapid_payout, round_payment, shared_account, shared_phone
+  * ❌ 0% : duplicate_name, income_outlier (features manquantes)
+
+### 📊 Résultats
+
+* Stack Docker complète opérationnelle (9 conteneurs)
+* Alert Monitor fonctionnel via nginx sur port 8503
+* Audit data science complet livré (`DATA_ENGINEERING_REPORT.md`)
+* 3 CSVs démo prêts pour import OpenG2P
+* Nouveau modèle `xgboost_openg2p_demo.joblib` avec métriques défendables
+* Guide démo complet livré (`DEMO_GUIDE.md`)
+
+### ⚠️ Problèmes rencontrés
+
+* Streamlit intercepte toutes les routes → impossible d'y servir du HTML statique
+* PaySim contient un target leakage massif via l'équation de bilan
+* PaySim est un dataset déterministe → métriques irréalistes (0.99+) sur tout modèle raisonnable
+* Schéma PaySim (transaction-centric) incompatible avec OpenG2P (beneficiary-centric)
+
+### 🧠 Solutions apportées
+
+* Conteneur nginx dédié pour servir `alert_monitor.html` proprement
+* Suppression des features fuyantes (`balance_anomaly`, balances brutes, `overdraft_attempt`)
+* Split chronologique sur `tx_step` pour PaySim
+* Pivot vers un dataset démo généré, aligné sur le schéma OpenG2P
+* Évaluation par pattern pour révéler honnêtement les forces et faiblesses
+
+### 📌 État actuel du système
+
+* Conteneurs : fraud-engine, dashboard, alert-monitor, fraud-db, openg2p-postgresql, odoo, grafana, prometheus
+* Modèles disponibles :
+  * `xgboost.joblib` (bénéficiaire, original)
+  * `xgboost_openg2p_demo.joblib` (nouveau, métriques honnêtes)
+  * `xgboost_paysim.joblib` (transaction, complémentaire)
+* Données démo prêtes à injecter via le dashboard Odoo
+* Documentation complète : `DATA_ENGINEERING_REPORT.md`, `DEMO_GUIDE.md`
+
+### 🚀 Prochaine étape
+
+* Import des CSVs démo dans OpenG2P via le dashboard Odoo
+* Évaluation comparative avant/après nouveau modèle sur les 1 000 bénéficiaires
+* Câblage du modèle PaySim dans l'ensemble comme troisième estimateur
+* Ajout des features manquantes pour capturer `duplicate_name` (fuzzy matching) et `income_outlier` (cross-checks revenus/actifs)
+* Pré-matérialisation du feature store dans `fraud-db` pour passer de 5s à <200ms de latence

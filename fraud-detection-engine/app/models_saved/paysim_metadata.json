@@ -1,0 +1,58 @@
+{
+  "feature_columns": [
+    "tx_step",
+    "tx_amount",
+    "full_drain",
+    "round_amount",
+    "dest_was_empty",
+    "dest_is_merchant",
+    "log_amount",
+    "amount_to_balance_ratio",
+    "hour_of_day",
+    "is_night",
+    "tx_type_transfer"
+  ],
+  "leaky_features_dropped": [
+    "balance_anomaly",
+    "orig_balance_after",
+    "dest_balance_after",
+    "overdraft_attempt",
+    "orig_balance_before",
+    "dest_balance_before"
+  ],
+  "split_method": "chronological_on_tx_step",
+  "test_set_distribution": "true_imbalanced_0.3pct",
+  "metrics": {
+    "roc_auc": 1.0,
+    "pr_auc": 0.9963,
+    "precision_t0.5": 0.9119,
+    "recall_t0.5": 0.9967,
+    "f1_t0.5": 0.9524,
+    "confusion_t0.5": {
+      "tn": 507650,
+      "fp": 407,
+      "fn": 14,
+      "tp": 4212
+    },
+    "recall_at_1pct_fp": 0.9998,
+    "threshold_at_1pct_fp": 0.0008,
+    "n_train": 138055,
+    "n_test": 512283,
+    "test_fraud_rate": 0.008249
+  },
+  "feature_importance": {
+    "amount_to_balance_ratio": 0.873697817325592,
+    "round_amount": 0.12105528265237808,
+    "dest_was_empty": 0.0024338364601135254,
+    "tx_amount": 0.000978682073764503,
+    "tx_type_transfer": 0.0007222744170576334,
+    "tx_step": 0.0006105971406213939,
+    "hour_of_day": 0.00031568825943395495,
+    "full_drain": 0.00018576811999082565,
+    "dest_is_merchant": 0.0,
+    "log_amount": 0.0,
+    "is_night": 0.0
+  },
+  "source_dataset": "PaySim (Kaggle AIML Dataset)",
+  "model_purpose": "Transaction-level fraud signal (complementary to beneficiary model)"
+}

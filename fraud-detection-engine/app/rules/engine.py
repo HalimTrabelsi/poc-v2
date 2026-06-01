@@ -22,6 +22,15 @@ class SafeExpressionEvaluator(ast.NodeVisitor):
         ast.USub, ast.UAdd,
     )
 
+    class _MissingVariable(Exception):
+        """Raised when a rule references a variable that is not in the context.
+
+        The RuleEngine catches this and treats the rule as 'not triggered',
+        instead of silently defaulting the variable to 0 (which produced
+        phantom triggers — e.g. TA002 fired whenever days_reg_to_first_payment
+        was missing because 0 < 7).
+        """
+
     def __init__(self, context: dict[str, Any]) -> None:
         self.context = context
 
@@ -37,7 +46,9 @@ class SafeExpressionEvaluator(ast.NodeVisitor):
         return node.value
 
     def visit_Name(self, node: ast.Name) -> Any:
-        return self.context.get(node.id, 0)
+        if node.id not in self.context:
+            raise SafeExpressionEvaluator._MissingVariable(node.id)
+        return self.context[node.id]
 
     def visit_BoolOp(self, node: ast.BoolOp) -> bool:
         if isinstance(node.op, ast.And):
@@ -113,6 +124,11 @@ class RuleEngine:
                 tree = ast.parse(condition, mode="eval")
                 evaluator = SafeExpressionEvaluator(features)
                 matched = bool(evaluator.visit(tree))
+            except SafeExpressionEvaluator._MissingVariable as exc:
+                # Rule references a feature the extractor didn't provide.
+                # Treat as not-triggered rather than silently defaulting to 0.
+                logger.debug("Rule %s skipped (missing variable: %s)", rule.get("id"), exc)
+                matched = False
             except ZeroDivisionError:
                 matched = False
             except Exception as exc:

@@ -151,31 +151,44 @@ class GeoService:
     # ── internals ────────────────────────────────────────────────────────────
 
     def _fetch_coords(self, partner_ids: list[str]) -> dict[str, tuple[float, float]]:
-        """Return {partner_id: (lat, lon)} — real when available, synthetic otherwise."""
+        """Return {partner_id: (lat, lon)} — real when available, synthetic otherwise.
+
+        Non-numeric IDs (e.g. synthetic test cases like "AUDIT-001") are mapped
+        deterministically via a hash so the geo endpoints never crash on them.
+        """
         from sqlalchemy import text
-        ids_int = [int(p) for p in partner_ids]
+
+        # Split into numeric (real OpenG2P partner IDs) and non-numeric (test data).
+        numeric_ids = [p for p in partner_ids if str(p).lstrip("-").isdigit()]
+        ids_int = [int(p) for p in numeric_ids]
 
         real_coords: dict[str, tuple[float, float]] = {}
-        try:
-            with self._connector.get_session() as session:
-                rows = session.execute(text("""
-                    SELECT id, partner_latitude, partner_longitude
-                    FROM res_partner
-                    WHERE id = ANY(:ids)
-                      AND partner_latitude  IS NOT NULL
-                      AND partner_longitude IS NOT NULL
-                """), {"ids": ids_int}).fetchall()
-            for pid, lat, lon in rows:
-                real_coords[str(pid)] = (float(lat), float(lon))
-        except Exception as exc:
-            logger.warning("Failed to fetch real coordinates: %s", exc)
+        if ids_int:
+            try:
+                with self._connector.get_session() as session:
+                    rows = session.execute(text("""
+                        SELECT id, partner_latitude, partner_longitude
+                        FROM res_partner
+                        WHERE id = ANY(:ids)
+                          AND partner_latitude  IS NOT NULL
+                          AND partner_longitude IS NOT NULL
+                    """), {"ids": ids_int}).fetchall()
+                for pid, lat, lon in rows:
+                    real_coords[str(pid)] = (float(lat), float(lon))
+            except Exception as exc:
+                logger.warning("Failed to fetch real coordinates: %s", exc)
 
         coords: dict[str, tuple[float, float]] = {}
         for pid in partner_ids:
             if pid in real_coords:
                 coords[pid] = real_coords[pid]
-            else:
+            elif str(pid).lstrip("-").isdigit():
                 coords[pid] = _synthetic_latlon(int(pid))
+            else:
+                # Non-numeric ID — hash it to a stable integer for synthetic placement.
+                import hashlib
+                seed = int(hashlib.md5(str(pid).encode()).hexdigest()[:8], 16)
+                coords[pid] = _synthetic_latlon(seed)
         return coords
 
     def _dbscan_cluster(self, xy: np.ndarray) -> np.ndarray:

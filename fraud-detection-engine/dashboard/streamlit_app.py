@@ -7,7 +7,7 @@ import streamlit as st
 
 _engine_url = os.getenv("FRAUD_ENGINE_URL", "http://localhost:8000")
 API_BASE = f"{_engine_url.rstrip('/')}/api/v1"
-API_KEY = "dev-secret-change-in-prod"
+API_KEY = os.getenv("FRAUD_API_KEY", "dev-secret-change-in-prod")
 HEADERS = {"X-API-Key": API_KEY}
 
 RISK_COLORS = {"LOW": "🟢", "MEDIUM": "🟡", "HIGH": "🟠", "CRITICAL": "🔴"}
@@ -348,6 +348,15 @@ def show_geo_page() -> None:
 
     df_map = pd.DataFrame(heatmap_data)
 
+    # Deep-link from Odoo: ?beneficiary=ID centers + highlights that partner
+    focus_bid = st.query_params.get("beneficiary", "")
+    if focus_bid:
+        focus = df_map[df_map["partner_id"].astype(str) == str(focus_bid)]
+        if not focus.empty:
+            st.info(f"Showing location of beneficiary #{focus_bid} (highlighted in blue).")
+        else:
+            st.warning(f"Beneficiary #{focus_bid} has no geo data yet.")
+
     # ── pydeck heatmap ────────────────────────────────────────────────────────
     try:
         import pydeck as pdk
@@ -379,16 +388,40 @@ def show_geo_page() -> None:
             tooltip=True,
         )
 
-        view = pdk.ViewState(
-            latitude=df_map["lat"].mean(),
-            longitude=df_map["lon"].mean(),
-            zoom=6,
-            pitch=40,
-        )
+        layers = [heatmap_layer, scatter_layer]
+        # If a focus beneficiary is requested, drop a bright blue ring + zoom in
+        if focus_bid and not focus.empty:
+            highlight_layer = pdk.Layer(
+                "ScatterplotLayer",
+                data=focus,
+                get_position=["lon", "lat"],
+                get_radius=8000,
+                get_fill_color=[30, 144, 255, 220],
+                stroked=True,
+                get_line_color=[255, 255, 255, 255],
+                line_width_min_pixels=3,
+                pickable=True,
+            )
+            layers.append(highlight_layer)
+            view = pdk.ViewState(
+                latitude=float(focus["lat"].iloc[0]),
+                longitude=float(focus["lon"].iloc[0]),
+                zoom=10,
+                pitch=40,
+            )
+        else:
+            view = pdk.ViewState(
+                latitude=df_map["lat"].mean(),
+                longitude=df_map["lon"].mean(),
+                zoom=6,
+                pitch=40,
+            )
 
         st.pydeck_chart(pdk.Deck(
-            layers=[heatmap_layer, scatter_layer],
+            layers=layers,
             initial_view_state=view,
+            map_provider="carto",
+            map_style="light",
             tooltip={"text": "Partner {partner_id}\nScore: {fraud_score}"},
         ))
 
@@ -546,12 +579,28 @@ def main() -> None:
 
     st.sidebar.title("Fraud Detection")
     st.sidebar.markdown("**OpenG2P — Fraud Engine v2**")
+    st.sidebar.markdown(
+        '<a href="http://localhost:8069/odoo/action-g2p_fraud_detection.action_fraud_dashboard" '
+        'target="_blank" style="text-decoration:none;">'
+        '🔗 Open in OpenG2P (Odoo)</a>',
+        unsafe_allow_html=True,
+    )
+    st.sidebar.markdown("---")
     _show_sidebar_scanner()
 
-    page = st.sidebar.radio(
-        "Navigation",
-        ["Cases", "Score / Scan / Batch", "Explainability", "Geo Hotspots", "Monitoring"],
-    )
+    pages = ["Cases", "Score / Scan / Batch", "Explainability", "Geo Hotspots", "Monitoring"]
+    # Respect ?page=… deep-linking from Odoo so cross-app navigation lands on
+    # the right tab. Falls back to Cases if the param is missing or invalid.
+    _page_aliases = {
+        "cases": "Cases", "score": "Score / Scan / Batch",
+        "explain": "Explainability", "explainability": "Explainability",
+        "geo": "Geo Hotspots", "heatmap": "Geo Hotspots", "hotspots": "Geo Hotspots",
+        "monitor": "Monitoring", "monitoring": "Monitoring",
+    }
+    _qp = st.query_params.get("page", "").lower()
+    default_idx = pages.index(_page_aliases[_qp]) if _qp in _page_aliases else 0
+
+    page = st.sidebar.radio("Navigation", pages, index=default_idx)
 
     if   page == "Cases":                show_cases_page()
     elif page == "Score / Scan / Batch": show_scoring_page()
