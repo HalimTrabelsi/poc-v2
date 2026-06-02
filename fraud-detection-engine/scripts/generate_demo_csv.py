@@ -20,43 +20,56 @@ OUT = Path(r"C:\Users\Mega Pc\Desktop\poc-v2\poc-v2\fraud-detection-engine\data\
 OUT.mkdir(parents=True, exist_ok=True)
 
 # === Shared resources for fraud patterns ===================================
-SHARED_PHONE = "+224 600 11 11 11"      # 3 beneficiaries
-SHARED_ACCOUNT = "1000000099"           # 2 beneficiaries
-CLUSTER_DOB = "1985-06-15"              # 3 cluster members
-CLUSTER_LASTNAME = "Diallo"
+# CRITICAL pattern — 2 partners share BOTH a phone AND a bank account.
+# This triggers rule NF003 (shared_phone_count >= 2 AND shared_account_count >= 2).
+DOUBLE_PHONE   = "+224 600 99 99 99"
+DOUBLE_ACCOUNT = "9999000099"
+
+# HIGH pattern A — shared phone across 3 partners (rule NF002, threshold 3)
+TRIPLE_PHONE   = "+224 600 11 11 11"
+
+# HIGH pattern B — shared bank account across 2 partners (rule NF001, threshold 2)
+SHARED_ACCOUNT = "1000000099"
+
+# MEDIUM pattern — 2 partners share a phone (just below NF002 threshold of 3)
+# but elevated network_risk score keeps them above LOW
+MILD_PHONE     = "+224 600 22 22 22"
 
 # === The 20 beneficiaries ==================================================
 # Format: (name, dob, gender, phone, account, region, employment, fraud_pattern)
 BENEFICIARIES = [
-    # Clean baseline (8)
+    # ── CRITICAL × 3 — share phone AND account (high network risk) ─────────
+    # All 3 use the same phone AND the same bank account → for each one,
+    # shared_phone_count >= 2 AND shared_account_count >= 2 → NF003 fires
+    # AND the network_risk metric blows past 0.80 (critical threshold).
+    ("Mamadou Diallo",     "1985-06-15", "male",   DOUBLE_PHONE,        DOUBLE_ACCOUNT,  "GN-C", "unemployed",        "double_fraud"),
+    ("Ibrahim Diallo",     "1986-03-22", "male",   DOUBLE_PHONE,        DOUBLE_ACCOUNT,  "GN-C", "self_employed",     "double_fraud"),
+    ("Alpha Diallo",       "1988-11-05", "male",   DOUBLE_PHONE,        DOUBLE_ACCOUNT,  "GN-C", "unemployed",        "double_fraud"),
+
+    # ── HIGH × 3 — shared phone only (3 partners) ──────────────────────────
+    ("Lansana Keita",      "1978-02-08", "male",   TRIPLE_PHONE,        "1000000010",    "GN-D", "employed_fulltime", "shared_phone"),
+    ("Bintou Doumbouya",   "1992-08-19", "female", TRIPLE_PHONE,        "1000000011",    "GN-D", "employed_parttime", "shared_phone"),
+    ("Aminata Soumah",     "1986-05-03", "female", TRIPLE_PHONE,        "1000000012",    "GN-K", "unemployed",        "shared_phone"),
+
+    # ── HIGH × 2 — shared bank account only (2 partners) ───────────────────
+    ("Saran Diakite",      "1971-10-28", "female", "+224 699 77 89 01", SHARED_ACCOUNT,  "GN-L", "self_employed",     "shared_account"),
+    ("Mabinty Cisse",      "1983-12-14", "female", "+224 600 88 90 12", SHARED_ACCOUNT,  "GN-M", "employed_fulltime", "shared_account"),
+
+    # ── MEDIUM × 2 — mild phone collision (below NF002 threshold) ──────────
+    ("Alpha Sow",          "1975-09-25", "male",   MILD_PHONE,          "1000000020",    "GN-C", "employed_fulltime", "mild_phone"),
+    ("Fanta Bah",          "1989-09-08", "female", MILD_PHONE,          "1000000021",    "GN-L", "self_employed",     "mild_phone"),
+
+    # ── LOW × 10 — clean baseline ──────────────────────────────────────────
     ("Mamadou Bah",        "1972-03-14", "male",   "+224 622 31 45 67", "1000000001", "GN-C", "employed_fulltime", ""),
     ("Aissatou Camara",    "1980-11-02", "female", "+224 655 78 12 34", "1000000002", "GN-D", "employed_parttime", ""),
     ("Ibrahim Toure",      "1965-07-21", "male",   "+224 666 90 23 45", "1000000003", "GN-K", "self_employed",     ""),
     ("Fatoumata Sylla",    "1990-01-09", "female", "+224 611 22 34 56", "1000000004", "GN-L", "employed_fulltime", ""),
     ("Sekou Conde",        "1955-12-30", "male",   "+224 677 33 45 67", "1000000005", "GN-M", "retired",           ""),
     ("Mariama Barry",      "1988-04-17", "female", "+224 633 44 56 78", "1000000006", "GN-N", "unemployed",        ""),
-    ("Alpha Sow",          "1975-09-25", "male",   "+224 688 55 67 89", "1000000007", "GN-C", "employed_fulltime", ""),
     ("Hadja Conte",        "1982-06-11", "female", "+224 644 66 78 90", "1000000008", "GN-D", "employed_parttime", ""),
-
-    # Pattern 1: Shared phone (3 partners)
-    ("Lansana Keita",      "1978-02-08", "male",   SHARED_PHONE,        "1000000010", "GN-C", "employed_fulltime", "shared_phone"),
-    ("Bintou Doumbouya",   "1992-08-19", "female", SHARED_PHONE,        "1000000011", "GN-D", "employed_parttime", "shared_phone"),
-    ("Aminata Soumah",     "1986-05-03", "female", SHARED_PHONE,        "1000000012", "GN-K", "unemployed",        "shared_phone"),
-
-    # Pattern 2: Shared bank account (2 partners)
-    ("Saran Diakite",      "1971-10-28", "female", "+224 699 77 89 01", SHARED_ACCOUNT, "GN-L", "self_employed",   "shared_account"),
-    ("Mabinty Cisse",      "1983-12-14", "female", "+224 600 88 90 12", SHARED_ACCOUNT, "GN-M", "employed_fulltime", "shared_account"),
-
-    # Pattern 3: Identity cluster (3 partners with same DOB + last name)
-    ("Mamadou Diallo",     CLUSTER_DOB, "male",   "+224 611 11 21 31", "1000000020", "GN-C", "employed_fulltime", "identity_cluster"),
-    ("Ibrahim Diallo",     CLUSTER_DOB, "male",   "+224 622 12 22 32", "1000000021", "GN-C", "employed_parttime", "identity_cluster"),
-    ("Alpha Diallo",       CLUSTER_DOB, "male",   "+224 633 13 23 33", "1000000022", "GN-C", "unemployed",        "identity_cluster"),
-
-    # More clean
     ("Thierno Kone",       "1968-04-22", "male",   "+224 644 14 24 34", "1000000030", "GN-N", "employed_fulltime", ""),
     ("Kadiatou Conte",     "1995-07-05", "female", "+224 655 15 25 35", "1000000031", "GN-D", "employed_parttime", ""),
     ("Ousmane Camara",     "1962-11-19", "male",   "+224 666 16 26 36", "1000000032", "GN-K", "retired",           ""),
-    ("Fanta Bah",          "1989-09-08", "female", "+224 677 17 27 37", "1000000033", "GN-L", "self_employed",     ""),
 ]
 
 # === Write the CSV in standard Odoo res.partner import columns =============
@@ -91,9 +104,10 @@ print(f"Wrote {len(BENEFICIARIES)} beneficiaries to:")
 print(f"  {out_path}")
 print()
 print("Fraud patterns embedded:")
-print(f"  • 3 beneficiaries share phone {SHARED_PHONE}")
-print(f"  • 2 beneficiaries share account {SHARED_ACCOUNT}")
-print(f"  • 3 beneficiaries share DOB {CLUSTER_DOB} + last name '{CLUSTER_LASTNAME}'")
-print(f"  • 12 clean beneficiaries")
+print(f"  CRITICAL: 3 share BOTH phone {DOUBLE_PHONE} AND account {DOUBLE_ACCOUNT}")
+print(f"  HIGH:     3 share phone {TRIPLE_PHONE}")
+print(f"  HIGH:     2 share account {SHARED_ACCOUNT}")
+print(f"  MEDIUM:   2 share phone {MILD_PHONE}")
+print(f"  LOW:      10 clean beneficiaries")
 print()
-print("Expected fraud-engine output: ~8 HIGH/CRITICAL, ~12 LOW")
+print("Expected fraud-engine output: 3 CRITICAL, 5 HIGH, 2 MEDIUM, 10 LOW")

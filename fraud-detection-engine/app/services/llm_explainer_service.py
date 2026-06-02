@@ -20,6 +20,7 @@ class LLMExplainer:
         self.base_url = os.getenv("OLLAMA_URL", "http://ollama:11434")
         self.model = os.getenv("OLLAMA_MODEL", "llama3.2:1b")
         self.timeout = int(os.getenv("OLLAMA_TIMEOUT", "30"))
+        self.language = os.getenv("LLM_LANGUAGE", "fr")  # 'fr' or 'en'
 
     def explain_case(self, case: dict) -> str:
         """Return a natural-language explanation for the case dict.
@@ -68,20 +69,38 @@ class LLMExplainer:
             if isinstance(f, dict)
         ) or "(none)"
 
+        if self.language == "en":
+            return (
+                "You are a fraud-detection assistant explaining a beneficiary risk "
+                "assessment to a non-technical fraud officer working on a social "
+                "protection programme (OpenG2P).\n\n"
+                f"Beneficiary ID: {bid}\n"
+                f"Risk score: {float(score):.3f} (scale 0-1)\n"
+                f"Risk level: {risk}\n"
+                f"Recommendation: {rec}\n\n"
+                f"Rules triggered:\n{rules_text}\n\n"
+                f"Top contributing features:\n{feat_text}\n\n"
+                "Write a 3-4 sentence explanation in plain English. Start with the "
+                "verdict, then the top one or two reasons in everyday language, "
+                "then a concrete next step the officer should take. Do not include "
+                "markdown, headers, or bullet points."
+            )
+        # Default: French
         return (
-            "You are a fraud-detection assistant explaining a beneficiary risk "
-            "assessment to a non-technical fraud officer working on a social "
-            "protection programme (OpenG2P).\n\n"
-            f"Beneficiary ID: {bid}\n"
-            f"Risk score: {float(score):.3f} (scale 0-1)\n"
-            f"Risk level: {risk}\n"
-            f"Recommendation: {rec}\n\n"
-            f"Rules triggered:\n{rules_text}\n\n"
-            f"Top contributing features:\n{feat_text}\n\n"
-            "Write a 3-4 sentence explanation in plain English. Start with the "
-            "verdict, then the top one or two reasons in everyday language, "
-            "then a concrete next step the officer should take. Do not include "
-            "markdown, headers, or bullet points."
+            "Vous êtes un assistant de détection de fraude qui explique une "
+            "évaluation de risque à un agent non technique travaillant sur un "
+            "programme de protection sociale (OpenG2P).\n\n"
+            f"Identifiant bénéficiaire : {bid}\n"
+            f"Score de risque : {float(score):.3f} (échelle 0-1)\n"
+            f"Niveau de risque : {risk}\n"
+            f"Recommandation : {rec}\n\n"
+            f"Règles déclenchées :\n{rules_text}\n\n"
+            f"Facteurs principaux :\n{feat_text}\n\n"
+            "Rédigez une explication de 3 à 4 phrases en français simple. "
+            "Commencez par le verdict, puis donnez les une ou deux raisons "
+            "principales en langage courant, et terminez par l'action concrète "
+            "que l'agent doit entreprendre. Pas de markdown, d'en-têtes ni de "
+            "puces. Répondez uniquement en français."
         )
 
     def _call_ollama(self, prompt: str) -> str:

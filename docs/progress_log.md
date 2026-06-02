@@ -1051,3 +1051,139 @@
 * Câblage du modèle PaySim dans l'ensemble comme troisième estimateur
 * Ajout des features manquantes pour capturer `duplicate_name` (fuzzy matching) et `income_outlier` (cross-checks revenus/actifs)
 * Pré-matérialisation du feature store dans `fraud-db` pour passer de 5s à <200ms de latence
+
+---
+
+## 📅 Date : 01/06/2026 (après-midi)
+
+### 🎯 Objectif du jour
+
+* Remplacer le moniteur HTML autonome par une intégration native Odoo
+* Intégrer Ollama pour la génération d'explications en langage naturel
+* Créer le pipeline complet pour la démo manager (CSV → import → scoring → kanban → IA)
+* Lier les dashboards Odoo et Streamlit entre eux
+
+### ✅ Travail réalisé
+
+#### 🔹 1. Addon Odoo `g2p_fraud_detection`
+
+* Création complète du module Odoo natif remplaçant `alert_monitor.html` :
+  * Modèle `fraud.case` avec `mail.thread` + `mail.activity.mixin`
+  * Vue kanban auto-rafraîchissante via `bus.bus`
+  * Vue formulaire avec onglets (AI Explanation, Rules Triggered, Technical Explanation, Notes)
+  * Boutons d'action : Start Investigation, Confirm Fraud, Dismiss, Close Case
+  * Modèle de synchronisation `fraud.sync` (cron 1min sur `/api/v1/cases`)
+  * Sécurité ACL : groupes Fraud Officer / Fraud Supervisor
+  * Bus listener JS pour notifications toast en temps réel
+* Suppression du conteneur `alert-monitor` nginx et de `alert_monitor.html`
+* Montage de l'addon dans Odoo via copie dans `extraaddons/`
+
+#### 🔹 2. Bugs Odoo 17 corrigés en cours d'intégration
+
+* `attrs="{'invisible': ...}"` → syntaxe `invisible="..."` directe (Odoo 17 dépréciation)
+* `@api.model` create → `@api.model_create_multi` avec batch handling
+* `useService("bus_service")` → accès direct via `env.services` (service async non compatible avec useService)
+* Sélection `recommendation` complétée : `BLOCK_PAYMENT`, `MANUAL_REVIEW`, `MONITOR`, `CLEAR`
+* Sync robustifié pour ignorer les valeurs de Selection inconnues
+* Rendu des règles : passage de codes (`NF001, NF002`) au format plain English avec puces :
+  ```
+  • Shared Phone Number — Phone number shared with 3 other beneficiaries
+  • High Network Risk Score — Network risk score: 0.80 (threshold: 0.60)
+  ```
+
+#### 🔹 3. Intégration Ollama (LLM local)
+
+* Ajout du service `ollama` au `docker-compose.full.yml`
+* Volume `poc-v2_ollama_data` réutilisé (modèles préservés)
+* Pull du modèle `llama3.2:1b` (1.3 GB, rapide sur CPU)
+* Service `LLMExplainer` dans le fraud-engine :
+  * Construction du prompt depuis règles + top features
+  * Appel `/api/generate` sur Ollama
+  * Fallback gracieux si Ollama indisponible
+* Endpoint `POST /api/v1/cases/{case_id}/llm_explain`
+* Colonne `llm_explanation TEXT` ajoutée à `fraud_cases` (migration ALTER TABLE)
+* Bouton "Generate AI Explanation" dans la vue formulaire Odoo
+* Latence ~10-15s par explication (CPU, modèle 1B)
+
+#### 🔹 4. Bugs corrigés dans l'engine
+
+* Endpoint `/api/v1/cases` enrichi : `rules_triggered`, `explanation`, `llm_explanation` ajoutés au schéma Pydantic `CaseItem`
+* Nouveau endpoint `GET /api/v1/cases/{case_id}` pour le détail complet
+* Bug off-by-one dans `extractors.py` : `shared_phone_count` et `shared_account_count` faisaient un `- 1` superflu (le JOIN excluait déjà self), donnant un compte sous-évalué qui empêchait les règles `NF001` (≥2) et `NF002` (≥3) de se déclencher
+
+#### 🔹 5. Cross-linking Odoo ↔ Streamlit
+
+* Ajout de 3 menus Odoo `act_url` qui ouvrent Streamlit en nouvel onglet :
+  * **Geographic Heatmap** → `localhost:8501/?page=geo`
+  * **Analytics Dashboard** → `localhost:8501/?page=cases`
+  * **API Documentation** → `localhost:8002/docs`
+* Smart-button "View on Heatmap" sur le formulaire fraud.case :
+  * Action `act_url` avec param `?beneficiary=<ID>`
+  * Côté Streamlit : centrage + zoom 10 + cercle bleu de surbrillance sur ce bénéficiaire
+* Streamlit reconnait `?page=geo|cases|explain|...` pour deep-linking
+* Sidebar Streamlit ajoute un lien "🔗 Open in OpenG2P (Odoo)"
+* Paramètre `fraud_detection.dashboard_url` configurable via `ir.config_parameter`
+
+#### 🔹 6. Correction heatmap pydeck
+
+* Heatmap rendait sur fond noir car aucun token Mapbox n'était configuré
+* Ajout de `map_provider="carto"` + `map_style="light"` à `pdk.Deck(...)` → fond de carte CARTO gratuit, sans token
+
+#### 🔹 7. Données démo enrichies pour le manager
+
+* Régénération de `data/demo/demo_beneficiaries.csv` (20 lignes, format `res.partner` natif Odoo)
+* Patterns conçus pour couvrir les 4 niveaux de risque :
+  * **CRITICAL × 3** — 3 partenaires partagent le même téléphone ET le même compte bancaire (déclenche NF003 + network_risk ≥ 0.80)
+  * **HIGH × 5** — 3 partagent un téléphone + 2 partagent un compte (NF001 / NF002)
+  * **MEDIUM × 2** — 2 partagent un téléphone (juste sous le seuil NF002)
+  * **LOW × 10** — bénéficiaires propres
+* Scripts de support (terminal uniquement, optionnels pour l'opérateur) :
+  * `reset_demo.sh` — vide les bénéficiaires DEMO-* et tous les cas
+  * `finalize_demo_import.py` — peuple `g2p_phone_number`, `res_partner_bank`, `g2p_program_membership` après import dashboard
+  * `score_imported_beneficiaries.py` — scoring via `/api/v1/score/beneficiary/{id}`
+  * `simulate_import.py` — test E2E sans cliquer le wizard Odoo
+
+### 📊 Résultats
+
+* Distribution de risque dans la démo : 3 CRITICAL (0.82–0.90), 5 HIGH (0.65–0.79), 2 MEDIUM (0.56), 10 LOW (0.25)
+* Tous les services healthy : openg2p-odoo, fraud-engine, ollama, fraud-db, postgresql, streamlit-dashboard, grafana, prometheus
+* Pipeline complet fonctionnel :
+  * Import dashboard OpenG2P → finalisation données → scoring → kanban Odoo → AI explanation Ollama → heatmap Streamlit
+* Explications LLM cohérentes, en anglais simple, ~10s de latence
+* Aucune dépendance externe (cloud) : Ollama, CARTO et tous les services tournent localement
+
+### ⚠️ Problèmes rencontrés
+
+* Odoo 17 (Bitnami) ignore `ODOO_ADDONS_PATH` env var, utilise un conf baked-in
+* `useService("bus_service")` plante avec "methods is not iterable" (bug Odoo sur services async)
+* Erreur "push service not available" liée à un service worker stale (résidu du moniteur HTML supprimé)
+* Endpoint `/api/v1/cases` initial ne renvoyait pas `rules_triggered` ni `explanation`
+* Pydeck nécessite normalement un token Mapbox
+
+### 🧠 Solutions apportées
+
+* Copie de l'addon directement dans `/opt/bitnami/odoo/extraaddons/`
+* Accès direct à `env.services.bus_service` au lieu de `useService(...)`
+* Documentation : ignorer l'erreur push ou nettoyer les service workers stale dans DevTools
+* Ajout des 3 champs au schéma Pydantic `CaseItem`
+* `map_provider="carto"` utilise les tuiles CARTO gratuites sans token
+
+### 📌 État actuel du système
+
+* **Conteneurs** : openg2p-odoo (+ addon installé), fraud-engine, fraud-db, postgresql, ollama (llama3.2:1b), streamlit-dashboard, grafana, prometheus, openg2p-spar-*
+* **Menus Odoo** sous "Fraud Detection" :
+  * Live Alert Monitor (kanban)
+  * All Cases (liste/formulaire)
+  * Geographic Heatmap (lien Streamlit)
+  * Analytics Dashboard (lien Streamlit)
+  * API Documentation (lien Swagger)
+* **Pipeline démo** prêt : CSV → import dashboard → finalize → score → kanban + IA + carte
+* DB vide, prête pour la démo (`reset_demo.sh` exécuté)
+
+### 🚀 Prochaine étape
+
+* Présentation au manager : démo end-to-end via dashboard OpenG2P
+* Activation du modèle PaySim comme troisième estimateur dans l'ensemble
+* Pré-matérialisation des features dans `fraud-db` pour réduire la latence de scoring
+* Persistance automatique des LLM explanations dans le cron de sync (pour éviter le clic manuel)
+* Migration des credentials hardcodés vers variables d'environnement / vault

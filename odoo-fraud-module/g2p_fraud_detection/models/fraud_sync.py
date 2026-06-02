@@ -82,7 +82,7 @@ class FraudSync(models.AbstractModel):
             if recommendation not in valid_recommendations:
                 recommendation = False
 
-            Case.create({
+            new_case = Case.create({
                 "case_id": cid,
                 "beneficiary_id": str(c.get("beneficiary_id") or ""),
                 "final_score": float(c.get("final_score") or 0.0),
@@ -96,8 +96,34 @@ class FraudSync(models.AbstractModel):
             })
             created += 1
 
+            # Auto-generate LLM explanation for CRITICAL/HIGH so officers
+            # don't have to click a button. Best-effort: failures are logged
+            # and the officer can still trigger manually via the form button.
+            if risk_level in ("CRITICAL", "HIGH"):
+                self._fetch_llm_explanation(new_case, cfg)
+
         _logger.info("Fraud sync: created %d new cases", created)
         return True
+
+    def _fetch_llm_explanation(self, case, cfg):
+        """Call the engine's /llm_explain endpoint and store the result on the case."""
+        url = f"{cfg['url']}/cases/{case.case_id}/llm_explain"
+        req = urllib.request.Request(
+            url,
+            method="POST",
+            data=b"",
+            headers={"X-API-Key": cfg["api_key"], "Content-Type": "application/json"},
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=90) as resp:
+                payload = json.loads(resp.read().decode("utf-8"))
+            text = payload.get("llm_explanation") or ""
+            if text:
+                case.llm_explanation = text
+        except urllib.error.URLError as e:
+            _logger.warning("LLM auto-gen failed for %s: %s", case.case_id, e)
+        except Exception as e:
+            _logger.warning("LLM auto-gen error for %s: %s", case.case_id, e)
 
     @staticmethod
     def _format_rules(rules: list) -> str:

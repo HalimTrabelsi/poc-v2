@@ -99,7 +99,8 @@
                   string="Close Case"
                   invisible="state == 'closed'"/>
           <button name="action_generate_llm_explanation" type="object"
-                  string="Generate AI Explanation" class="btn-secondary"/>
+                  string="Regenerate AI Explanation" class="btn-secondary"
+                  groups="g2p_fraud_detection.group_fraud_supervisor"/>
           <field name="state" widget="statusbar"
                  statusbar_visible="open,investigating,confirmed,closed"/>
         </header>
@@ -144,7 +145,7 @@
           <notebook>
             <page string="AI Explanation">
               <field name="llm_explanation" readonly="1" widget="text"
-                     placeholder="Click 'Generate AI Explanation' above to produce a plain-English summary via the local LLM."/>
+                     placeholder="L'explication IA est générée automatiquement pour les cas CRITICAL et HIGH. Patientez jusqu'à 1 minute après la création du cas (le cron exécute la synchronisation et la génération LLM dans la même passe)."/>
             </page>
             <page string="Rules Triggered">
               <field name="rules_triggered" readonly="1" widget="text"/>
