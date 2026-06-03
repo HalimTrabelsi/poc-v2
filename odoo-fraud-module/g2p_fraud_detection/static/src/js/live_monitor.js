@@ -11,10 +11,9 @@ class FraudLiveMonitorController extends KanbanController {
     setup() {
         super.setup();
 
-        // bus_service is async — useService can't wrap it (Odoo 17 quirk).
-        // Reach it directly through env.services instead.
         this.busService = this.env.services.bus_service;
         this.notification = useService("notification");
+        this.user = useService("user");
 
         this._busHandler = this._onBusNotification.bind(this);
 
@@ -22,7 +21,8 @@ class FraudLiveMonitorController extends KanbanController {
             if (!this.busService) {
                 return;
             }
-            this.busService.addChannel("fraud_alerts");
+            const userChannel = `res.partner-${this.user.partnerId}`;
+            this.busService.addChannel(userChannel);
             this.busService.addEventListener("notification", this._busHandler);
         });
 
@@ -30,8 +30,9 @@ class FraudLiveMonitorController extends KanbanController {
             if (!this.busService) {
                 return;
             }
+            const userChannel = `res.partner-${this.user.partnerId}`;
             this.busService.removeEventListener("notification", this._busHandler);
-            this.busService.deleteChannel("fraud_alerts");
+            this.busService.deleteChannel(userChannel);
         });
     }
 

@@ -42,3 +42,17 @@ rules:
     alert_level: "CRITICAL"
     condition: "dedup_record_count >= 2"
     evidence_template: "Found in {dedup_record_count} formal duplicate records across programs"
+
+  - id: "IDC001"
+    name: "Identity Cluster"
+    weight: 0.55
+    alert_level: "CRITICAL"
+    condition: "identity_cluster_count >= 2"
+    evidence_template: "Same birthdate and family name as {identity_cluster_count} other beneficiaries (possible identity-cluster fraud)"
+
+  - id: "IDC002"
+    name: "Possible Duplicate Identity"
+    weight: 0.35
+    alert_level: "HIGH"
+    condition: "identity_cluster_count >= 1"
+    evidence_template: "Shares birthdate and family name with {identity_cluster_count} other beneficiary"

@@ -184,15 +184,20 @@ class FraudCase(models.Model):
         records = super().create(vals_list)
         for rec in records:
             if rec.risk_level in ("CRITICAL", "HIGH"):
-                self.env["bus.bus"]._sendone(
-                    "fraud_alerts",
-                    "new_alert",
-                    {
-                        "case_id": rec.case_id,
-                        "beneficiary_id": rec.beneficiary_id,
-                        "risk_level": rec.risk_level,
-                        "final_score": rec.final_score,
-                        "recommendation": rec.recommendation,
-                    },
-                )
+                fraud_users = self.env["res.users"].search([
+                    "|",
+                    ("groups_id", "=", self.env.ref("g2p_fraud_detection.group_fraud_officer").id),
+                    ("groups_id", "=", self.env.ref("g2p_fraud_detection.group_fraud_supervisor").id),
+                ])
+                for user in fraud_users:
+                    self.env["bus.bus"]._sendone(
+                        (f"res.partner-{user.partner_id.id}", "new_alert"),
+                        {
+                            "case_id": rec.case_id,
+                            "beneficiary_id": rec.beneficiary_id,
+                            "risk_level": rec.risk_level,
+                            "final_score": rec.final_score,
+                            "recommendation": rec.recommendation,
+                        },
+                    )
         return records

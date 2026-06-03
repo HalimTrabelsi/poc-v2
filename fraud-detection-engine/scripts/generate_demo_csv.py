@@ -90,7 +90,7 @@ with out_path.open("w", newline="", encoding="utf-8") as f:
         writer.writerow([
             name,
             dob,
-            gender,
+            gender.capitalize(),   # Odoo gender selection uses 'Male'/'Female'
             phone,
             phone,                              # mobile = same as phone for demo
             "TRUE",

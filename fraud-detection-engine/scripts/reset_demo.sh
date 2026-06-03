@@ -45,6 +45,25 @@ docker exec openg2p-postgresql psql -U odoo -d openg2p -c "
     DELETE FROM res_partner WHERE is_registrant = true AND id > 10;
 " >/dev/null
 
+echo "==> Cleaning orphaned mail messages (deleted partners/cases)"
+docker exec openg2p-postgresql psql -U odoo -d openg2p -c "
+    -- Notifications + messages whose linked record was just deleted.
+    -- Dangling refs here break the Discuss inbox fetch entirely.
+    DELETE FROM mail_notification WHERE mail_message_id IN (
+        SELECT id FROM mail_message
+        WHERE model = 'res.partner' AND res_id NOT IN (SELECT id FROM res_partner)
+    );
+    DELETE FROM mail_message
+        WHERE model = 'res.partner' AND res_id NOT IN (SELECT id FROM res_partner);
+    DELETE FROM mail_notification WHERE mail_message_id IN (
+        SELECT id FROM mail_message
+        WHERE model = 'fraud.case' AND res_id NOT IN (SELECT id FROM fraud_case)
+    );
+    DELETE FROM mail_message
+        WHERE model = 'fraud.case' AND res_id NOT IN (SELECT id FROM fraud_case);
+" >/dev/null
+echo "    mail orphans: cleaned"
+
 echo "==> Verifying"
 docker exec openg2p-postgresql psql -U odoo -d openg2p -c "
 SELECT 'res_partner_registrants' AS table, COUNT(*) FROM res_partner WHERE is_registrant=true

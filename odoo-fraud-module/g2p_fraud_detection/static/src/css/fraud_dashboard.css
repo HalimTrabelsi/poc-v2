@@ -1,53 +1,68 @@
-.o_fraud_dashboard .fraud-alert-card {
-    padding: 14px 18px;
-    margin-bottom: 8px;
-    border-left: 5px solid #aaa;
-    background: #fff;
-    border-radius: 6px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-    transition: transform 0.15s ease;
-}
-.o_fraud_dashboard .fraud-alert-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
-}
-.o_fraud_dashboard .fraud-alert-card.risk-CRITICAL { border-left-color: #e74c3c; }
-.o_fraud_dashboard .fraud-alert-card.risk-HIGH     { border-left-color: #e67e22; }
-.o_fraud_dashboard .fraud-alert-card.risk-MEDIUM   { border-left-color: #f1c40f; }
-.o_fraud_dashboard .fraud-alert-card.risk-LOW      { border-left-color: #2ecc71; }
+/* Fraud Detection Dashboard Styles */
 
-.o_fraud_dashboard .fraud-alert-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
+.o_fraud_kanban {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
 }
-.o_fraud_dashboard .risk-badge {
-    font-size: 11px;
-    font-weight: 700;
-    padding: 3px 10px;
-    border-radius: 12px;
+
+.o_kanban_record.oe_kanban_global_click {
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.o_kanban_record.oe_kanban_global_click:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* Risk level color coding */
+.o_risk_critical {
+    background-color: #dc3545;
     color: white;
 }
-.o_fraud_dashboard .risk-badge.risk-CRITICAL { background: #e74c3c; }
-.o_fraud_dashboard .risk-badge.risk-HIGH     { background: #e67e22; }
-.o_fraud_dashboard .risk-badge.risk-MEDIUM   { background: #f1c40f; color: #222; }
-.o_fraud_dashboard .risk-badge.risk-LOW      { background: #2ecc71; }
 
-.o_fraud_dashboard .fraud-score {
-    font-size: 18px;
-    font-weight: 700;
+.o_risk_high {
+    background-color: #fd7e14;
+    color: white;
 }
-.o_fraud_dashboard .fraud-bid {
-    font-size: 14px;
-    font-weight: 600;
-    margin-bottom: 3px;
+
+.o_risk_medium {
+    background-color: #ffc107;
+    color: #333;
 }
-.o_fraud_dashboard .fraud-meta {
+
+.o_risk_low {
+    background-color: #28a745;
+    color: white;
+}
+
+/* Score percentage display */
+.o_fraud_score {
+    font-size: 24px;
+    font-weight: bold;
+    text-align: center;
+    margin: 10px 0;
+}
+
+/* Rules triggered section */
+.o_fraud_rules {
+    margin-top: 10px;
+    padding: 8px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
     font-size: 12px;
-    color: #555;
-    margin-bottom: 3px;
+    max-height: 60px;
+    overflow-y: auto;
 }
-.o_fraud_dashboard .fraud-rules {
+
+/* LLM Explanation section */
+.o_fraud_explanation {
+    margin-top: 10px;
+    padding: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
     font-size: 11px;
+    line-height: 1.4;
+    max-height: 80px;
+    overflow-y: auto;
 }
