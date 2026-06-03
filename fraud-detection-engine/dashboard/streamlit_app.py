@@ -14,6 +14,54 @@ RISK_COLORS = {"LOW": "🟢", "MEDIUM": "🟡", "HIGH": "🟠", "CRITICAL": "�
 STATUS_OPTIONS = ["OPEN", "UNDER_REVIEW", "CLOSED", "FALSE_POSITIVE"]
 
 
+# ── SHAP rendering ──────────────────────────────────────────────────────────────
+
+def _shap_value(f: dict) -> float:
+    """Read the SHAP contribution under either key ('shap_value' or 'impact')."""
+    val = f.get("shap_value")
+    if val is None:
+        val = f.get("impact", 0)
+    try:
+        return float(val or 0)
+    except (TypeError, ValueError):
+        return 0.0
+
+
+def render_shap(features: list, title: str = "Top Feature Contributions (SHAP)") -> None:
+    """Render SHAP factors as a signed horizontal bar chart + detail table.
+
+    Features whose raw value is 0 are dropped — a non-zero SHAP on an absent
+    feature is a missing-data artefact, not a real driver, and shows up as a
+    misleading bar otherwise.
+    """
+    if not features:
+        return
+    rows = []
+    for f in features:
+        try:
+            value = float(f.get("value") or 0)
+        except (TypeError, ValueError):
+            value = 0.0
+        if value == 0.0:
+            continue
+        rows.append({"feature": f.get("feature", "?"), "value": value,
+                     "shap": _shap_value(f)})
+    if not rows:
+        return
+
+    st.subheader(title)
+    rows.sort(key=lambda r: abs(r["shap"]), reverse=True)
+    chart_df = pd.DataFrame(rows).set_index("feature")
+    # Signed bars: positive = increases risk, negative = decreases risk.
+    st.bar_chart(chart_df[["shap"]], horizontal=True, color="#d62728")
+    st.dataframe(pd.DataFrame([{
+        "Feature":     r["feature"],
+        "Value":       f"{r['value']:.3f}",
+        "SHAP Impact": f"{r['shap']:+.4f}",
+        "Direction":   "increases_risk" if r["shap"] > 0 else "decreases_risk",
+    } for r in rows]), use_container_width=True, hide_index=True)
+
+
 # ── API helpers ───────────────────────────────────────────────────────────────
 
 def _get(path, params=None):
@@ -188,14 +236,7 @@ def _render_decision(result: dict) -> None:
             "Explanation": r.get("explanation"),
         } for r in result["rules_triggered"]]), use_container_width=True)
 
-    if result.get("top_features"):
-        st.subheader("Top Feature Contributions (SHAP)")
-        st.dataframe(pd.DataFrame([{
-            "Feature":     f.get("feature"),
-            "Value":       f"{f.get('value', 0):.3f}",
-            "SHAP Impact": f"{f.get('shap_value', 0):.4f}",
-            "Direction":   f.get("direction"),
-        } for f in result["top_features"]]), use_container_width=True)
+    render_shap(result.get("top_features") or [])
 
     st.caption(
         f"Processed in {result.get('processing_ms', 0):.0f} ms | "
@@ -309,14 +350,8 @@ def show_explainability_page() -> None:
             for expl in result["rule_explanations"]:
                 st.markdown(f"- {expl}")
 
-        if result.get("feature_contributions"):
-            st.subheader("Feature Contributions")
-            st.dataframe(pd.DataFrame([{
-                "Feature":   f.get("feature"),
-                "Value":     f"{f.get('value', 0):.3f}",
-                "SHAP":      f"{f.get('shap_value', 0):.4f}",
-                "Direction": f.get("direction"),
-            } for f in result["feature_contributions"]]), use_container_width=True)
+        render_shap(result.get("feature_contributions") or [],
+                    title="Feature Contributions (SHAP)")
 
         raw = result.get("raw_scores", {})
         if raw:

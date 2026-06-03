@@ -133,7 +133,11 @@ class SHAPExplainer:
                     "feature":   feat,
                     "value":     features.get(feat),
                     "impact":    round(abs_impact, 4),
-                    "direction": "increase_risk" if impact > 0 else "decrease_risk",
+                    # Signed SHAP under the canonical key so the LLM prompt and
+                    # PDF report (both read 'shap_value') stay consistent with
+                    # services/explainability_service.py.
+                    "shap_value": round(impact, 4),
+                    "direction": "increases_risk" if impact > 0 else "decreases_risk",
                 })
 
             impacts.sort(key=lambda x: x["impact"], reverse=True)

@@ -150,6 +150,10 @@
             <page string="Rules Triggered">
               <field name="rules_triggered" readonly="1" widget="text"/>
             </page>
+            <page string="Key Factors (SHAP)">
+              <field name="top_features" readonly="1" widget="text"
+                     placeholder="Facteurs ML (SHAP) ayant le plus influencé le score de risque, du plus fort au plus faible."/>
+            </page>
             <page string="Technical Explanation">
               <field name="explanation" readonly="1" widget="text"/>
             </page>

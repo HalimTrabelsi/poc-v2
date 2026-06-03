@@ -29,7 +29,7 @@
     "pmt_score",
     "pmt_score_min"
   ],
-  "training_date": "2026-05-31T19:28:01.086987+00:00",
+  "training_date": "2026-06-03T14:26:30.072130+00:00",
   "calibrated": true,
   "calibration_method": "isotonic",
   "ensemble_weights": {
@@ -79,28 +79,17 @@
         "precision": 0.9545,
         "recall": 0.84
       },
-      "XGBoost (calibr\u00e9)": {
+      "XGBoost (calibré)": {
         "roc_auc": 0.9951,
         "pr_auc": 0.9592,
         "f1": 0.8817,
         "precision": 0.9535,
         "recall": 0.82
-      },
-      "LightGBM (calibr\u00e9)": {
-        "roc_auc": 0.9948,
-        "pr_auc": 0.9345,
-        "f1": 0.9149,
-        "precision": 0.9773,
-        "recall": 0.86
       }
-    },
-    "xgboost_feedback": {
-      "accuracy": 0.75
     }
   },
   "model_files": {
     "supervised": "xgboost.joblib",
     "anomaly": "isolation_forest.joblib"
-  },
-  "feedback_samples": 12
+  }
 }

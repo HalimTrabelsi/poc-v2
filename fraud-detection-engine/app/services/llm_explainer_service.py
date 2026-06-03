@@ -64,9 +64,8 @@ class LLMExplainer:
                 top_features = []
         feat_text = "\n".join(
             f"- {f.get('feature', '?')}: value={f.get('value', '?')} "
-            f"({f.get('direction', '?')}, shap={f.get('shap_value', 0):.3f})"
-            for f in (top_features if isinstance(top_features, list) else [])
-            if isinstance(f, dict)
+            f"({f.get('direction', '?')}, shap={self._shap_magnitude(f):.3f})"
+            for f in self._relevant_features(top_features)
         ) or "(none)"
 
         if self.language == "en":
@@ -102,6 +101,51 @@ class LLMExplainer:
             "que l'agent doit entreprendre. Pas de markdown, d'en-têtes ni de "
             "puces. Répondez uniquement en français."
         )
+
+    @staticmethod
+    def _shap_magnitude(feature: dict) -> float:
+        """Read the SHAP contribution under either key name.
+
+        The two explainers in the codebase emit the value under different keys:
+        services/explainability_service.py uses 'shap_value', while
+        core/shap_explainer.py uses 'impact'. Accept both so the prompt never
+        silently shows shap=0.000.
+        """
+        val = feature.get("shap_value")
+        if val is None:
+            val = feature.get("impact", 0)
+        try:
+            return float(val or 0)
+        except (TypeError, ValueError):
+            return 0.0
+
+    def _relevant_features(self, top_features) -> list:
+        """Drop noise before showing features to the LLM.
+
+        A feature whose raw value is 0 carries no real signal even if SHAP
+        assigns it a contribution (it's an artefact of missing data, e.g.
+        income=0). Keeping such rows makes the LLM invent reasons like
+        'income decreases the risk', which confuses fraud officers.
+        """
+        if isinstance(top_features, list):
+            items = top_features
+        else:
+            items = []
+        relevant = []
+        for f in items:
+            if not isinstance(f, dict):
+                continue
+            try:
+                value = float(f.get("value") or 0)
+            except (TypeError, ValueError):
+                value = 0.0
+            if value == 0.0 and abs(self._shap_magnitude(f)) < 1e-6:
+                continue
+            if value == 0.0:
+                # Non-zero SHAP on a zero feature is the missing-data artefact.
+                continue
+            relevant.append(f)
+        return relevant
 
     def _call_ollama(self, prompt: str) -> str:
         url = f"{self.base_url}/api/generate"

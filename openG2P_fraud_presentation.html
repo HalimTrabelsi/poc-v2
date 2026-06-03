@@ -1,0 +1,1746 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpenG2P — Système de Détection de Fraude</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  --ink: #0d0f14;
+  --paper: #f5f2eb;
+  --accent: #e84c3d;
+  --gold: #d4a853;
+  --teal: #2a9d8f;
+  --mid: #6b7280;
+  --soft: #e8e3d8;
+  --critical: #e84c3d;
+  --high: #f4a228;
+  --medium: #3b82f6;
+  --low: #22c55e;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Syne', sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  overflow-x: hidden;
+}
+
+/* NAV */
+nav {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 100;
+  background: var(--ink);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 2rem;
+  height: 52px;
+}
+nav .logo {
+  font-family: 'Instrument Serif', serif;
+  color: var(--paper);
+  font-size: 1.1rem;
+  letter-spacing: 0.02em;
+}
+nav .nav-links {
+  display: flex; gap: 1.5rem;
+  list-style: none;
+}
+nav .nav-links a {
+  color: #9ca3af;
+  text-decoration: none;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transition: color 0.2s;
+}
+nav .nav-links a:hover { color: var(--gold); }
+
+/* HERO */
+.hero {
+  min-height: 100vh;
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 6rem 3rem 3rem;
+  position: relative;
+  background: var(--ink);
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 80% 60% at 70% 40%, #1e293b 0%, transparent 70%),
+              radial-gradient(ellipse 40% 40% at 20% 80%, #0f3460 0%, transparent 60%);
+}
+.hero-grid {
+  position: absolute; inset: 0; opacity: 0.06;
+  background-image: linear-gradient(#fff 1px, transparent 1px),
+                    linear-gradient(90deg, #fff 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+.hero-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 1.5rem;
+  position: relative;
+  display: flex; align-items: center; gap: 0.75rem;
+}
+.hero-label::before {
+  content: '';
+  width: 32px; height: 2px;
+  background: var(--gold);
+  display: inline-block;
+}
+.hero h1 {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(2.8rem, 7vw, 6rem);
+  font-weight: 400;
+  color: var(--paper);
+  line-height: 1.05;
+  position: relative;
+  max-width: 900px;
+}
+.hero h1 em {
+  font-style: italic;
+  color: var(--gold);
+}
+.hero-sub {
+  margin-top: 2rem;
+  font-size: 1.05rem;
+  color: #9ca3af;
+  max-width: 560px;
+  line-height: 1.7;
+  position: relative;
+}
+.hero-stats {
+  display: flex; gap: 3rem;
+  margin-top: 3rem;
+  position: relative;
+}
+.hero-stat .val {
+  font-family: 'Instrument Serif', serif;
+  font-size: 3rem;
+  color: var(--paper);
+  line-height: 1;
+}
+.hero-stat .val span {
+  color: var(--gold);
+  font-size: 2rem;
+}
+.hero-stat .lbl {
+  font-size: 0.72rem;
+  color: #6b7280;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-top: 0.3rem;
+}
+.scroll-cue {
+  position: absolute; bottom: 2rem; left: 50%;
+  transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+  color: #4b5563;
+  font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase;
+  animation: bounce 2s infinite;
+}
+@keyframes bounce {
+  0%,100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(6px); }
+}
+.scroll-cue svg { opacity: 0.5; }
+
+/* SECTIONS */
+section {
+  padding: 5rem 3rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+section.dark {
+  background: var(--ink);
+  color: var(--paper);
+  max-width: 100%;
+  padding: 5rem 3rem;
+}
+section.dark > * { max-width: 1200px; margin-left: auto; margin-right: auto; }
+
+.section-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+  display: flex; align-items: center; gap: 0.5rem;
+}
+.section-label::before {
+  content: '';
+  width: 20px; height: 1.5px;
+  background: var(--gold);
+}
+h2 {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  font-weight: 400;
+  line-height: 1.15;
+  margin-bottom: 0.5rem;
+}
+.section-desc {
+  color: var(--mid);
+  font-size: 1rem;
+  line-height: 1.8;
+  max-width: 600px;
+  margin-bottom: 3rem;
+}
+
+/* STORY CARD */
+.story-card {
+  background: var(--ink);
+  color: var(--paper);
+  border-radius: 4px;
+  padding: 2.5rem;
+  margin: 2.5rem 0;
+  position: relative;
+  overflow: hidden;
+}
+.story-card::before {
+  content: '"';
+  font-family: 'Instrument Serif', serif;
+  font-size: 12rem;
+  position: absolute;
+  top: -2rem; left: 1rem;
+  color: rgba(212,168,83,0.12);
+  line-height: 1;
+  pointer-events: none;
+}
+.story-card p {
+  font-size: 1.05rem;
+  line-height: 1.9;
+  position: relative;
+}
+.story-card strong { color: var(--gold); }
+.story-card .speaker {
+  display: inline-block;
+  margin-top: 1.2rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  color: #6b7280;
+  letter-spacing: 0.1em;
+}
+
+/* ARCHITECTURE LAYERS */
+.arch-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: 2rem 0;
+}
+.arch-layer {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 0;
+  border: 1px solid var(--soft);
+  border-bottom: none;
+  transition: all 0.3s;
+  cursor: pointer;
+}
+.arch-layer:first-child { border-radius: 6px 6px 0 0; }
+.arch-layer:last-child { border-radius: 0 0 6px 6px; border-bottom: 1px solid var(--soft); }
+.arch-layer:hover { background: #faf8f4; }
+.arch-layer.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.arch-layer .layer-num {
+  padding: 1.5rem;
+  border-right: 1px solid var(--soft);
+  display: flex; flex-direction: column;
+  gap: 0.4rem;
+}
+.arch-layer.active .layer-num { border-right-color: #374151; }
+.layer-num .num {
+  font-family: 'Instrument Serif', serif;
+  font-size: 2rem;
+  opacity: 0.35;
+  line-height: 1;
+}
+.layer-num .tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  color: var(--gold);
+  text-transform: uppercase;
+}
+.arch-layer .layer-content {
+  padding: 1.5rem;
+}
+.arch-layer .layer-content h3 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 0.4rem;
+}
+.arch-layer .layer-content p {
+  font-size: 0.85rem;
+  line-height: 1.6;
+  opacity: 0.7;
+}
+.arch-layer.active .layer-content p { opacity: 0.8; }
+.arch-detail {
+  display: none;
+  background: #111827;
+  border: 1px solid #1f2937;
+  border-top: none;
+  padding: 1.5rem 2rem;
+}
+.arch-detail.open { display: block; }
+.arch-detail .code-pill {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  background: #1f2937;
+  color: #86efac;
+  border-radius: 3px;
+  padding: 0.2em 0.6em;
+  margin: 0.15rem;
+}
+.arch-detail p {
+  font-size: 0.85rem;
+  color: #9ca3af;
+  margin-bottom: 0.75rem;
+  line-height: 1.7;
+}
+
+/* FLOW STEPS */
+.flow-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  position: relative;
+}
+.flow-steps::before {
+  content: '';
+  position: absolute;
+  left: 26px; top: 52px; bottom: 20px;
+  width: 2px;
+  background: linear-gradient(to bottom, var(--gold), var(--teal));
+}
+.flow-step {
+  display: grid;
+  grid-template-columns: 52px 1fr;
+  gap: 1.5rem;
+  padding: 1.5rem 0;
+  align-items: start;
+}
+.step-bubble {
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  background: var(--paper);
+  border: 2px solid var(--gold);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Instrument Serif', serif;
+  font-size: 1.3rem;
+  color: var(--ink);
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+.flow-step:nth-child(odd) .step-bubble { border-color: var(--teal); }
+.step-body h4 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 0.4rem;
+  padding-top: 0.7rem;
+}
+.step-body p {
+  font-size: 0.85rem;
+  color: var(--mid);
+  line-height: 1.7;
+}
+.step-body .badge {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  padding: 0.2em 0.6em;
+  border-radius: 2px;
+  margin-left: 0.5rem;
+  vertical-align: middle;
+}
+.badge.auto { background: #dcfce7; color: #166534; }
+.badge.ml { background: #dbeafe; color: #1e40af; }
+.badge.block { background: #fee2e2; color: #991b1b; }
+
+/* FEATURES TABLE */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+.feature-card {
+  border: 1px solid var(--soft);
+  border-radius: 6px;
+  padding: 1.5rem;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.feature-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+}
+.feature-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+.feature-card.network::before { background: var(--critical); }
+.feature-card.identity::before { background: var(--gold); }
+.feature-card.payment::before { background: var(--teal); }
+.feature-card.demo::before { background: var(--medium); }
+.feat-type {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--mid);
+  margin-bottom: 0.6rem;
+}
+.feat-name {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--ink);
+  margin-bottom: 0.5rem;
+}
+.feat-desc {
+  font-size: 0.82rem;
+  color: var(--mid);
+  line-height: 1.6;
+}
+.feat-example {
+  margin-top: 0.75rem;
+  font-size: 0.78rem;
+  font-family: 'JetBrains Mono', monospace;
+  background: var(--soft);
+  padding: 0.4em 0.7em;
+  border-radius: 3px;
+  color: #374151;
+}
+.feat-impact {
+  margin-top: 0.75rem;
+  display: flex; align-items: center; gap: 0.4rem;
+}
+.impact-bar {
+  flex: 1;
+  height: 4px;
+  background: var(--soft);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.impact-fill {
+  height: 100%;
+  border-radius: 2px;
+  background: var(--critical);
+  transition: width 1s 0.5s;
+  width: 0;
+}
+.feature-card.network .impact-fill { background: var(--critical); }
+.feature-card.identity .impact-fill { background: var(--gold); }
+.feature-card.payment .impact-fill { background: var(--teal); }
+.feature-card.demo .impact-fill { background: var(--medium); }
+.impact-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--mid);
+  flex-shrink: 0;
+}
+
+/* RULES TABLE */
+.rules-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1.5rem;
+  font-size: 0.85rem;
+}
+.rules-table th {
+  text-align: left;
+  padding: 0.75rem 1rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--mid);
+  border-bottom: 2px solid var(--soft);
+}
+.rules-table td {
+  padding: 1rem;
+  border-bottom: 1px solid var(--soft);
+  vertical-align: top;
+}
+.rules-table tr:hover td { background: #faf8f4; }
+.rule-id {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--ink);
+}
+.risk-pill {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 0.2em 0.6em;
+  border-radius: 2px;
+  letter-spacing: 0.08em;
+}
+.risk-pill.critical { background: #fee2e2; color: #991b1b; }
+.risk-pill.high { background: #fef3c7; color: #92400e; }
+.risk-pill.medium { background: #dbeafe; color: #1e40af; }
+.weight-bar {
+  display: flex; align-items: center; gap: 0.6rem;
+}
+.weight-seg {
+  height: 8px;
+  border-radius: 2px;
+  background: var(--gold);
+}
+
+/* METRICS */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+.metric-card {
+  background: var(--ink);
+  color: var(--paper);
+  border-radius: 6px;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.metric-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--gold);
+}
+.metric-card .metric-val {
+  font-family: 'Instrument Serif', serif;
+  font-size: 3rem;
+  color: var(--paper);
+  line-height: 1;
+}
+.metric-card .metric-unit {
+  font-size: 1.5rem;
+  color: var(--gold);
+}
+.metric-card .metric-lbl {
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #6b7280;
+  margin-top: 0.6rem;
+}
+.metric-card .metric-sub {
+  font-size: 0.78rem;
+  color: #9ca3af;
+  margin-top: 0.4rem;
+  line-height: 1.5;
+}
+
+/* TECH CARDS */
+.tech-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+.tech-card {
+  border: 1px solid var(--soft);
+  border-radius: 6px;
+  padding: 1.75rem;
+  position: relative;
+}
+.tech-icon {
+  width: 44px; height: 44px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+}
+.tech-card h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 0.4rem;
+}
+.tech-card .tech-role {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--gold);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.75rem;
+}
+.tech-card p {
+  font-size: 0.82rem;
+  color: var(--mid);
+  line-height: 1.7;
+}
+
+/* DEMO SCENARIO */
+.scenario {
+  border: 1px solid var(--soft);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+.scenario-header {
+  padding: 1.2rem 1.5rem;
+  background: var(--soft);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.scenario-header h4 { font-size: 0.95rem; font-weight: 700; }
+.scenario-body { padding: 1.5rem; }
+.reg-pair {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.person-card {
+  border: 1px solid var(--soft);
+  border-radius: 6px;
+  padding: 1rem 1.2rem;
+}
+.person-card .person-name {
+  font-weight: 700; font-size: 0.9rem;
+  margin-bottom: 0.6rem;
+  display: flex; align-items: center; gap: 0.5rem;
+}
+.person-card .person-name .avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--ink);
+  color: var(--paper);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.75rem; font-weight: 700;
+}
+.person-card dl { display: flex; flex-direction: column; gap: 0.3rem; }
+.person-card dt {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.62rem;
+  color: var(--mid);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.person-card dd { font-size: 0.82rem; color: var(--ink); }
+.shared-highlight { color: var(--critical) !important; font-weight: 600; }
+.result-box {
+  background: var(--ink);
+  border-radius: 6px;
+  padding: 1.5rem;
+  color: var(--paper);
+}
+.result-box .res-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid #1f2937;
+  font-size: 0.85rem;
+}
+.result-box .res-row:last-child { border-bottom: none; }
+.result-box .res-row .key {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  color: #6b7280;
+  letter-spacing: 0.08em;
+}
+.result-box .res-row .val { font-weight: 600; }
+.result-box .res-row .val.red { color: var(--critical); }
+.result-box .res-row .val.gold { color: var(--gold); }
+
+/* GRAPH VIZ */
+.graph-container {
+  background: var(--ink);
+  border-radius: 8px;
+  padding: 2rem;
+  margin: 2rem 0;
+  text-align: center;
+}
+svg.graph-svg {
+  width: 100%;
+  max-width: 700px;
+  height: 300px;
+}
+
+/* FAQ */
+.faq-list {
+  display: flex; flex-direction: column; gap: 0;
+  margin-top: 2rem;
+}
+.faq-item {
+  border-bottom: 1px solid var(--soft);
+}
+.faq-q {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.2rem 0;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 600;
+  gap: 1rem;
+}
+.faq-q .faq-toggle {
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: var(--soft);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  font-size: 1.1rem;
+  transition: transform 0.3s;
+}
+.faq-item.open .faq-toggle { transform: rotate(45deg); }
+.faq-a {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease;
+  font-size: 0.88rem;
+  color: var(--mid);
+  line-height: 1.8;
+}
+.faq-item.open .faq-a { max-height: 300px; }
+.faq-a-inner { padding-bottom: 1.2rem; }
+
+/* IMPACT */
+.impact-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+.impact-col {
+  border-radius: 8px;
+  padding: 2rem;
+}
+.impact-col.before {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+}
+.impact-col.after {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+}
+.impact-col h4 {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-bottom: 1rem;
+  font-family: 'JetBrains Mono', monospace;
+}
+.impact-col.before h4 { color: #991b1b; }
+.impact-col.after h4 { color: #166534; }
+.impact-col ul {
+  list-style: none;
+  display: flex; flex-direction: column; gap: 0.75rem;
+}
+.impact-col li {
+  font-size: 0.88rem;
+  display: flex; align-items: flex-start; gap: 0.6rem;
+  line-height: 1.6;
+}
+.impact-col li::before { flex-shrink: 0; margin-top: 0.15rem; }
+.impact-col.before li::before { content: '✗'; color: #ef4444; font-weight: 700; }
+.impact-col.after li::before { content: '✓'; color: #22c55e; font-weight: 700; }
+
+/* OUTRO */
+.outro {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 5rem 3rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.outro::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 60% 80% at 50% 50%, #1e293b 0%, var(--ink) 70%);
+}
+.outro h2 {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(2rem, 5vw, 4rem);
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+.outro h2 em { color: var(--gold); font-style: italic; }
+.outro p {
+  font-size: 1.05rem;
+  color: #9ca3af;
+  max-width: 560px;
+  margin: 0 auto 3rem;
+  line-height: 1.8;
+  position: relative;
+}
+.summary-chips {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 0.75rem;
+  position: relative;
+}
+.chip {
+  border: 1px solid #374151;
+  border-radius: 100px;
+  padding: 0.5em 1.2em;
+  font-size: 0.82rem;
+  color: #d1d5db;
+  display: flex; align-items: center; gap: 0.5rem;
+}
+.chip .chip-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--gold);
+  flex-shrink: 0;
+}
+
+/* ANIMATIONS */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.reveal { opacity: 0; animation: fadeUp 0.7s forwards; }
+.reveal.d1 { animation-delay: 0.1s; }
+.reveal.d2 { animation-delay: 0.25s; }
+.reveal.d3 { animation-delay: 0.4s; }
+.reveal.d4 { animation-delay: 0.55s; }
+
+@media (max-width: 768px) {
+  .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+  .tech-grid { grid-template-columns: 1fr; }
+  .impact-split { grid-template-columns: 1fr; }
+  .reg-pair { grid-template-columns: 1fr; }
+  .hero-stats { flex-direction: column; gap: 1.5rem; }
+  nav .nav-links { display: none; }
+}
+
+/* Score dial */
+.score-dial {
+  width: 120px; height: 120px;
+  position: relative;
+  margin: 1rem auto;
+}
+.score-dial svg { transform: rotate(-90deg); }
+.score-dial .val {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Instrument Serif', serif;
+  font-size: 1.8rem;
+  color: var(--paper);
+}
+
+/* Node animation for graph */
+@keyframes pulse-node {
+  0%, 100% { r: 12; }
+  50% { r: 15; }
+}
+.node-fraud { animation: pulse-node 1.5s ease-in-out infinite; }
+
+/* Progress animation */
+.animate-progress { transition: stroke-dashoffset 2s ease 0.5s; }
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="logo">OpenG2P — Fraude<em>Shield</em></span>
+  <ul class="nav-links">
+    <li><a href="#contexte">Contexte</a></li>
+    <li><a href="#architecture">Architecture</a></li>
+    <li><a href="#flux">Flux</a></li>
+    <li><a href="#features">Signaux</a></li>
+    <li><a href="#regles">Règles</a></li>
+    <li><a href="#metriques">Métriques</a></li>
+    <li><a href="#demo">Démo</a></li>
+    <li><a href="#impact">Impact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-label">Présentation Jury · ESPRIT School of Engineering</div>
+  <h1 class="reveal d1">Détection de <em>fraude</em><br>aux prestations sociales</h1>
+  <p class="hero-sub reveal d2">
+    Un système de détection automatique, multicouche et explicable,
+    intégré à OpenG2P — la plateforme mondiale de transfert de bénéfices.
+  </p>
+  <div class="hero-stats reveal d3">
+    <div class="hero-stat">
+      <div class="val">97<span>%</span></div>
+      <div class="lbl">Fraudes détectées</div>
+    </div>
+    <div class="hero-stat">
+      <div class="val">90<span>%</span></div>
+      <div class="lbl">Précision</div>
+    </div>
+    <div class="hero-stat">
+      <div class="val">&lt;1¢</div>
+      <div class="lbl">Par cas détecté</div>
+    </div>
+    <div class="hero-stat">
+      <div class="val">10<span>min</span></div>
+      <div class="lbl">Par enquête (vs 2h)</div>
+    </div>
+  </div>
+  <div class="scroll-cue">
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+      <path d="M9 3v12M4 10l5 5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    Défiler
+  </div>
+</div>
+
+<!-- CONTEXTE -->
+<section id="contexte">
+  <div class="section-label">01 · Contexte</div>
+  <h2>Pourquoi ce projet existe</h2>
+  <p class="section-desc">
+    OpenG2P est une plateforme open source déployée par les gouvernements pour distribuer
+    des aides sociales à des millions de bénéficiaires. Sans contrôle, cette
+    infrastructure devient une cible facile pour la fraude organisée.
+  </p>
+
+  <div class="story-card">
+    <p>
+      <strong>Mamadou</strong> crée <strong>5 identités fictives</strong> et les inscrit toutes
+      au programme d'aide sociale. Il leur donne le même numéro de téléphone
+      (<strong>+224 621 234 567</strong>) et le même compte bancaire (<strong>#1000</strong>).
+      Chaque mois, <strong>5 paiements</strong> arrivent sur son seul compte.
+      Sans détection automatique, personne ne le sait.
+    </p>
+    <span class="speaker">→ Le problème que ce système résout</span>
+  </div>
+
+  <div class="impact-split">
+    <div class="impact-col before">
+      <h4>Sans notre système</h4>
+      <ul>
+        <li>100 % des paiements approuvés sans vérification</li>
+        <li>15–20 % des bénéfices perdus en fraude</li>
+        <li>Réseaux organisés invisibles</li>
+        <li>Enquête manuelle: 2h par cas</li>
+        <li>Aucune explication pour les agents</li>
+      </ul>
+    </div>
+    <div class="impact-col after">
+      <h4>Avec notre système</h4>
+      <ul>
+        <li>97 % des fraudes détectées automatiquement</li>
+        <li>5–10 % du budget sauvegardé</li>
+        <li>Réseaux de fraude visualisés en graphe</li>
+        <li>Enquête assistée par IA: 10 minutes</li>
+        <li>Explication en français générée par LLM</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ARCHITECTURE -->
+<section id="architecture">
+  <div class="section-label">02 · Architecture</div>
+  <h2>Les 6 couches du système</h2>
+  <p class="section-desc">
+    Cliquez sur chaque couche pour voir les détails techniques.
+  </p>
+
+  <div class="arch-container" id="archLayers">
+
+    <div class="arch-layer" data-layer="0" onclick="toggleLayer(0)">
+      <div class="layer-num"><div class="num">01</div><div class="tag">OpenG2P</div></div>
+      <div class="layer-content">
+        <h3>Couche d'enregistrement</h3>
+        <p>Base de données des bénéficiaires: nom, téléphone, compte bancaire, date de naissance.</p>
+      </div>
+    </div>
+    <div class="arch-detail" id="detail-0">
+      <p>Les données bénéficiaires sont stockées dans PostgreSQL via Odoo. Les tables clés sont:</p>
+      <span class="code-pill">res.partner</span>
+      <span class="code-pill">g2p_phone_number</span>
+      <span class="code-pill">res_partner_bank</span>
+      <span class="code-pill">g2p_program_membership</span>
+      <p style="margin-top:0.75rem;">Amélioration apportée: <strong style="color:#86efac">auto-finalization</strong> — phones + comptes créés automatiquement sans étape manuelle.</p>
+    </div>
+
+    <div class="arch-layer" data-layer="1" onclick="toggleLayer(1)">
+      <div class="layer-num"><div class="num">02</div><div class="tag">SQL</div></div>
+      <div class="layer-content">
+        <h3>Extraction de signaux</h3>
+        <p>Requêtes SQL complexes pour détecter ressources partagées: téléphones, comptes, identités.</p>
+      </div>
+    </div>
+    <div class="arch-detail" id="detail-1">
+      <p>Un job tourne chaque minute et pose la question: <em>"Qui partage quoi?"</em></p>
+      <span class="code-pill">shared_accounts_count</span>
+      <span class="code-pill">shared_phones_count</span>
+      <span class="code-pill">identity_cluster_count</span>
+      <span class="code-pill">payment_gap_ratio</span>
+      <p style="margin-top:0.75rem;">Les résultats sont stockés dans un <strong style="color:#86efac">Feature Store</strong> séparé pour des performances optimales.</p>
+    </div>
+
+    <div class="arch-layer" data-layer="2" onclick="toggleLayer(2)">
+      <div class="layer-num"><div class="num">03</div><div class="tag">NetworkX</div></div>
+      <div class="layer-content">
+        <h3>Analyse réseau</h3>
+        <p>Chaque personne est un nœud. Chaque ressource partagée est une arête. Le graphe révèle les gangs.</p>
+      </div>
+    </div>
+    <div class="arch-detail" id="detail-2">
+      <p>La fraude est <em>organisée</em>, pas isolée. Le graphe détecte les bandes:</p>
+      <span class="code-pill">Détection de cliques</span>
+      <span class="code-pill">Centralité (leaders)</span>
+      <span class="code-pill">network_risk_score</span>
+      <div class="graph-container" style="padding:1rem; margin:0.75rem 0 0;">
+        <svg class="graph-svg" viewBox="0 0 700 200">
+          <!-- Edges -->
+          <line x1="120" y1="100" x2="250" y2="60" stroke="#e84c3d" stroke-width="2" stroke-dasharray="4"/>
+          <line x1="120" y1="100" x2="250" y2="140" stroke="#e84c3d" stroke-width="2" stroke-dasharray="4"/>
+          <line x1="250" y1="60" x2="250" y2="140" stroke="#d4a853" stroke-width="2.5"/>
+          <line x1="250" y1="60" x2="370" y2="100" stroke="#d4a853" stroke-width="2.5"/>
+          <line x1="250" y1="140" x2="370" y2="100" stroke="#e84c3d" stroke-width="2" stroke-dasharray="4"/>
+          <!-- Legit -->
+          <line x1="500" y1="100" x2="600" y2="60" stroke="#2a9d8f" stroke-width="1.5"/>
+          <line x1="500" y1="100" x2="600" y2="140" stroke="#2a9d8f" stroke-width="1.5"/>
+          <!-- Fraud nodes -->
+          <circle cx="120" cy="100" r="18" fill="#e84c3d" class="node-fraud"/>
+          <circle cx="250" cy="60" r="15" fill="#e84c3d" class="node-fraud"/>
+          <circle cx="250" cy="140" r="15" fill="#e84c3d" class="node-fraud"/>
+          <circle cx="370" cy="100" r="15" fill="#e84c3d" class="node-fraud"/>
+          <!-- Legit nodes -->
+          <circle cx="500" cy="100" r="14" fill="#2a9d8f"/>
+          <circle cx="600" cy="60" r="12" fill="#4ade80"/>
+          <circle cx="600" cy="140" r="12" fill="#4ade80"/>
+          <!-- Labels -->
+          <text x="120" y="104" fill="white" font-size="10" text-anchor="middle" font-family="monospace">CHEF</text>
+          <text x="250" y="64" fill="white" font-size="9" text-anchor="middle" font-family="monospace">1</text>
+          <text x="250" y="144" fill="white" font-size="9" text-anchor="middle" font-family="monospace">2</text>
+          <text x="370" y="104" fill="white" font-size="9" text-anchor="middle" font-family="monospace">3</text>
+          <text x="500" y="104" fill="white" font-size="9" text-anchor="middle" font-family="monospace">OK</text>
+          <!-- Legend -->
+          <circle cx="440" cy="175" r="5" fill="#e84c3d"/>
+          <text x="450" y="179" fill="#9ca3af" font-size="9" font-family="monospace">Fraude ring (NF001+NF003)</text>
+          <circle cx="570" cy="175" r="5" fill="#2a9d8f"/>
+          <text x="580" y="179" fill="#9ca3af" font-size="9" font-family="monospace">Légitime</text>
+        </svg>
+      </div>
+    </div>
+
+    <div class="arch-layer" data-layer="3" onclick="toggleLayer(3)">
+      <div class="layer-num"><div class="num">04</div><div class="tag">XGBoost</div></div>
+      <div class="layer-content">
+        <h3>Scoring Machine Learning</h3>
+        <p>XGBoost prédit la probabilité de fraude (0.0 à 1.0) à partir de tous les signaux.</p>
+      </div>
+    </div>
+    <div class="arch-detail" id="detail-3">
+      <p>XGBoost reçoit toutes les features extraites et renvoie un score de risque:</p>
+      <span class="code-pill">network_risk=0.95</span>
+      <span class="code-pill">shared_accounts=3</span>
+      <span class="code-pill">identity_cluster=2</span>
+      <p style="margin-top:0.75rem;">→ <strong style="color:#e84c3d">score_final = 0.87</strong> (87% de probabilité de fraude)</p>
+      <p>Pourquoi XGBoost ? Rapide (&lt;1s), interprétable, excellent avec données déséquilibrées.</p>
+    </div>
+
+    <div class="arch-layer" data-layer="4" onclick="toggleLayer(4)">
+      <div class="layer-num"><div class="num">05</div><div class="tag">YAML</div></div>
+      <div class="layer-content">
+        <h3>Moteur de règles</h3>
+        <p>Règles explicites en YAML: NF001, NF003, IDC001. Chaque règle a un poids et un niveau de risque.</p>
+      </div>
+    </div>
+    <div class="arch-detail" id="detail-4">
+      <p>Les règles expliquent <em>pourquoi</em> quelqu'un est flagué. Modifiables sans programmer:</p>
+      <pre style="background:#0f172a; color:#86efac; padding:1rem; border-radius:4px; font-size:0.75rem; overflow-x:auto; margin-top:0.5rem;">
+- id: NF001
+  name: "Compte bancaire partagé"
+  condition: "shared_accounts >= 2"
+  weight: 0.35
+  risk_level: HIGH
+
+- id: NF003
+  name: "Téléphone + Compte partagés"
+  condition: "shared_phones >= 1 AND shared_accounts >= 1"
+  weight: 0.40
+  risk_level: CRITICAL</pre>
+    </div>
+
+    <div class="arch-layer" data-layer="5" onclick="toggleLayer(5)">
+      <div class="layer-num"><div class="num">06</div><div class="tag">Ollama</div></div>
+      <div class="layer-content">
+        <h3>Explications IA (LLM)</h3>
+        <p>Quand un cas est CRITICAL/HIGH, un LLM génère une explication en français pour les agents.</p>
+      </div>
+    </div>
+    <div class="arch-detail" id="detail-5">
+      <p>Modèle: <span class="code-pill">llama3.2:1b</span> — local, open source, aucune donnée envoyée à l'extérieur.</p>
+      <div style="background:#0f172a; border-left:3px solid #d4a853; padding:1rem 1.2rem; border-radius:0 4px 4px 0; margin-top:0.75rem;">
+        <p style="color:#fbbf24; font-family:monospace; font-size:0.72rem; margin-bottom:0.5rem;">EXPLICATION GÉNÉRÉE:</p>
+        <p style="color:#e5e7eb; font-size:0.85rem; line-height:1.7;">
+          "Le bénéficiaire #4887 partage un compte bancaire avec 2 autres personnes et un numéro de téléphone avec 3 autres. Ces signaux combinés constituent un indicateur fort de fraude organisée et nécessitent une enquête immédiate."
+        </p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- FLUX DE DONNÉES -->
+<section id="flux">
+  <div class="section-label">03 · Flux de données</div>
+  <h2>De l'inscription au blocage</h2>
+  <p class="section-desc">Chaque étape du parcours d'un bénéficiaire à travers le système.</p>
+
+  <div class="flow-steps">
+    <div class="flow-step">
+      <div class="step-bubble">1</div>
+      <div class="step-body">
+        <h4>Inscription du bénéficiaire <span class="badge auto">AUTO</span></h4>
+        <p>L'agent saisit: nom, téléphone, compte bancaire. Le système crée automatiquement tous les enregistrements liés (res.partner, g2p_phone_number, res_partner_bank) sans étape manuelle.</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="step-bubble">2</div>
+      <div class="step-body">
+        <h4>Extraction des signaux</h4>
+        <p>Un job toutes les minutes interroge la base: "Combien partagent ce compte? Ce téléphone?" Les résultats alimentent le Feature Store séparé.</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="step-bubble">3</div>
+      <div class="step-body">
+        <h4>Analyse réseau (NetworkX) <span class="badge ml">ML</span></h4>
+        <p>Construction du graphe → détection des connexions → calcul du network_risk_score (0.0–1.0).</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="step-bubble">4</div>
+      <div class="step-body">
+        <h4>Scoring ML (XGBoost) <span class="badge ml">ML</span></h4>
+        <p>Toutes les features → XGBoost → score_final (ex: 0.87 = 87% probabilité de fraude).</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="step-bubble">5</div>
+      <div class="step-body">
+        <h4>Évaluation des règles YAML</h4>
+        <p>Le moteur de règles applique NF001, NF003, IDC001… Chaque règle déclenchée ajoute à un score composite → risque_final = CRITIQUE.</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="step-bubble">6</div>
+      <div class="step-body">
+        <h4>Explication IA (Ollama)</h4>
+        <p>Le LLM génère automatiquement une explication en français lisible par n'importe quel agent.</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="step-bubble">7</div>
+      <div class="step-body">
+        <h4>Création du cas Odoo</h4>
+        <p>Un fraud.case est créé dans Odoo avec: score, niveau de risque, règles déclenchées, explication IA. Alerte temps réel aux agents.</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="step-bubble">8</div>
+      <div class="step-body">
+        <h4>Décision humaine</h4>
+        <p>L'agent lit le cas dans le tableau Kanban. Il peut: approuver le blocage, demander plus d'infos, ou rejeter (faux positif).</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="step-bubble">9</div>
+      <div class="step-body">
+        <h4>Blocage ou approbation <span class="badge block">CRITIQUE → BLOQUÉ</span></h4>
+        <p>CRITICAL → Paiement bloqué jusqu'à approbation. HIGH → Révision manuelle. LOW → Approuvé automatiquement.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="section-label">04 · Signaux de fraude</div>
+  <h2>Les 12 features clés</h2>
+  <p class="section-desc">Chaque signal contribue au score de risque. Les signaux réseau sont les plus décisifs.</p>
+
+  <div class="features-grid">
+    <div class="feature-card network">
+      <div class="feat-type">Réseau · Impact critique</div>
+      <div class="feat-name">network_risk_score</div>
+      <div class="feat-desc">Synthèse de tous les signaux partagés: comptes + téléphones + identités.</div>
+      <div class="feat-example">Ex: 3 comptes + 2 téléphones → 0.95</div>
+      <div class="feat-impact">
+        <div class="impact-bar"><div class="impact-fill" data-width="95"></div></div>
+        <div class="impact-val">95%</div>
+      </div>
+    </div>
+    <div class="feature-card network">
+      <div class="feat-type">Réseau · Impact élevé</div>
+      <div class="feat-name">shared_accounts_count</div>
+      <div class="feat-desc">Nombre de personnes partageant le même compte bancaire.</div>
+      <div class="feat-example">Ex: 5 → "ce compte est partagé par 5"</div>
+      <div class="feat-impact">
+        <div class="impact-bar"><div class="impact-fill" data-width="85"></div></div>
+        <div class="impact-val">85%</div>
+      </div>
+    </div>
+    <div class="feature-card network">
+      <div class="feat-type">Réseau · Impact élevé</div>
+      <div class="feat-name">shared_phones_count</div>
+      <div class="feat-desc">Nombre de personnes partageant le même numéro de téléphone.</div>
+      <div class="feat-example">Ex: 3 personnes, même +224621234567</div>
+      <div class="feat-impact">
+        <div class="impact-bar"><div class="impact-fill" data-width="80"></div></div>
+        <div class="impact-val">80%</div>
+      </div>
+    </div>
+    <div class="feature-card identity">
+      <div class="feat-type">Identité · Impact critique</div>
+      <div class="feat-name">identity_cluster_count</div>
+      <div class="feat-desc">Personnes avec même date de naissance ET même nom de famille.</div>
+      <div class="feat-example">Ex: 3 "Diallo" nés le 1985-06-15</div>
+      <div class="feat-impact">
+        <div class="impact-bar"><div class="impact-fill" data-width="90"></div></div>
+        <div class="impact-val">90%</div>
+      </div>
+    </div>
+    <div class="feature-card payment">
+      <div class="feat-type">Paiement · Impact moyen</div>
+      <div class="feat-name">payment_gap_ratio</div>
+      <div class="feat-desc">Irrégularité des paiements. Gaps anormaux = ré-inscriptions suspectes.</div>
+      <div class="feat-example">Ex: 0.8 → très irrégulier, suspect</div>
+      <div class="feat-impact">
+        <div class="impact-bar"><div class="impact-fill" data-width="60"></div></div>
+        <div class="impact-val">60%</div>
+      </div>
+    </div>
+    <div class="feature-card payment">
+      <div class="feat-type">Paiement · Impact faible</div>
+      <div class="feat-name">payment_count</div>
+      <div class="feat-desc">Nombre total de paiements reçus. 0 = nouvelle inscription, risque plus élevé.</div>
+      <div class="feat-example">Ex: 0 → jamais payé (nouveau)</div>
+      <div class="feat-impact">
+        <div class="impact-bar"><div class="impact-fill" data-width="40"></div></div>
+        <div class="impact-val">40%</div>
+      </div>
+    </div>
+    <div class="feature-card demo">
+      <div class="feat-type">Démographique · Impact contextuel</div>
+      <div class="feat-name">age</div>
+      <div class="feat-desc">Certains groupes d'âge présentent des patterns de fraude différents.</div>
+      <div class="feat-example">Ex: Distribution fraudeurs vs légitimes</div>
+      <div class="feat-impact">
+        <div class="impact-bar"><div class="impact-fill" data-width="35"></div></div>
+        <div class="impact-val">35%</div>
+      </div>
+    </div>
+    <div class="feature-card network">
+      <div class="feat-type">Réseau · Impact modéré</div>
+      <div class="feat-name">clique_membership</div>
+      <div class="feat-desc">Appartenance à un groupe fortement connecté (clique) dans le graphe.</div>
+      <div class="feat-example">Ex: 5 personnes → même clique fermée</div>
+      <div class="feat-impact">
+        <div class="impact-bar"><div class="impact-fill" data-width="75"></div></div>
+        <div class="impact-val">75%</div>
+      </div>
+    </div>
+    <div class="feature-card identity">
+      <div class="feat-type">Identité · Impact moyen</div>
+      <div class="feat-name">name_similarity_score</div>
+      <div class="feat-desc">Fuzzy matching: détecte variantes d'un même nom (surnoms, typos).</div>
+      <div class="feat-example">Ex: "Mamadou Diallo" ≈ "M. Diallo"</div>
+      <div class="feat-impact">
+        <div class="impact-bar"><div class="impact-fill" data-width="55"></div></div>
+        <div class="impact-val">55%</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RÈGLES -->
+<section id="regles">
+  <div class="section-label">05 · Moteur de règles</div>
+  <h2>Les règles YAML expliquées</h2>
+  <p class="section-desc">
+    Chaque règle a un poids calibré sur des données historiques réelles.
+    Elles peuvent être modifiées sans programmer.
+  </p>
+
+  <table class="rules-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nom</th>
+        <th>Condition</th>
+        <th>Poids</th>
+        <th>Niveau</th>
+        <th>Pourquoi ce poids?</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="rule-id">NF001</span></td>
+        <td>Compte bancaire partagé</td>
+        <td><code style="font-size:0.78rem; color:#6b7280;">shared_accounts ≥ 2</code></td>
+        <td>
+          <div class="weight-bar">
+            <div class="weight-seg" style="width:35px; background:#f4a228;"></div>
+            <span style="font-family:monospace; font-size:0.8rem;">0.35</span>
+          </div>
+        </td>
+        <td><span class="risk-pill high">HIGH</span></td>
+        <td style="font-size:0.8rem; color:#6b7280;">Présent dans 85% des fraudes historiques</td>
+      </tr>
+      <tr>
+        <td><span class="rule-id">NF003</span></td>
+        <td>Téléphone + Compte partagés</td>
+        <td><code style="font-size:0.78rem; color:#6b7280;">phone≥1 AND account≥1</code></td>
+        <td>
+          <div class="weight-bar">
+            <div class="weight-seg" style="width:40px; background:#e84c3d;"></div>
+            <span style="font-family:monospace; font-size:0.8rem;">0.40</span>
+          </div>
+        </td>
+        <td><span class="risk-pill critical">CRITICAL</span></td>
+        <td style="font-size:0.8rem; color:#6b7280;">2 signaux = confirmation mutuelle (95% des fraudes)</td>
+      </tr>
+      <tr>
+        <td><span class="rule-id">NF004</span></td>
+        <td>Risque réseau élevé</td>
+        <td><code style="font-size:0.78rem; color:#6b7280;">network_risk > 0.60</code></td>
+        <td>
+          <div class="weight-bar">
+            <div class="weight-seg" style="width:30px; background:#f4a228;"></div>
+            <span style="font-family:monospace; font-size:0.8rem;">0.30</span>
+          </div>
+        </td>
+        <td><span class="risk-pill high">HIGH</span></td>
+        <td style="font-size:0.8rem; color:#6b7280;">Synthèse de tous les signaux réseau</td>
+      </tr>
+      <tr>
+        <td><span class="rule-id">IDC001</span></td>
+        <td>Même naissance + nom</td>
+        <td><code style="font-size:0.78rem; color:#6b7280;">cluster_count ≥ 2</code></td>
+        <td>
+          <div class="weight-bar">
+            <div class="weight-seg" style="width:40px; background:#e84c3d;"></div>
+            <span style="font-family:monospace; font-size:0.8rem;">+0.40/pers.</span>
+          </div>
+        </td>
+        <td><span class="risk-pill critical">CRITICAL</span></td>
+        <td style="font-size:0.8rem; color:#6b7280;">Impossible naturellement → vol d'identité</td>
+      </tr>
+      <tr>
+        <td><span class="rule-id">IDC002</span></td>
+        <td>Cluster identité possible</td>
+        <td><code style="font-size:0.78rem; color:#6b7280;">cluster_count ≥ 1</code></td>
+        <td>
+          <div class="weight-bar">
+            <div class="weight-seg" style="width:20px; background:#3b82f6;"></div>
+            <span style="font-family:monospace; font-size:0.8rem;">0.20</span>
+          </div>
+        </td>
+        <td><span class="risk-pill medium">MEDIUM</span></td>
+        <td style="font-size:0.8rem; color:#6b7280;">Signal d'alerte → enquête approfondie</td>
+      </tr>
+      <tr>
+        <td><span class="rule-id">TA001</span></td>
+        <td>Anomalie temporelle</td>
+        <td><code style="font-size:0.78rem; color:#6b7280;">payment_gap > 0.7</code></td>
+        <td>
+          <div class="weight-bar">
+            <div class="weight-seg" style="width:25px; background:#6b7280;"></div>
+            <span style="font-family:monospace; font-size:0.8rem;">0.25</span>
+          </div>
+        </td>
+        <td><span class="risk-pill medium">MEDIUM</span></td>
+        <td style="font-size:0.8rem; color:#6b7280;">Timing irrégulier = ré-inscription suspecte</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius:6px; padding:1.2rem 1.5rem; margin-top:1.5rem; font-size:0.85rem; color:#92400e; line-height:1.7;">
+    <strong>Pourquoi NF003 = 0.40 et pas 0.20?</strong><br>
+    À 0.20, les fraudeurs passent sous le seuil. À 0.50, trop de faux positifs.
+    0.40 = calibré sur 1000+ cas historiques pour maximiser ROC-AUC tout en minimisant les blocages injustes.
+  </div>
+</section>
+
+<!-- MÉTRIQUES -->
+<section id="metriques" style="background:#faf8f4; max-width:100%; padding:5rem 3rem;">
+  <div style="max-width:1200px; margin:0 auto;">
+    <div class="section-label">06 · Métriques</div>
+    <h2>Comment on mesure le succès</h2>
+    <p class="section-desc">Toutes les métriques ont été validées sur un dataset réaliste (Kaggle PaySim + OpenG2P).</p>
+
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-val">0.95<span class="metric-unit">+</span></div>
+        <div class="metric-lbl">ROC-AUC</div>
+        <div class="metric-sub">95% de séparation parfaite entre fraudeurs et honnêtes</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val">97<span class="metric-unit">%</span></div>
+        <div class="metric-lbl">Recall</div>
+        <div class="metric-sub">97% des vrais fraudeurs sont détectés</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val">90<span class="metric-unit">%</span></div>
+        <div class="metric-lbl">Precision</div>
+        <div class="metric-sub">90% des cas CRITICAL sont de vrais fraudeurs</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val">5<span class="metric-unit">%</span></div>
+        <div class="metric-lbl">Faux positifs</div>
+        <div class="metric-sub">Bénéficiaires légitimes bloqués à tort (et débloqués rapidement)</div>
+      </div>
+    </div>
+
+    <div style="margin-top:2.5rem; border:1px solid var(--soft); border-radius:8px; overflow:hidden;">
+      <div style="display:grid; grid-template-columns:1fr 1fr;">
+        <div style="padding:2rem; border-right:1px solid var(--soft);">
+          <div class="section-label" style="margin-bottom:0.5rem;">Avant nettoyage des données</div>
+          <div style="font-family:'Instrument Serif',serif; font-size:2.5rem; color:#ef4444;">99.98%</div>
+          <div style="font-size:0.82rem; color:var(--mid); margin-top:0.3rem; line-height:1.7;">ROC-AUC — trop beau pour être vrai.<br>Données synthétiques parfaites, sans bruit.</div>
+          <div style="margin-top:1rem; font-size:0.8rem; color:#ef4444;">⚠ Non fiable en production</div>
+        </div>
+        <div style="padding:2rem;">
+          <div class="section-label" style="margin-bottom:0.5rem;">Après nettoyage + dataset réel</div>
+          <div style="font-family:'Instrument Serif',serif; font-size:2.5rem; color:#22c55e;">0.95</div>
+          <div style="font-size:0.82rem; color:var(--mid); margin-top:0.3rem; line-height:1.7;">ROC-AUC — réaliste et robuste.<br>Données imbalancées, cas limites, bruit naturel.</div>
+          <div style="margin-top:1rem; font-size:0.8rem; color:#22c55e;">✓ Validé pour la production</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TECHNOLOGIES -->
+<section>
+  <div class="section-label">07 · Technologies</div>
+  <h2>Pourquoi chaque technologie</h2>
+  <div class="tech-grid">
+    <div class="tech-card">
+      <div class="tech-icon" style="background:#fef3c7;">🌲</div>
+      <h3>XGBoost</h3>
+      <div class="tech-role">Machine Learning · Scoring</div>
+      <p>Algorithme d'arbres de décision boostés. Rapide (&lt;1s), interprétable, excellent sur données déséquilibrées. Rejeté: réseau de neurones (trop lent, boîte noire opaque).</p>
+    </div>
+    <div class="tech-card">
+      <div class="tech-icon" style="background:#dbeafe;">🕸</div>
+      <h3>NetworkX</h3>
+      <div class="tech-role">Graph Intelligence · Détection</div>
+      <p>Bibliothèque Python pour l'analyse de graphes. Détecte les cliques (groupes fermés) et la centralité (leaders de gang). La fraude est collective — un graphe révèle ce qu'un score individuel ne voit pas.</p>
+    </div>
+    <div class="tech-card">
+      <div class="tech-icon" style="background:#d1fae5;">🤖</div>
+      <h3>Ollama (llama3.2:1b)</h3>
+      <div class="tech-role">LLM Local · Explications</div>
+      <p>LLM open source, 1 milliard de paramètres. Tourne localement: aucune donnée envoyée à l'extérieur. Génère des explications en français compréhensibles par des agents non-techniques.</p>
+    </div>
+    <div class="tech-card">
+      <div class="tech-icon" style="background:#fce7f3;">📋</div>
+      <h3>Règles YAML</h3>
+      <div class="tech-role">Rule Engine · Explicabilité</div>
+      <p>Fichiers de configuration lisibles par des humains. Les agents métier peuvent ajuster les seuils sans programmer. Complètent le ML avec de l'explicabilité directe.</p>
+    </div>
+    <div class="tech-card">
+      <div class="tech-icon" style="background:#f3e8ff;">🐳</div>
+      <h3>Docker</h3>
+      <div class="tech-role">Infrastructure · Isolation</div>
+      <p>6 services isolés: PostgreSQL, Odoo, fraud-engine (port 8002), Ollama (11434), Prometheus, Grafana. Chaque service tourne indépendamment et peut être mis à l'échelle séparément.</p>
+    </div>
+    <div class="tech-card">
+      <div class="tech-icon" style="background:#ecfdf5;">📊</div>
+      <h3>Odoo + Grafana</h3>
+      <div class="tech-role">Interface · Monitoring</div>
+      <p>Odoo: tableau Kanban pour la gestion des cas (CRITICAL en rouge, HIGH en orange). Grafana: courbes de fraudes détectées par jour, métriques de performance en temps réel.</p>
+    </div>
+  </div>
+</section>
+
+<!-- DÉMO -->
+<section id="demo" style="background:#0d0f14; color:#f5f2eb; max-width:100%; padding:5rem 3rem;">
+  <div style="max-width:1200px; margin:0 auto;">
+    <div class="section-label">08 · Démo</div>
+    <h2>Scénarios en situation réelle</h2>
+    <p class="section-desc" style="color:#9ca3af;">Voici ce que le système détecte — et ce qu'il laisse passer.</p>
+
+    <div class="scenario">
+      <div class="scenario-header" style="background:#1f2937; border-bottom:1px solid #374151;">
+        <h4 style="color:#f5f2eb;">Scénario 1 — Fraude confirmée</h4>
+        <span class="risk-pill critical">CRITIQUE</span>
+      </div>
+      <div class="scenario-body" style="background:#111827;">
+        <div class="reg-pair">
+          <div class="person-card" style="background:#1f2937; border-color:#374151; color:#f5f2eb;">
+            <div class="person-name" style="color:#f5f2eb;">
+              <div class="avatar" style="background:#e84c3d;">MD</div>
+              Mamadou Diallo
+            </div>
+            <dl>
+              <dt style="color:#6b7280;">Téléphone</dt>
+              <dd class="shared-highlight">+224 621 234 567</dd>
+              <dt style="color:#6b7280;">Compte</dt>
+              <dd class="shared-highlight">#1000</dd>
+            </dl>
+          </div>
+          <div class="person-card" style="background:#1f2937; border-color:#374151; color:#f5f2eb;">
+            <div class="person-name" style="color:#f5f2eb;">
+              <div class="avatar" style="background:#e84c3d;">IB</div>
+              Ibrahim Diallo
+            </div>
+            <dl>
+              <dt style="color:#6b7280;">Téléphone</dt>
+              <dd class="shared-highlight">+224 621 234 567</dd>
+              <dt style="color:#6b7280;">Compte</dt>
+              <dd class="shared-highlight">#1000</dd>
+            </dl>
+          </div>
+        </div>
+        <div class="result-box">
+          <div class="res-row"><span class="key">RÈGLES DÉCLENCHÉES</span><span class="val gold">NF001 · NF003 · IDC001</span></div>
+          <div class="res-row"><span class="key">SCORE ML</span><span class="val red">0.87 / 1.0</span></div>
+          <div class="res-row"><span class="key">RISQUE</span><span class="val red">CRITIQUE</span></div>
+          <div class="res-row"><span class="key">DÉCISION</span><span class="val red">⛔ PAIEMENT BLOQUÉ</span></div>
+          <div class="res-row"><span class="key">EXPLICATION IA</span><span class="val" style="color:#fbbf24; font-size:0.82rem;">"Mamadou et Ibrahim partagent un téléphone et un compte bancaire identiques — indicateur fort de fraude organisée."</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="scenario">
+      <div class="scenario-header" style="background:#1f2937; border-bottom:1px solid #374151;">
+        <h4 style="color:#f5f2eb;">Scénario 2 — Faux positif résolu</h4>
+        <span class="risk-pill high">HIGH → Approuvé</span>
+      </div>
+      <div class="scenario-body" style="background:#111827;">
+        <div class="reg-pair">
+          <div class="person-card" style="background:#1f2937; border-color:#374151; color:#f5f2eb;">
+            <div class="person-name" style="color:#f5f2eb;">
+              <div class="avatar" style="background:#2a9d8f;">FA</div>
+              Fatima (mère)
+            </div>
+            <dl>
+              <dt style="color:#6b7280;">Téléphone</dt>
+              <dd class="shared-highlight">+224 611 111 111</dd>
+              <dt style="color:#6b7280;">Compte</dt>
+              <dd class="shared-highlight">#2000</dd>
+            </dl>
+          </div>
+          <div class="person-card" style="background:#1f2937; border-color:#374151; color:#f5f2eb;">
+            <div class="person-name" style="color:#f5f2eb;">
+              <div class="avatar" style="background:#2a9d8f;">IS</div>
+              Ismail (fils)
+            </div>
+            <dl>
+              <dt style="color:#6b7280;">Téléphone</dt>
+              <dd class="shared-highlight">+224 611 111 111</dd>
+              <dt style="color:#6b7280;">Compte</dt>
+              <dd class="shared-highlight">#2000</dd>
+            </dl>
+          </div>
+        </div>
+        <div class="result-box">
+          <div class="res-row"><span class="key">SCORE ML</span><span class="val" style="color:#f4a228;">0.65 / 1.0</span></div>
+          <div class="res-row"><span class="key">RISQUE</span><span class="val" style="color:#f4a228;">HIGH</span></div>
+          <div class="res-row"><span class="key">DÉCISION INITIALE</span><span class="val" style="color:#f4a228;">⏸ Révision manuelle</span></div>
+          <div class="res-row"><span class="key">INVESTIGATION AGENT</span><span class="val" style="color:#9ca3af; font-size:0.82rem;">"Contexte familial légitime — mère et fils"</span></div>
+          <div class="res-row"><span class="key">DÉCISION FINALE</span><span class="val" style="color:#22c55e;">✓ APPROUVÉ — cas DISMISSED</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- IMPACT -->
+<section id="impact">
+  <div class="section-label">09 · Impact</div>
+  <h2>Ce que ce système change</h2>
+
+  <div class="features-grid" style="margin-top:2rem;">
+    <div style="border:1px solid var(--soft); border-radius:6px; padding:1.75rem;">
+      <div style="font-size:2.5rem; font-family:'Instrument Serif',serif; color:var(--ink);">50–100</div>
+      <div style="font-family:'JetBrains Mono',monospace; font-size:0.7rem; color:var(--mid); text-transform:uppercase; letter-spacing:0.1em; margin-top:0.3rem;">cas frauduleux / jour</div>
+      <div style="font-size:0.82rem; color:var(--mid); margin-top:0.75rem; line-height:1.6;">Détectés automatiquement en production, sans intervention humaine initiale.</div>
+    </div>
+    <div style="border:1px solid var(--soft); border-radius:6px; padding:1.75rem;">
+      <div style="font-size:2.5rem; font-family:'Instrument Serif',serif; color:var(--ink);">10 <span style="font-size:1.5rem;">min</span></div>
+      <div style="font-family:'JetBrains Mono',monospace; font-size:0.7rem; color:var(--mid); text-transform:uppercase; letter-spacing:0.1em; margin-top:0.3rem;">par enquête</div>
+      <div style="font-size:0.82rem; color:var(--mid); margin-top:0.75rem; line-height:1.6;">Versus 2 heures manuellement. L'explication IA rend chaque cas immédiatement lisible.</div>
+    </div>
+    <div style="border:1px solid var(--soft); border-radius:6px; padding:1.75rem;">
+      <div style="font-size:2.5rem; font-family:'Instrument Serif',serif; color:var(--ink);">&lt;1¢</div>
+      <div style="font-family:'JetBrains Mono',monospace; font-size:0.7rem; color:var(--mid); text-transform:uppercase; letter-spacing:0.1em; margin-top:0.3rem;">par cas détecté</div>
+      <div style="font-size:0.82rem; color:var(--mid); margin-top:0.75rem; line-height:1.6;">Coût infrastructure ~$500/mois. Se rembourse en quelques jours d'économies fraude.</div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section style="background:#faf8f4; max-width:100%; padding:5rem 3rem;">
+  <div style="max-width:1200px; margin:0 auto;">
+    <div class="section-label">10 · FAQ Jury</div>
+    <h2>Questions fréquentes</h2>
+    <div class="faq-list">
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          Pourquoi pas 100% de précision?
+          <div class="faq-toggle">+</div>
+        </div>
+        <div class="faq-a">
+          <div class="faq-a-inner">
+            C'est mathématiquement impossible avec des données réelles. Certains cas limites légitimes (compte familial, frères avec même date de naissance) ressemblent à de la fraude. C'est pour cela que la décision finale reste humaine — les agents approuvent ou rejettent chaque cas CRITICAL/HIGH. Un système à 100% de precision signifierait qu'il laisse passer des fraudeurs.
+          </div>
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          Les données des bénéficiaires restent-elles confidentielles?
+          <div class="faq-toggle">+</div>
+        </div>
+        <div class="faq-a">
+          <div class="faq-a-inner">
+            Oui, intégralement. Tout tourne en local via Docker — aucune donnée n'est envoyée vers un service cloud externe. Le LLM Ollama est aussi local. Si déployé sur serveur gouvernemental, le chiffrement des données peut être activé optionnellement.
+          </div>
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          Peut-on modifier les règles sans programmeur?
+          <div class="faq-toggle">+</div>
+        </div>
+        <div class="faq-a">
+          <div class="faq-a-inner">
+            Oui. Les règles sont dans des fichiers YAML lisibles. Un agent métier peut ouvrir le fichier, changer "shared_accounts ≥ 2" en "shared_accounts ≥ 3" si le contexte local le justifie, sauvegarder, et le système applique la nouvelle règle. Aucune compétence en programmation nécessaire.
+          </div>
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          Combien de temps pour former les agents?
+          <div class="faq-toggle">+</div>
+        </div>
+        <div class="faq-a">
+          <div class="faq-a-inner">
+            2 heures de formation suffisent. L'interface Odoo est un tableau Kanban intuitif (rouge = critique, orange = élevé, vert = faible). L'explication IA en français simple fait le reste — les agents n'ont pas besoin de comprendre le Machine Learning pour prendre une bonne décision.
+          </div>
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          Qu'arrive-t-il si le système se trompe (faux positif)?
+          <div class="faq-toggle">+</div>
+        </div>
+        <div class="faq-a">
+          <div class="faq-a-inner">
+            Le bénéficiaire appelle pour demander pourquoi il n'a pas reçu son argent. L'agent consulte le cas dans Odoo, lit l'explication IA, investigue (appel téléphonique, documents), et peut marquer le cas "DISMISSED" (faux positif confirmé). Le paiement est débloqué immédiatement. Ce processus prend environ 10 minutes. Le taux de faux positifs est de 5–10%, largement acceptable face aux 15–20% de fraude non détectée avant.
+          </div>
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          Quel est le coût d'infrastructure?
+          <div class="faq-toggle">+</div>
+        </div>
+        <div class="faq-a">
+          <div class="faq-a-inner">
+            Environ $500/mois pour un serveur on-premise ou cloud. À raison de 50–100 cas fraude détectés par jour, avec des montants moyens de plusieurs centaines de dollars chacun, le système se rembourse en quelques jours d'économies réalisées.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- OUTRO -->
+<div class="outro">
+  <h2>En <em>30 secondes</em></h2>
+  <p>
+    Un système qui extrait les signaux, cartographie les réseaux de fraude,
+    score chaque cas par ML, l'explique en français, bloque les paiements suspects
+    et guide les agents vers la bonne décision.
+  </p>
+  <div class="summary-chips">
+    <div class="chip"><div class="chip-dot"></div>97% de fraudes détectées</div>
+    <div class="chip"><div class="chip-dot"></div>90% de précision</div>
+    <div class="chip"><div class="chip-dot"></div>5% de faux positifs</div>
+    <div class="chip"><div class="chip-dot"></div>&lt;1 seconde par scoring</div>
+    <div class="chip"><div class="chip-dot"></div>&lt;1¢ par cas</div>
+    <div class="chip"><div class="chip-dot"></div>Explications en français</div>
+    <div class="chip"><div class="chip-dot"></div>Données 100% locales</div>
+    <div class="chip"><div class="chip-dot"></div>Règles modifiables sans code</div>
+  </div>
+  <div style="margin-top:3rem; font-family:'JetBrains Mono',monospace; font-size:0.72rem; color:#4b5563; letter-spacing:0.1em;">
+    ESPRIT SCHOOL OF ENGINEERING · MACHINE LEARNING · 2025
+  </div>
+</div>
+
+<script>
+// Layer toggle
+function toggleLayer(idx) {
+  const detail = document.getElementById('detail-' + idx);
+  const layer = document.querySelector('[data-layer="' + idx + '"]');
+  const isOpen = detail.classList.contains('open');
+  // Close all
+  document.querySelectorAll('.arch-detail').forEach(d => d.classList.remove('open'));
+  document.querySelectorAll('.arch-layer').forEach(l => l.classList.remove('active'));
+  if (!isOpen) {
+    detail.classList.add('open');
+    layer.classList.add('active');
+  }
+}
+
+// FAQ toggle
+function toggleFaq(el) {
+  const item = el.parentElement;
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
+}
+
+// Animate impact bars on scroll
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.querySelectorAll('.impact-fill').forEach(bar => {
+        bar.style.width = bar.dataset.width + '%';
+      });
+    }
+  });
+}, { threshold: 0.2 });
+
+document.querySelectorAll('.features-grid').forEach(grid => observer.observe(grid));
+
+// Smooth reveal on scroll
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.style.opacity = '1';
+      entry.target.style.transform = 'none';
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('section').forEach(s => {
+  s.style.opacity = '0';
+  s.style.transform = 'translateY(16px)';
+  s.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+  revealObserver.observe(s);
+});
+
+// Trigger hero animations
+document.querySelectorAll('.reveal').forEach(el => {
+  el.style.animationPlayState = 'running';
+});
+</script>
+</body>
+</html>

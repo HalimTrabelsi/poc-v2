@@ -65,6 +65,7 @@ class CaseItem(BaseModel):
     rules_triggered: Optional[list] = None
     explanation: Optional[str] = None
     llm_explanation: Optional[str] = None
+    top_features: Optional[list] = None  # SHAP feature contributions (JSONB)
 
 
 class CaseListResponse(BaseModel):

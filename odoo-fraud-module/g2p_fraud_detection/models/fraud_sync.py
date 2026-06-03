@@ -91,6 +91,7 @@ class FraudSync(models.AbstractModel):
                 "rules_triggered": rules_str,
                 "explanation": c.get("explanation") or "",
                 "llm_explanation": c.get("llm_explanation") or "",
+                "top_features": self._format_top_features(c.get("top_features")),
                 "detected_at": detected_at,
                 "state": "open",
             })
@@ -148,6 +149,54 @@ class FraudSync(models.AbstractModel):
                 lines.append(f"• {name} — {explanation}")
             else:
                 lines.append(f"• {name}")
+        return "\n".join(lines)
+
+    @staticmethod
+    def _format_top_features(top_features) -> str:
+        """Render SHAP feature contributions as a readable block.
+
+        Drops features whose raw value is 0 — a non-zero SHAP on an absent
+        feature is a missing-data artefact, not a real driver. Sorts by
+        absolute impact so the strongest driver leads, e.g.:
+
+            ↑ Shared phone count = 5 (increases risk, impact 3.94)
+            ↑ Shared account count = 5 (increases risk, impact 1.21)
+        """
+        if isinstance(top_features, str):
+            try:
+                top_features = json.loads(top_features)
+            except (ValueError, TypeError):
+                return ""
+        if not isinstance(top_features, list):
+            return ""
+
+        rows = []
+        for f in top_features:
+            if not isinstance(f, dict):
+                continue
+            try:
+                value = float(f.get("value") or 0)
+            except (TypeError, ValueError):
+                value = 0.0
+            if value == 0.0:
+                continue
+            shap = f.get("shap_value")
+            if shap is None:
+                shap = f.get("impact", 0)
+            try:
+                shap = float(shap or 0)
+            except (TypeError, ValueError):
+                shap = 0.0
+            rows.append((f.get("feature", "?"), value, shap))
+
+        rows.sort(key=lambda r: abs(r[2]), reverse=True)
+        lines = []
+        for feat, value, shap in rows:
+            label = feat.replace("_", " ").capitalize()
+            arrow = "↑" if shap > 0 else "↓"
+            direction = "increases risk" if shap > 0 else "decreases risk"
+            val = int(value) if value == int(value) else round(value, 2)
+            lines.append(f"{arrow} {label} = {val} ({direction}, impact {abs(shap):.2f})")
         return "\n".join(lines)
 
 

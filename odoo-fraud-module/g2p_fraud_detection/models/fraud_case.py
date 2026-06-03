@@ -59,6 +59,11 @@ class FraudCase(models.Model):
     )
     explanation = fields.Text(string="Explanation")
     llm_explanation = fields.Text(string="AI Explanation")
+    top_features = fields.Text(
+        string="Key Factors (SHAP)",
+        help="ML feature contributions that drove the risk score, "
+             "most influential first.",
+    )
     detected_at = fields.Datetime(string="Detected At", tracking=True)
     assigned_to = fields.Many2one("res.users", string="Assigned To", tracking=True)
     notes = fields.Text(string="Investigation Notes")
@@ -190,8 +195,14 @@ class FraudCase(models.Model):
                     ("groups_id", "=", self.env.ref("g2p_fraud_detection.group_fraud_supervisor").id),
                 ])
                 for user in fraud_users:
+                    # Skip users with no linked partner — the channel would be
+                    # res.partner-False and _sendone would target nothing.
+                    if not user.partner_id:
+                        continue
+                    # Odoo 17 signature: _sendone(target, notification_type, message)
                     self.env["bus.bus"]._sendone(
-                        (f"res.partner-{user.partner_id.id}", "new_alert"),
+                        user.partner_id,
+                        "new_alert",
                         {
                             "case_id": rec.case_id,
                             "beneficiary_id": rec.beneficiary_id,

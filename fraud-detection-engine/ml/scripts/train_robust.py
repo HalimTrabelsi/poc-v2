@@ -165,7 +165,9 @@ def train_xgboost_calibrated(X_train, y_train, X_val, y_val):
 
     # Calibration isotonique via CV sur train+val — corrige le clustering des scores
     # (cv='prefit' supprimé dans sklearn 1.4+; on utilise cv=3 sur le jeu complet)
-    X_trainval = np.vstack([X_train, X_val])
+    # pd.concat (not np.vstack) so XGBoost keeps the feature names — SHAP relies
+    # on booster.feature_names to map contributions back to readable columns.
+    X_trainval = pd.concat([X_train, X_val], axis=0)
     y_trainval = np.concatenate([y_train, y_val])
     calibrated = CalibratedClassifierCV(base, cv=3, method="isotonic")
     calibrated.fit(X_trainval, y_trainval)
@@ -204,7 +206,7 @@ def compare_models(X_train, y_train, X_test, y_test, X_val, y_val) -> dict:
 
     # 3. XGBoost calibré
     logger.info("  Entraînement XGBoost (calibré)...")
-    X_trainval = np.vstack([X_train, X_val])
+    X_trainval = pd.concat([X_train, X_val], axis=0)  # keep feature names for SHAP
     y_trainval = np.concatenate([y_train, y_val])
     xgb_base = xgb.XGBClassifier(
         n_estimators=400, learning_rate=0.05, max_depth=6,
@@ -228,8 +230,10 @@ def compare_models(X_train, y_train, X_test, y_test, X_val, y_val) -> dict:
         lgbm_cal = CalibratedClassifierCV(lgbm, cv=3, method="isotonic")
         lgbm_cal.fit(X_trainval, y_trainval)
         candidates["LightGBM (calibré)"] = lgbm_cal
-    except ImportError:
-        logger.warning("LightGBM non installé — ignoré dans la comparaison")
+    except (ImportError, OSError) as exc:
+        # OSError covers a missing native lib (libgomp.so.1) when the wheel is
+        # present but its shared object can't load — skip LightGBM gracefully.
+        logger.warning("LightGBM indisponible (%s) — ignoré dans la comparaison", exc)
 
     # Évaluation de chaque modèle
     results = {}
