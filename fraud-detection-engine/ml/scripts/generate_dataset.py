@@ -36,6 +36,23 @@ FRAUD_RATE = 0.12
 N_PROGRAMS = 5
 N_CYCLES   = 3
 
+# ── Réalisme / difficulté du problème ───────────────────────────────────────
+# Without this, fraud rows are near-deterministic functions of their features
+# (e.g. shared_phone_count is 13x higher for fraud), which lets any model hit
+# AUC ~0.99 — an artefact of the generator, NOT real-world performance. These
+# knobs inject the messiness real fraud data has, so the model must learn from
+# OVERLAPPING distributions and IMPERFECT labels. Defensible target: AUC ~0.82-0.90.
+#
+#   REALISM_LABEL_NOISE : fraction of labels randomly flipped (mislabelled cases)
+#   REALISM_OVERLAP     : fraction of fraud rows whose discriminative features are
+#                         blended toward the legitimate distribution ("subtle" fraud)
+#   REALISM_NOISE_MULT  : multiplier on the Gaussian feature noise already applied
+# Defaults tuned so 5-fold CV AUC lands at ~0.85 (strong but believable),
+# instead of the ~0.99 artefact produced by the raw separable generator.
+REALISM_LABEL_NOISE = float(os.getenv("REALISM_LABEL_NOISE", "0.03"))
+REALISM_OVERLAP     = float(os.getenv("REALISM_OVERLAP", "0.30"))
+REALISM_NOISE_MULT  = float(os.getenv("REALISM_NOISE_MULT", "1.8"))
+
 PROGRAM_NAMES = [
     "Aide alimentaire urgente",
     "Bourse scolarité enfants",
@@ -266,7 +283,9 @@ def generate_dataset(n_total=N_TOTAL, fraud_rate=FRAUD_RATE):
 
     df = pd.DataFrame(records)
 
-    # Bruit gaussien
+    # ── Bruit gaussien (amplifié par REALISM_NOISE_MULT) ────────────────────
+    # The base sigmas alone leave the classes almost perfectly separable.
+    # Multiplying them injects the measurement/reporting noise real data carries.
     noise_config = [
         ("income", 0.15), ("pmt_score", 0.08), ("gap_ratio", 0.10),
         ("network_risk", 0.10), ("income_per_person", 0.12),
@@ -275,15 +294,34 @@ def generate_dataset(n_total=N_TOTAL, fraud_rate=FRAUD_RATE):
     ]
     for col, s in noise_config:
         if col in df.columns:
-            df[col] = (df[col] + np.random.normal(0, s, len(df))).clip(0)
+            df[col] = (df[col] + np.random.normal(0, s * REALISM_NOISE_MULT, len(df))).clip(0)
 
-    # Cas borderline
-    n_borderline = int(len(df[df["is_fraud"] == 1]) * 0.08)
-    fraud_idx = df[df["is_fraud"] == 1].index[:n_borderline]
-    legit_sample = df[df["is_fraud"] == 0].sample(n_borderline, random_state=SEED + 1)
-    for col in ["pmt_score", "shared_phone_count", "nb_programs", "network_risk"]:
-        if col in df.columns:
-            df.loc[fraud_idx, col] = legit_sample[col].values
+    # ── Class overlap : "subtle" fraud that looks legitimate ────────────────
+    # Blend a fraction of fraud rows' discriminative features toward the
+    # legitimate mean. These are the hard cases that prevent a trivial 0.99 AUC
+    # and mirror real fraudsters who deliberately stay under the radar.
+    discriminative = ["shared_phone_count", "shared_account_count",
+                      "network_risk", "nb_programs", "payment_gap_ratio", "gap_ratio"]
+    fraud_all = df.index[df["is_fraud"] == 1]
+    n_overlap = int(len(fraud_all) * REALISM_OVERLAP)
+    if n_overlap > 0:
+        overlap_idx = np.random.choice(fraud_all, size=n_overlap, replace=False)
+        for col in discriminative:
+            if col in df.columns:
+                legit_mean = df.loc[df["is_fraud"] == 0, col].mean()
+                # pull each selected fraud value most of the way to the legit mean
+                blend = np.random.uniform(0.5, 0.9, size=n_overlap)
+                df.loc[overlap_idx, col] = (
+                    df.loc[overlap_idx, col].values * (1 - blend) + legit_mean * blend
+                )
+
+    # ── Label noise : imperfect ground truth ────────────────────────────────
+    # Real fraud labels come from investigations and are wrong some of the time
+    # (missed fraud + false accusations). Flip a small random fraction of labels.
+    n_flip = int(len(df) * REALISM_LABEL_NOISE)
+    if n_flip > 0:
+        flip_idx = np.random.choice(df.index, size=n_flip, replace=False)
+        df.loc[flip_idx, "is_fraud"] = 1 - df.loc[flip_idx, "is_fraud"]
 
     # Features dérivées
     df["income_per_person"] = (df["income"] / df["household_size"].clip(lower=1)).round(2)
@@ -518,6 +556,8 @@ def inject(df, db_url):
 # ════════════════════════════════════════════════════════
 
 def main():
+    global REALISM_LABEL_NOISE, REALISM_OVERLAP, REALISM_NOISE_MULT
+
     SCRIPT_DIR   = Path(__file__).resolve().parent
     PROJECT_ROOT = SCRIPT_DIR.parent
     DEFAULT_OUT  = PROJECT_ROOT / "data" / "synthetic" / "dataset_ml.csv"
@@ -529,7 +569,20 @@ def main():
         "OPENG2P_DB_URL", "postgresql://odoo:openg2p@postgresql:5432/openg2p"))
     ap.add_argument("--n",          type=int,   default=N_TOTAL)
     ap.add_argument("--fraud-rate", type=float, default=FRAUD_RATE)
+    ap.add_argument("--label-noise", type=float, default=REALISM_LABEL_NOISE,
+                    help="Fraction of labels to flip (imperfect ground truth)")
+    ap.add_argument("--overlap",     type=float, default=REALISM_OVERLAP,
+                    help="Fraction of fraud rows blended toward legit (subtle fraud)")
+    ap.add_argument("--noise-mult",  type=float, default=REALISM_NOISE_MULT,
+                    help="Multiplier on Gaussian feature noise")
     args = ap.parse_args()
+
+    # apply realism overrides globally
+    REALISM_LABEL_NOISE = args.label_noise
+    REALISM_OVERLAP     = args.overlap
+    REALISM_NOISE_MULT  = args.noise_mult
+    print(f"Réalisme : label_noise={REALISM_LABEL_NOISE} "
+          f"overlap={REALISM_OVERLAP} noise_mult={REALISM_NOISE_MULT}")
 
     df  = generate_dataset(args.n, args.fraud_rate)
     out = Path(args.output)

@@ -4,6 +4,7 @@
     "income",
     "income_per_person",
     "dependency_ratio",
+    "registration_age_days",
     "nb_programs",
     "nb_active_programs",
     "avg_enrollment_days",
@@ -12,6 +13,7 @@
     "payment_success_rate",
     "amount_variance",
     "cycle_count",
+    "avg_entitlement_amount",
     "shared_phone_count",
     "shared_account_count",
     "network_risk",
@@ -29,62 +31,62 @@
     "pmt_score",
     "pmt_score_min"
   ],
-  "training_date": "2026-06-03T14:26:30.072130+00:00",
+  "training_date": "2026-06-04T16:00:48.166483+00:00",
   "calibrated": true,
   "calibration_method": "isotonic",
   "ensemble_weights": {
-    "rules": 0.25,
-    "ml": 0.3,
-    "graph": 0.45,
-    "optimized_auc": 1.0
+    "rules": 0.05,
+    "ml": 0.95,
+    "graph": -0.0,
+    "optimized_auc": 0.8604
   },
   "metrics": {
     "xgboost_calibrated": {
-      "roc_auc": 0.9951,
-      "pr_auc": 0.9592,
-      "f1": 0.8817,
-      "precision": 0.9535,
-      "recall": 0.82,
+      "roc_auc": 0.8578,
+      "pr_auc": 0.7085,
+      "f1": 0.6296,
+      "precision": 0.8947,
+      "recall": 0.4857,
       "confusion_matrix": [
         [
-          948,
-          2
+          852,
+          8
         ],
         [
-          9,
-          41
+          72,
+          68
         ]
       ],
-      "true_positives": 41,
-      "false_positives": 2,
-      "true_negatives": 948,
-      "false_negatives": 9,
-      "score_mean": 0.0497,
-      "score_std": 0.2001,
-      "score_min": 0.0,
+      "true_positives": 68,
+      "false_positives": 8,
+      "true_negatives": 852,
+      "false_negatives": 72,
+      "score_mean": 0.13,
+      "score_std": 0.2098,
+      "score_min": 0.0035,
       "score_max": 1.0
     },
     "model_comparison": {
       "Logistic Regression (baseline)": {
-        "roc_auc": 0.9537,
-        "pr_auc": 0.826,
-        "f1": 0.5844,
-        "precision": 0.4327,
-        "recall": 0.9
+        "roc_auc": 0.7361,
+        "pr_auc": 0.5015,
+        "f1": 0.4,
+        "precision": 0.3,
+        "recall": 0.6
       },
       "Random Forest": {
-        "roc_auc": 0.9917,
-        "pr_auc": 0.9425,
-        "f1": 0.8936,
-        "precision": 0.9545,
-        "recall": 0.84
+        "roc_auc": 0.8367,
+        "pr_auc": 0.6624,
+        "f1": 0.5806,
+        "precision": 0.8182,
+        "recall": 0.45
       },
       "XGBoost (calibré)": {
-        "roc_auc": 0.9951,
-        "pr_auc": 0.9592,
-        "f1": 0.8817,
-        "precision": 0.9535,
-        "recall": 0.82
+        "roc_auc": 0.8578,
+        "pr_auc": 0.7085,
+        "f1": 0.6296,
+        "precision": 0.8947,
+        "recall": 0.4857
       }
     }
   },

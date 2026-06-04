@@ -390,17 +390,25 @@ def optimize_ensemble_weights(
 
 def simulate_scores(y_true: np.ndarray, ml_proba: np.ndarray) -> tuple:
     """
-    Simule des rule_scores et graph_scores réalistes pour le grid search.
-    En production ces scores viendraient du pipeline réel.
+    Simule des rule_scores et graph_scores pour le grid search.
+
+    IMPORTANT (anti-fuite): ces scores sont dérivés de la PROBABILITÉ ML
+    (un proxy réaliste du signal disponible en production) + bruit, et NON
+    de la vérité terrain `y_true`. Coupler les scores à `y_true` injecterait
+    le label dans l'ensemble et produirait un AUC artificiel de 1.0 —
+    indéfendable. Ici les règles/graphe sont des détecteurs imparfaits,
+    corrélés mais bruités, comme dans le pipeline réel.
     """
-    n = len(y_true)
+    n = len(ml_proba)
     rng = np.random.default_rng(42)
 
-    # Règles : corrélées avec la vérité (signal réel + bruit)
-    rule_scores  = np.clip(y_true * 0.6 + rng.uniform(0, 0.3, n) + rng.normal(0, 0.1, n), 0, 1)
+    # Règles : proxy bruité du signal ML, volontairement moins discriminant.
+    rule_scores = np.clip(ml_proba * 0.5 + rng.uniform(0, 0.35, n)
+                          + rng.normal(0, 0.20, n), 0, 1)
 
-    # Graph : signal modéré (moins discriminant que ML)
-    graph_scores = np.clip(y_true * 0.4 + rng.uniform(0, 0.4, n) + rng.normal(0, 0.15, n), 0, 1)
+    # Graphe : signal plus faible encore (réseaux partagés ≈ sous-ensemble).
+    graph_scores = np.clip(ml_proba * 0.35 + rng.uniform(0, 0.45, n)
+                           + rng.normal(0, 0.25, n), 0, 1)
 
     return rule_scores, graph_scores
 
