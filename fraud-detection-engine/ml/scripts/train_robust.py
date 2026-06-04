@@ -53,8 +53,10 @@ try:
     from ml.utils.mlflow_utils import (
         MLflowExperiment,
         log_dataset_info,
+        log_metrics,
         log_model,
         log_params,
+        sanitize_key,
     )
     MLFLOW_AVAILABLE = True
 except ImportError as e:
@@ -605,12 +607,25 @@ def main():
         )
         print_comparison_table(comparison)
 
-        # Log model comparison metrics
+        # Log model comparison metrics + log EVERY trained model as an artifact
+        # (not just XGBoost). Keys are sanitized so model names with parentheses
+        # like "Logistic Regression (baseline)" don't break the run.
         if MLFLOW_AVAILABLE:
+            flat_metrics = {}
             for model_name, metrics in comparison.items():
                 for metric_name, value in metrics.items():
-                    mlflow.log_metric(f"model_comparison/{model_name}/{metric_name}",
-                                    float(value))
+                    flat_metrics[f"compare/{model_name}/{metric_name}"] = float(value)
+            log_metrics(flat_metrics)
+
+            # Persist each candidate model so all appear under Artifacts.
+            # All candidates are sklearn-compatible estimators (the XGBoost one
+            # is wrapped in CalibratedClassifierCV), so log them as sklearn.
+            for model_name, model in trained_models.items():
+                artifact_path = f"models/{sanitize_key(model_name)}"
+                try:
+                    log_model(model, artifact_path=artifact_path, framework="sklearn")
+                except Exception as exc:  # don't let one model abort the run
+                    logger.warning("Could not log model %s: %s", model_name, exc)
 
         # -- Étape 2 : XGBoost calibré (meilleur modèle) -------
         print("\n[2/4] Entraînement XGBoost calibré (modèle final)...")
@@ -622,10 +637,15 @@ def main():
         print_confusion_matrix(xgb_metrics)
         print_score_distribution(xgb_metrics)
 
-        # Log XGBoost metrics
+        # Log final XGBoost metrics + the calibrated model. The model is a
+        # CalibratedClassifierCV wrapping XGBoost, so it's logged as sklearn.
         if MLFLOW_AVAILABLE:
-            mlflow.log_metrics({f"xgboost/{k}": v for k, v in xgb_metrics.items()})
-            log_model(xgb_model, artifact_path="xgboost_model", framework="xgboost")
+            log_metrics({f"xgboost/{k}": v for k, v in xgb_metrics.items()})
+            try:
+                log_model(xgb_model, artifact_path="xgboost_model_final",
+                          framework="sklearn")
+            except Exception as exc:
+                logger.warning("Could not log final XGBoost model: %s", exc)
 
         # -- Étape 4 : Optimisation des poids ------------------
         print("\n[4/4] Optimisation des poids de combinaison...")
@@ -655,8 +675,11 @@ def main():
 
         # Log Isolation Forest
         if MLFLOW_AVAILABLE:
-            log_model(iso_model, artifact_path="isolation_forest_model",
-                     framework="sklearn")
+            try:
+                log_model(iso_model, artifact_path="isolation_forest_model",
+                          framework="sklearn")
+            except Exception as exc:
+                logger.warning("Could not log Isolation Forest: %s", exc)
 
         # -- Sauvegarde ----------------------------------------
         save_artifacts(
