@@ -1,0 +1,31 @@
+=================================================================
+  RAPPORT D'ÉVALUATION — FRAUD DETECTION ENGINE v2
+=================================================================
+
+  Features utilisées : 20
+  Features supprimées (vides) : 8
+    → household_size, nb_children, nb_elderly, has_disabled, single_head, elderly_head, pmt_score, pmt_score_min
+
+  MÉTRIQUES XGBOOST CALIBRÉ (jeu de test)
+  AUC-ROC   : 0.8578
+  PR-AUC    : 0.7085
+  F1-score  : 0.6296
+  Précision : 0.8947
+  Rappel    : 0.4857
+
+  Score moyen : 0.130 ± 0.210
+  [Min=0.004  Max=1.000]
+
+  MATRICE DE CONFUSION
+  TP=68  FP=8  FN=72  TN=852
+
+  POIDS OPTIMISÉS (grid search)
+  Règles=0.05  ML=0.95  Graphe=-0.0
+  AUC avec ces poids : 0.8604
+
+  COMPARAISON DES MODÈLES
+  XGBoost (calibré)                   AUC=0.8578  F1=0.6296
+  Random Forest                       AUC=0.8367  F1=0.5806
+  Logistic Regression (baseline)      AUC=0.7361  F1=0.4000
+
+=================================================================
