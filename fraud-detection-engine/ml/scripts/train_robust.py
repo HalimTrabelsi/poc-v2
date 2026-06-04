@@ -13,12 +13,19 @@ Usage :
   python ml/scripts/train_robust.py --data ml/data/synthetic/dataset_ml.csv
 """
 
+import sys
+from pathlib import Path
+
+# Add project root to sys.path BEFORE any other imports so ml module can be found
+# Scripts are at ml/scripts/train_robust.py, so we need to go up 3 levels to get root
+project_root = Path(__file__).resolve().parent.parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
+
 import json
 import logging
-import sys
 import warnings
 from itertools import product
-from pathlib import Path
 
 import joblib
 import numpy as np
@@ -41,6 +48,19 @@ from sklearn.metrics import (
 from sklearn.model_selection import StratifiedKFold, cross_val_score, train_test_split
 from sklearn.preprocessing import label_binarize
 
+try:
+    import mlflow
+    from ml.utils.mlflow_utils import (
+        MLflowExperiment,
+        log_dataset_info,
+        log_model,
+        log_params,
+    )
+    MLFLOW_AVAILABLE = True
+except ImportError as e:
+    MLFLOW_AVAILABLE = False
+    mlflow = None
+
 warnings.filterwarnings("ignore")
 logging.basicConfig(
     level=logging.INFO,
@@ -49,9 +69,9 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# ═══════════════════════════════════════════════════════════
+# ===========================================================
 # ÉTAPE 1 — Features retenues (8 features vides supprimées)
-# ═══════════════════════════════════════════════════════════
+# ===========================================================
 
 # Supprimées car toujours à 0 dans OpenG2P réel :
 REMOVED_FEATURES = [
@@ -87,9 +107,9 @@ REPORTS_DIR = Path("ml/reports")
 DATA_PATH   = Path("ml/data/synthetic/dataset_ml.csv")
 
 
-# ═══════════════════════════════════════════════════════════
+# ===========================================================
 # CHARGEMENT & PRÉPARATION
-# ═══════════════════════════════════════════════════════════
+# ===========================================================
 
 def load_data(csv_path: Path) -> tuple:
     logger.info("Chargement : %s", csv_path)
@@ -135,9 +155,9 @@ def split_data(X, y):
     return X_train, X_val, X_test, y_train, y_val, y_test
 
 
-# ═══════════════════════════════════════════════════════════
+# ===========================================================
 # ÉTAPE 2 — CALIBRATION DES PROBABILITÉS
-# ═══════════════════════════════════════════════════════════
+# ===========================================================
 
 def train_xgboost_calibrated(X_train, y_train, X_val, y_val):
     """XGBoost avec Platt scaling pour des probabilités bien calibrées."""
@@ -177,9 +197,9 @@ def train_xgboost_calibrated(X_train, y_train, X_val, y_val):
     return calibrated, calibrated
 
 
-# ═══════════════════════════════════════════════════════════
+# ===========================================================
 # ÉTAPE 5 — COMPARAISON DES MODÈLES
-# ═══════════════════════════════════════════════════════════
+# ===========================================================
 
 def compare_models(X_train, y_train, X_test, y_test, X_val, y_val) -> dict:
     """Entraîne 4 modèles et retourne leurs métriques pour comparaison."""
@@ -251,9 +271,9 @@ def compare_models(X_train, y_train, X_test, y_test, X_val, y_val) -> dict:
     return results, candidates
 
 
-# ═══════════════════════════════════════════════════════════
+# ===========================================================
 # ÉTAPE 3 — MÉTRIQUES OFFICIELLES
-# ═══════════════════════════════════════════════════════════
+# ===========================================================
 
 def evaluate_full(model, X_test, y_test, model_name: str) -> dict:
     """Calcule toutes les métriques officielles."""
@@ -312,9 +332,9 @@ def cross_validate_model(model_class, params, X, y, cv=5) -> float:
     return float(scores.mean())
 
 
-# ═══════════════════════════════════════════════════════════
+# ===========================================================
 # ÉTAPE 4 — OPTIMISATION DES POIDS PAR GRID SEARCH
-# ═══════════════════════════════════════════════════════════
+# ===========================================================
 
 def optimize_ensemble_weights(
     rule_scores: np.ndarray,
@@ -383,26 +403,26 @@ def simulate_scores(y_true: np.ndarray, ml_proba: np.ndarray) -> tuple:
     return rule_scores, graph_scores
 
 
-# ═══════════════════════════════════════════════════════════
+# ===========================================================
 # RAPPORT FINAL
-# ═══════════════════════════════════════════════════════════
+# ===========================================================
 
 def print_comparison_table(comparison: dict) -> None:
-    print("\n" + "═" * 75)
+    print("\n" + "=" * 75)
     print("  COMPARAISON DES MODÈLES")
-    print("═" * 75)
+    print("=" * 75)
     header = f"  {'Modèle':<35} {'AUC-ROC':>8} {'PR-AUC':>8} {'F1':>8} {'Précision':>10} {'Rappel':>8}"
     print(header)
-    print("─" * 75)
+    print("-" * 75)
 
     best_auc = max(v["roc_auc"] for v in comparison.values())
     for name, m in sorted(comparison.items(), key=lambda x: -x[1]["roc_auc"]):
-        marker = " ◄ MEILLEUR" if m["roc_auc"] == best_auc else ""
+        marker = " ** BEST" if m["roc_auc"] == best_auc else ""
         print(
             f"  {name:<35} {m['roc_auc']:>8.4f} {m['pr_auc']:>8.4f} "
             f"{m['f1']:>8.4f} {m['precision']:>10.4f} {m['recall']:>8.4f}{marker}"
         )
-    print("═" * 75)
+    print("=" * 75)
 
 
 def print_confusion_matrix(metrics: dict) -> None:
@@ -413,11 +433,11 @@ def print_confusion_matrix(metrics: dict) -> None:
     total = tp + fp + fn + tn
 
     print("\n  MATRICE DE CONFUSION (XGBoost calibré sur jeu de test)")
-    print("  ─────────────────────────────────────────────")
+    print("  ---------------------------------------------")
     print("                    Prédit Légitime  Prédit Fraude")
     print(f"  Réel Légitime         {tn:>6}          {fp:>6}")
     print(f"  Réel Fraude           {fn:>6}          {tp:>6}")
-    print("  ─────────────────────────────────────────────")
+    print("  ---------------------------------------------")
     if (tp + fn) > 0:
         print(f"  Vrais positifs détectés : {tp}/{tp+fn} fraudes = {tp/(tp+fn):.1%}")
     if (fp + tn) > 0:
@@ -442,9 +462,9 @@ def print_score_distribution(metrics: dict) -> None:
         print("  ❌ Scores encore trop concentrés — vérifier les features")
 
 
-# ═══════════════════════════════════════════════════════════
+# ===========================================================
 # SAUVEGARDE
-# ═══════════════════════════════════════════════════════════
+# ===========================================================
 
 def save_artifacts(
     xgb_model,
@@ -530,76 +550,138 @@ def save_artifacts(
     logger.info("Modèles sauvegardés : %s", MODELS_DIR)
 
 
-# ═══════════════════════════════════════════════════════════
+# ===========================================================
 # MAIN
-# ═══════════════════════════════════════════════════════════
+# ===========================================================
 
 def main():
     import argparse
     ap = argparse.ArgumentParser()
     ap.add_argument("--data", default=str(DATA_PATH))
+    ap.add_argument("--mlflow-uri", default="http://localhost:5000",
+                    help="MLflow tracking server URI")
     args = ap.parse_args()
 
-    print("\n" + "═" * 65)
-    print("  FRAUD DETECTION ENGINE — ENTRAÎNEMENT ROBUSTE")
-    print("═" * 65 + "\n")
+    print("\n" + "=" * 65)
+    print("  FRAUD DETECTION ENGINE -- ENTRAÎNEMENT ROBUSTE")
+    print("=" * 65 + "\n")
 
-    # ── Chargement ────────────────────────────────────────
-    X, y, feature_cols = load_data(Path(args.data))
-    X_train, X_val, X_test, y_train, y_val, y_test = split_data(X, y)
+    # Configure MLflow (optional, for remote server)
+    if MLFLOW_AVAILABLE:
+        mlflow.set_tracking_uri(args.mlflow_uri)
+        logger.info(f"MLflow tracking URI: {args.mlflow_uri}")
 
-    # ── Étape 5 : Comparaison modèles ─────────────────────
-    print("\n[1/4] Comparaison des modèles...")
-    comparison, trained_models = compare_models(
-        X_train, y_train, X_test, y_test, X_val, y_val
-    )
-    print_comparison_table(comparison)
-
-    # ── Étape 2 : XGBoost calibré (meilleur modèle) ───────
-    print("\n[2/4] Entraînement XGBoost calibré (modèle final)...")
-    xgb_model, xgb_base = train_xgboost_calibrated(X_train, y_train, X_val, y_val)
-
-    # ── Étape 3 : Métriques officielles ───────────────────
-    print("\n[3/4] Évaluation complète sur jeu de test...")
-    xgb_metrics = evaluate_full(xgb_model, X_test, y_test, "XGBoost calibré")
-    print_confusion_matrix(xgb_metrics)
-    print_score_distribution(xgb_metrics)
-
-    # ── Étape 4 : Optimisation des poids ──────────────────
-    print("\n[4/4] Optimisation des poids de combinaison...")
-    ml_scores_test = xgb_model.predict_proba(X_test)[:, 1]
-    rule_scores_sim, graph_scores_sim = simulate_scores(
-        y_test.values, ml_scores_test
-    )
-    best_weights, best_auc_w = optimize_ensemble_weights(
-        rule_scores_sim, ml_scores_test, graph_scores_sim, y_test.values
+    # Use MLflow context manager for tracking
+    mlflow_context = (
+        MLflowExperiment(
+            experiment_name="fraud_detection_xgboost",
+            tags={
+                "dataset": Path(args.data).stem,
+                "model_type": "xgboost_calibrated",
+                "purpose": "robust_training",
+            },
+        )
+        if MLFLOW_AVAILABLE
+        else None
     )
 
-    # ── Isolation Forest (anomaly detector) ───────────────
-    logger.info("Entraînement Isolation Forest...")
-    iso_model = IsolationForest(
-        n_estimators=200, contamination=0.12, random_state=42, n_jobs=-1
-    )
-    iso_model.fit(X_train)
+    try:
+        if mlflow_context:
+            mlflow_context.__enter__()
 
-    # ── Sauvegarde ────────────────────────────────────────
-    save_artifacts(
-        xgb_model, iso_model, feature_cols,
-        xgb_metrics, comparison, best_weights, best_auc_w,
-    )
+        # -- Chargement ----------------------------------------
+        X, y, feature_cols = load_data(Path(args.data))
+        X_train, X_val, X_test, y_train, y_val, y_test = split_data(X, y)
 
-    # ── Résumé final ──────────────────────────────────────
-    print("\n" + "═" * 65)
-    print("  RÉSUMÉ FINAL")
-    print("═" * 65)
-    print(f"  AUC-ROC   : {xgb_metrics['roc_auc']:.4f}  {'✅' if xgb_metrics['roc_auc'] > 0.80 else '⚠️'}")
-    print(f"  PR-AUC    : {xgb_metrics['pr_auc']:.4f}  {'✅' if xgb_metrics['pr_auc'] > 0.60 else '⚠️'}")
-    print(f"  F1-score  : {xgb_metrics['f1']:.4f}  {'✅' if xgb_metrics['f1'] > 0.65 else '⚠️'}")
-    print(f"  Score std : {xgb_metrics['score_std']:.4f}  {'✅ (distribué)' if xgb_metrics['score_std'] > 0.15 else '❌ (concentré)'}")
-    print(f"  Poids opt : règles={best_weights[0]}  ML={best_weights[1]}  graphe={best_weights[2]}")
-    print(f"  Features  : {len(feature_cols)} retenues / {len(REMOVED_FEATURES)} supprimées")
-    print(f"  Rapport   : ml/reports/evaluation_report.txt")
-    print("═" * 65 + "\n")
+        # Log dataset info
+        if MLFLOW_AVAILABLE:
+            log_dataset_info(X_train, X_val, X_test, y_train, y_val, y_test,
+                           dataset_name=Path(args.data).stem)
+
+        # -- Étape 5 : Comparaison modèles ---------------------
+        print("\n[1/4] Comparaison des modèles...")
+        comparison, trained_models = compare_models(
+            X_train, y_train, X_test, y_test, X_val, y_val
+        )
+        print_comparison_table(comparison)
+
+        # Log model comparison metrics
+        if MLFLOW_AVAILABLE:
+            for model_name, metrics in comparison.items():
+                for metric_name, value in metrics.items():
+                    mlflow.log_metric(f"model_comparison/{model_name}/{metric_name}",
+                                    float(value))
+
+        # -- Étape 2 : XGBoost calibré (meilleur modèle) -------
+        print("\n[2/4] Entraînement XGBoost calibré (modèle final)...")
+        xgb_model, xgb_base = train_xgboost_calibrated(X_train, y_train, X_val, y_val)
+
+        # -- Étape 3 : Métriques officielles -------------------
+        print("\n[3/4] Évaluation complète sur jeu de test...")
+        xgb_metrics = evaluate_full(xgb_model, X_test, y_test, "XGBoost calibré")
+        print_confusion_matrix(xgb_metrics)
+        print_score_distribution(xgb_metrics)
+
+        # Log XGBoost metrics
+        if MLFLOW_AVAILABLE:
+            mlflow.log_metrics({f"xgboost/{k}": v for k, v in xgb_metrics.items()})
+            log_model(xgb_model, artifact_path="xgboost_model", framework="xgboost")
+
+        # -- Étape 4 : Optimisation des poids ------------------
+        print("\n[4/4] Optimisation des poids de combinaison...")
+        ml_scores_test = xgb_model.predict_proba(X_test)[:, 1]
+        rule_scores_sim, graph_scores_sim = simulate_scores(
+            y_test.values, ml_scores_test
+        )
+        best_weights, best_auc_w = optimize_ensemble_weights(
+            rule_scores_sim, ml_scores_test, graph_scores_sim, y_test.values
+        )
+
+        # Log ensemble weights
+        if MLFLOW_AVAILABLE:
+            log_params({
+                "ensemble_weight_rules": float(best_weights[0]),
+                "ensemble_weight_ml": float(best_weights[1]),
+                "ensemble_weight_graph": float(best_weights[2]),
+                "ensemble_optimized_auc": float(best_auc_w),
+            })
+
+        # -- Isolation Forest (anomaly detector) ---------------
+        logger.info("Entraînement Isolation Forest...")
+        iso_model = IsolationForest(
+            n_estimators=200, contamination=0.12, random_state=42, n_jobs=-1
+        )
+        iso_model.fit(X_train)
+
+        # Log Isolation Forest
+        if MLFLOW_AVAILABLE:
+            log_model(iso_model, artifact_path="isolation_forest_model",
+                     framework="sklearn")
+
+        # -- Sauvegarde ----------------------------------------
+        save_artifacts(
+            xgb_model, iso_model, feature_cols,
+            xgb_metrics, comparison, best_weights, best_auc_w,
+        )
+
+        # -- Résumé final --------------------------------------
+        print("\n" + "=" * 65)
+        print("  RÉSUMÉ FINAL")
+        print("=" * 65)
+        print(f"  AUC-ROC   : {xgb_metrics['roc_auc']:.4f}  {'✅' if xgb_metrics['roc_auc'] > 0.80 else '⚠️'}")
+        print(f"  PR-AUC    : {xgb_metrics['pr_auc']:.4f}  {'✅' if xgb_metrics['pr_auc'] > 0.60 else '⚠️'}")
+        print(f"  F1-score  : {xgb_metrics['f1']:.4f}  {'✅' if xgb_metrics['f1'] > 0.65 else '⚠️'}")
+        print(f"  Score std : {xgb_metrics['score_std']:.4f}  {'✅ (distribué)' if xgb_metrics['score_std'] > 0.15 else '❌ (concentré)'}")
+        print(f"  Poids opt : règles={best_weights[0]}  ML={best_weights[1]}  graphe={best_weights[2]}")
+        print(f"  Features  : {len(feature_cols)} retenues / {len(REMOVED_FEATURES)} supprimées")
+        print(f"  Rapport   : ml/reports/evaluation_report.txt")
+        if MLFLOW_AVAILABLE:
+            print(f"  MLflow    : {args.mlflow_uri}")
+        print("=" * 65 + "\n")
+
+    finally:
+        if mlflow_context:
+            mlflow_context.__exit__(None, None, None)
 
 
 if __name__ == "__main__":
