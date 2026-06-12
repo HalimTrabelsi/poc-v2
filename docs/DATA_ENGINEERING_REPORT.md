@@ -179,13 +179,3 @@ Drop these from `_DEFAULTS` in `app/api/routes.py`:
 | `app/models_saved/xgboost_paysim.joblib` | Trained transaction-fraud model |
 | `app/models_saved/paysim_metadata.json` | Schema, metrics, importances |
 
----
-
-## 5. Next-Step Roadmap (Priority Order)
-
-1. **(immediate)** Wire `xgboost_paysim.joblib` into the ensemble — adds transaction-level signal.
-2. **(this week)** Replace `res_partner.phone` queries with `g2p_phone_number` joins. Add `phone_collision_count`. Expected +5-10% recall on shared-account fraud.
-3. **(this week)** Pre-materialize features in `fraud-db` rather than computing per-request. Drop p99 latency from ~5s to <200ms.
-4. **(this sprint)** Add 4 new features from §3.C — they have measured lift in either PaySim or the live OpenG2P data.
-5. **(this sprint)** Activate the `g2p_reg_id` duplicate-ID rule as `LOW` weight today; ramp once data populates.
-6. **(next sprint)** Replace PaySim training data with real OpenG2P transaction history once you have ≥10K real transactions. The current PaySim model leans on simulator artifacts that won't generalize.

@@ -1,4 +1,9 @@
-# Python
+# ============================================================
+#  Fraud Detection Engine — .gitignore
+#  Goal: push only source code + config, never heavy / generated artifacts
+# ============================================================
+
+# ---- Python ----
 __pycache__/
 *.py[cod]
 *$py.class
@@ -7,45 +12,93 @@ __pycache__/
 *.egg-info/
 dist/
 build/
+.eggs/
 
-# Virtual Environment
+# ---- Virtual environments ----
 venv/
 env/
 .venv/
+ENV/
 
-# Jupyter
+# ---- Jupyter ----
 .ipynb_checkpoints/
-*.ipynb_checkpoints
+*/.ipynb_checkpoints/
+*-checkpoint.ipynb
 
-# Data files (ne pas commiter les gros datasets)
-ml/data/openg2p_features.csv
-ml/data/openg2p_scored.csv
-ml/data/synthetic/*.csv
-!ml/data/synthetic/.gitkeep
+# ============================================================
+#  DATA — never commit datasets (regenerate with scripts/)
+# ============================================================
+data/
+ml/data/
+*.csv
+*.parquet
+# keep small reference/example fixtures explicitly
+!.gitkeep
+!app/rules/**/*.yaml
+!tests/**/*.csv
 
-# Models (optionnel - décommenter si modèles trop gros)
-# ml/models/*.joblib
-# ml/models/*.pkl
+# ============================================================
+#  TRAINED MODELS — large binaries, retrain instead of committing
+# ============================================================
+*.joblib
+*.pkl
+*.pickle
+*.h5
+*.onnx
+app/models_saved/*.joblib
+app/models_saved/*.pkl
+app/models_saved/*.db
+# keep the small *_metadata.json — they document the trained-model metrics
+!app/models_saved/*metadata*.json
 
-# Outputs
-ml/outputs/*.png
-ml/outputs/*.csv
-!ml/outputs/.gitkeep
+# ============================================================
+#  GENERATED OUTPUTS — figures, reports, PDF, MLflow store
+# ============================================================
+ml/outputs/
+ml/reports/
+*.png
+*.jpg
+*.jpeg
+*.pdf
+mlruns/
+mlflow.db
+*.sqlite
+*.sqlite3
+*.db
 
-# Environment
+# ============================================================
+#  Secrets & environment
+# ============================================================
 .env
 .env.local
+.env.*.local
+secrets/
+credentials/
+*.key
+*.pem
 
-# IDE
+# ---- IDE / Editor ----
 .vscode/
 .idea/
 *.swp
+*.swo
+*~
 
-# OS
+# ---- OS noise ----
 .DS_Store
 Thumbs.db
+desktop.ini
 
-# Temporary
-*.tmp
+# ---- Test / tooling caches ----
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# ---- Logs & temp ----
 *.log
+*.tmp
+*.bak
 structure_fraud_engine.txt

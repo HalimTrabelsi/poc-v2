@@ -1,6 +1,29 @@
 services:
 
   # ═══════════════════════════════════════════════════════════
+  # MLflow — Model Tracking & Visualization
+  # ═══════════════════════════════════════════════════════════
+
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:latest
+    container_name: mlflow-server
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    command: mlflow server --host 0.0.0.0 --port 5000 --backend-store-uri sqlite:////mlflow/mlruns/mlflow.db
+    volumes:
+      - mlflow-data:/mlflow
+    environment:
+      MLFLOW_TRACKING_URI: http://localhost:5000
+    networks:
+      - openg2p-internal
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # ═══════════════════════════════════════════════════════════
   # POC OpenG2P — Services existants (inchangés)
   # ═══════════════════════════════════════════════════════════
 
@@ -220,3 +243,4 @@ volumes:
   grafana_data:
   ollama_data:
     name: poc-v2_ollama_data
+  mlflow-data:
