@@ -30,3 +30,25 @@ credentials/
 node_modules/
 .cache/
 
+# ---- Jupyter ----
+.ipynb_checkpoints/
+*-checkpoint.ipynb
+
+# ---- Databases / model binaries ----
+*.db
+*.sqlite
+*.sqlite3
+mlruns/
+
+# ---- Office temp / lock files ----
+~$*
+*.tmp
+*.bak
+
+# ---- Personal / scratch files (not needed on GitHub) ----
+Tuto OpenG2P.odt
+stage pfe.jfif
+Dataexploration.ipynb
+structure.txt
+openg2p_tables.txt
+notes.txt
