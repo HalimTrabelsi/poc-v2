@@ -1,0 +1,33 @@
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {4.1}Environnement de développement}{\reset@font\mtcSfont 29}{}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {4.1.1}Configuration Docker Compose}{\reset@font\mtcSSfont 30}{}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {4.2}Architecture logicielle}{\reset@font\mtcSfont 33}{}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {4.2.1}Organisation du projet}{\reset@font\mtcSSfont 33}{}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {4.2.2}Architecture du moteur intelligent}{\reset@font\mtcSSfont 34}{}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {4.2.3}Composants principaux du moteur}{\reset@font\mtcSSfont 35}{}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {4.2.4}Les interactions entre les composants du systeme}{\reset@font\mtcSSfont 36}{}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {4.3}Développement des fonctionnalités}{\reset@font\mtcSfont 37}{}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {4.3.1}Construction du dataset}{\reset@font\mtcSSfont 37}{}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode \numberline {4.3.1.1}Extraction SQL et jointures}{\reset@font\mtcSSSfont 38}{}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode \numberline {4.3.1.2}Prétraitement et scénarios de fraude simulés}{\reset@font\mtcSSSfont 39}{}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode \numberline {4.3.1.3}Sélection des sources de données}{\reset@font\mtcSSSfont 39}{}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode \numberline {4.3.1.4}Construction des features et tableau des 25 variables}{\reset@font\mtcSSSfont 40}{}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode \numberline {4.3.1.5}Structure du dataset final}{\reset@font\mtcSSSfont 41}{}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode \numberline {4.3.1.6}Génération du dataset synthétique et injection PostgreSQL}{\reset@font\mtcSSSfont 43}{}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode \numberline {4.3.1.7}Un second banc d'essai: le dataset PaySim}{\reset@font\mtcSSSfont 43}{}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {4.3.2}Moteur de détection de fraude}{\reset@font\mtcSSfont 45}{}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {4.3.3}Conception du moteur de détection de fraude par Machine Learning}{\reset@font\mtcSSfont 46}{}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode \numberline {4.3.3.0.1}Rééquilibrage des classes avec SMOTE.}{\reset@font\mtcPfont 46}{}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode \numberline {4.3.3.0.2}Entraînement XGBoost.}{\reset@font\mtcPfont 46}{}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode \numberline {4.3.3.0.3}Isolation Forest pour la détection d'anomalies.}{\reset@font\mtcPfont 46}{}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {4.3.4}Analyse de réseau}{\reset@font\mtcSSfont 47}{}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {4.3.5}Fusion des scores}{\reset@font\mtcSSfont 47}{}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {4.3.6}Explicabilité SHAP}{\reset@font\mtcSSfont 47}{}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode \numberline {4.3.6.0.1}SHAP}{\reset@font\mtcPfont 47}{}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {4.3.7}Explication LLM}{\reset@font\mtcSSfont 48}{}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode \numberline {4.3.7.0.1}LLM Mistral}{\reset@font\mtcPfont 48}{}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {4.4}Intégration dans OpenG2P}{\reset@font\mtcSfont 48}{}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {4.4.1}Exposition via FastAPI}{\reset@font\mtcSSfont 48}{}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {4.4.2}Synchronisation Odoo}{\reset@font\mtcSSfont 48}{}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {4.4.3}Dashboard Streamlit}{\reset@font\mtcSSfont 49}{}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {4.4.4}Déploiement Docker}{\reset@font\mtcSSfont 49}{}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {4.5}Conclusion partielle}{\reset@font\mtcSfont 49}{}}

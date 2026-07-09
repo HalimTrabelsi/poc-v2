@@ -16,6 +16,4 @@ COPY ./odoo-fraud-module /opt/bitnami/odoo/extra-addons/odoo-fraud-module
 RUN cp -r /opt/bitnami/odoo/extra-addons/odoo-fraud-module \
           /opt/bitnami/odoo/extraaddons/odoo-fraud-module
 
-
-
 RUN /opt/bitnami/odoo/venv/bin/python -m pip install --no-cache-dir schwifty

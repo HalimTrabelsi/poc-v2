@@ -24,7 +24,7 @@ services:
       retries: 10
 
   # ═══════════════════════════════════════════════════════════
-  # POC OpenG2P — Services existants (inchangés)
+  #  OpenG2P — Services  
   # ═══════════════════════════════════════════════════════════
 
   postgresql:
@@ -93,9 +93,10 @@ services:
       ODOO_DATABASE_USER: ${POSTGRES_USER:-odoo}
       ODOO_DATABASE_PASSWORD: ${POSTGRES_PASSWORD:?set in .env}
       ODOO_LOAD_DEMO_DATA: "no"
-      ODOO_UPDATE: "no"
+      ODOO_SKIP_MODULES_UPDATE: "yes"
       ODOO_ADDONS_PATH: "/opt/bitnami/odoo/addons,/opt/bitnami/odoo/extra-addons"
       ODOO_ADMIN_PASSWORD: admin
+      DASHBOARD_TOKEN_SECRET: ${DASHBOARD_TOKEN_SECRET:?set in .env}
     volumes:
       - odoo-data:/bitnami/odoo
     networks:
@@ -111,7 +112,7 @@ services:
     environment:
       POSTGRES_DB: fraud_engine
       POSTGRES_USER: fraud
-      POSTGRES_PASSWORD: fraud123
+      POSTGRES_PASSWORD: ${FRAUD_DB_PASSWORD:-fraud123}
     volumes:
       - fraud_pgdata:/var/lib/postgresql/data
     ports:
@@ -133,7 +134,8 @@ services:
       - "8002:8000"
     environment:
       OPENG2P_DB_URL: postgresql://${POSTGRES_USER:-odoo}:${POSTGRES_PASSWORD}@postgresql:5432/${POSTGRES_DB:-openg2p}
-      FEATURE_STORE_URL: postgresql://fraud:fraud123@fraud-db:5432/fraud_engine
+      FEATURE_STORE_URL: postgresql://${FRAUD_DB_USER:-fraud}:${FRAUD_DB_PASSWORD:-fraud123}@fraud-db:5432/fraud_engine
+      API_SECRET_KEY: ${API_SECRET_KEY:?set in .env}
       MODELS_DIR: /app/app/models_saved
       RULES_DIR: /app/app/rules/rules
       ENV: development
@@ -147,6 +149,7 @@ services:
     volumes:
       - ./fraud-detection-engine/app/rules/rules:/app/app/rules/rules
       - ./fraud-detection-engine/app/models_saved:/app/app/models_saved
+      - ./fraud-detection-engine/ml/scripts:/app/ml/scripts
     depends_on:
       postgresql:
         condition: service_healthy
@@ -182,8 +185,8 @@ services:
     ports:
       - "3000:3000"
     environment:
-      GF_SECURITY_ADMIN_USER: admin
-      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
       GF_USERS_ALLOW_SIGN_UP: "false"
     volumes:
       - grafana_data:/var/lib/grafana
@@ -215,7 +218,8 @@ services:
       - "8501:8501"
     environment:
       FRAUD_ENGINE_URL: http://fraud-engine:8000
-      FRAUD_API_KEY: dev-secret-change-in-prod
+      FRAUD_API_KEY: ${FRAUD_API_KEY:?set in .env}
+      DASHBOARD_TOKEN_SECRET: ${DASHBOARD_TOKEN_SECRET:?set in .env}
     networks:
       - fraud-net
     depends_on:

@@ -17,8 +17,7 @@
     <field name="name">Fraud Supervisor</field>
     <field name="category_id" ref="module_category_fraud"/>
     <field name="implied_ids" eval="[(4, ref('group_fraud_officer'))]"/>
-    <field name="users" eval="[(4, ref('base.user_admin'))]"/>
-    <field name="comment">Can close cases and reassign investigations.</field>
+    <field name="comment">Can close cases and reassign investigations. Membership must be assigned explicitly per deployment — the OpenG2P administrator is intentionally NOT a fraud supervisor by default, to keep payment/registry administration separate from fraud investigation authority.</field>
   </record>
 
   <record id="rule_fraud_case_officer" model="ir.rule">

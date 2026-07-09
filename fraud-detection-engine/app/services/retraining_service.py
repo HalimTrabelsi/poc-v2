@@ -308,12 +308,21 @@ class RetrainingService:
             return {"status": "error", "error": str(exc)}
 
     def _reload_scorer(self) -> None:
-        """Hot-reload the MLScorer singleton so new model takes effect immediately."""
+        """Hot-reload the MultiModelScorer singleton so new model takes effect immediately.
+
+        Builds the new instance off to the side (it does its own joblib.load()
+        against the freshly written model files) then atomically swaps it in.
+        In-flight requests keep using the old instance until the swap completes,
+        so no thread ever reads a half-written file or races the swap.
+        """
         try:
-            from app.services.ml_service import MLScorer
-            scorer = MLScorer()
-            if scorer.is_ready:
-                logger.info("MLScorer reloaded — new model is active")
+            from app.core.ml_scorer import MultiModelScorer, replace_scorer
+            new_scorer = MultiModelScorer()
+            if new_scorer.ready:
+                replace_scorer(new_scorer)
+                logger.info("MultiModelScorer reloaded — new model is active")
+            else:
+                logger.warning("Reloaded scorer not ready — keeping previous model active")
         except Exception as exc:
             logger.warning("Failed to reload scorer: %s", exc)
 

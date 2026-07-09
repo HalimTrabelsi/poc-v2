@@ -1,0 +1,1916 @@
+\documentclass[a4paper, oneside, 12pt]{book}
+% Load enumitem if available, otherwise fall back without it
+\IfFileExists{enumitem.sty}{\usepackage{enumitem}}{}
+% Configuration des listes à puces avec points
+\usepackage{enumitem}
+\setlist[itemize]{label=\textbullet}    % points partout par défaut
+% mise en page
+\usepackage{longtable}
+\usepackage{multirow}
+\usepackage[tmargin=1.5cm,bmargin=2cm,lmargin=2cm,rmargin=2cm]{geometry}% Marges de 2cm
+\usepackage[french]{minitoc} % permet de faire une table des matieres par chapitre
+\usepackage[dvips]{graphicx}
+ \usepackage{float}
+\graphicspath{{architecture}{images/}{Photo/}}
+\usepackage{array} % pour les figures
+\usepackage{cite}
+\usepackage{subfig}
+\usepackage{tikz}
+\usepackage{pdflscape}
+\usepackage{amsmath}
+\usepackage{amssymb}
+%\usepackage[printonlyused]{acronym}
+\usepackage[french]{babel} %Mettre les en-tetes en francais
+\usepackage[utf8]{inputenc} %pour les caractères spéciaux
+\usepackage{gensymb}
+\usepackage[T1]{fontenc} % Conserver les caractères accentués:
+\usepackage{caption}
+\usepackage{xcolor, colortbl, array, longtable, float, enumitem, booktabs}
+\definecolor{EYyellow}{HTML}{FFE600}
+\definecolor{EYdark}{HTML}{2E2E38}
+\definecolor{EYgray}{HTML}{F6F6F6}
+\definecolor{EYborder}{HTML}{D8D8DC}
+\definecolor{GreenBG}{HTML}{E6F4E6}
+\definecolor{GreenTxt}{HTML}{2E7D32}
+\definecolor{OrangeBG}{HTML}{FCF0DC}
+\definecolor{OrangeTxt}{HTML}{E08600}
+\definecolor{RedBG}{HTML}{FBE6E6}
+\definecolor{RedTxt}{HTML}{C62828}
+\newcommand{\thead}[1]{\cellcolor{EYdark}\textcolor{white}{\textbf{#1}}}
+\newcommand{\theadRed}[1]{\cellcolor{RedTxt}\textcolor{white}{\textbf{#1}}}
+\newcommand{\theadOrange}[1]{\cellcolor{OrangeTxt}\textcolor{white}{\textbf{#1}}}
+ 
+\usepackage{times} % Police Times New Roman
+\usepackage{lmodern} % caractères diacritiqués
+%\renewcommand{\listfigurename}{Liste des figures}
+%\renewcommand{\listtablename}{Liste des tableaux}
+\addto\captionsfrench{\def\figurename{Figure}\def\tablename{Tableau}}
+\usepackage{color}
+\definecolor{Gray}{gray}{0.85}
+\definecolor{bleufonce}{rgb}{0,0,0.55} %si on veut utiliser le bleu foncé
+% ── Espace entre paragraphes + retrait ──
+\setlength{\parskip}{6pt}          % espace entre deux paragraphes
+\setlength{\parindent}{0.5cm}      % retrait de première ligne
+\usepackage{lipsum} % Just for dummy text
+%% définition des entites et pieds des pages
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\renewcommand{\chaptermark}[1]{\markboth{ \chaptername\ \thechapter~:\ #1}{}}
+\setcounter{secnumdepth}{6}
+%%\usepackage{minted}
+\fancyhf{} % supprime les en-tétes et pieds prédéfinis
+\usepackage{colortbl}
+\fancyhead[L]{\bfseries\leftmark} % imprime le nom du chapitre courant à gauche
+\fancyfoot[R]{\bfseries\thepage} %numéro de page en bas à droite
+\setlength{\headheight}{14.49998pt}
+\renewcommand{\headrulewidth}{0.5pt}% filet en haut de page
+\addtolength{\topmargin}{-1.99998pt} % espace pour le filet
+\renewcommand{\footrulewidth}{0pt} % pas de filet en bas
+\fancypagestyle{plain}{ % pages de têtes de chapitre
+	\fancyhead{} % supprime l'entete
+	\renewcommand{\headrulewidth}{0pt} % et le filet
+	\fancyfoot[R]{\bfseries\thepage} %numéro de page en bas à droite
+}
+%%\renewcommand{\cftchapfont}{\MakeUppercase}
+\usepackage{titlesec}
+\titleformat{\chapter}[block]
+  {\normalfont\bfseries\centering\huge}{\chaptertitlename\ \thechapter}{10pt}{}[\vspace{0.5pt}\titlerule]
+\titlespacing*{\chapter}{0pt}{12pt}{12pt}
+\titleformat{\section}
+  {\normalfont\fontsize{14}{16.8}\bfseries}{\thesection}{0.2cm}{}
+\titlespacing{\section}{0pt}{12pt}{8pt}       % {gauche}{avant}{après}
+
+\titleformat{\subsection}
+  {\normalfont\fontsize{12}{14.4}\bfseries}{\thesubsection}{0.2cm}{}
+\titlespacing{\subsection}{0pt}{10pt}{6pt}
+
+\titleformat{\subsubsection}
+  {\normalfont\fontsize{11}{13.2}\bfseries}{\thesubsubsection}{0.2cm}{}
+\titlespacing{\subsubsection}{0pt}{8pt}{4pt}
+
+\makeatletter
+\def\@endpart{\vskip50pt}
+\makeatother
+\usepackage{acronym}
+
+\usepackage[french]{minitoc}
+\renewcommand{\beforeparttoc}{\empty}
+\usepackage{url}
+
+\usepackage{xcolor}
+\usepackage{colortbl,hhline}
+
+\setcounter{tocdepth}{4}
+\setcounter{secnumdepth}{4}
+\usepackage{pdfpages}
+\usepackage[titletoc]{appendix}
+\usepackage{multirow}
+\usepackage{tabularx}
+\usepackage{setspace}
+\setstretch{1.15}
+\setlength{\fboxrule}{0.2mm}
+\setlength{\fboxsep}{0.2mm}
+\usepackage{ragged2e}
+\usepackage{listings}
+\lstset{
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  breakatwhitespace=true,
+  frame=single,
+  framesep=4pt,
+  xleftmargin=8pt,
+  xrightmargin=4pt,
+  captionpos=b,
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  numbersep=6pt,
+  showstringspaces=false,
+  keywordstyle=\bfseries\color{EYdark},
+  commentstyle=\itshape\color{gray},
+  stringstyle=\color{OrangeTxt},
+}
+
+% ── Couleurs EY ──
+\usepackage{etoolbox}
+
+\definecolor{EYyellow}{HTML}{FFE600}
+\definecolor{EYdark}{HTML}{2E2E38}
+\definecolor{EYgray}{HTML}{F6F6F6}
+\definecolor{EYborder}{HTML}{C0C0C0}
+
+% ── Alternance automatique des lignes ──
+\rowcolors{2}{white}{EYgray}
+
+% ── Bordures grises partout ──
+\arrayrulecolor{EYborder}
+
+% ── Commande pour l'en-tête ──
+\renewcommand{\thead}[1]{\cellcolor{EYyellow}\textcolor{EYdark}{\textbf{#1}}}
+\justifying
+\begin{document}
+	\renewcommand{\bibname}{Webographie}
+	\doparttoc
+	\dominitoc
+	\thispagestyle{empty}
+
+		
+	
+       \frontmatter
+        %%%%%%%%%%%%%%%%%%%%%%%Dédicace  1%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+      
+      \chapter*{Dédicace}    
+      \begin{it} \hspace{0.5cm} Je voudrais tout d'abord remercier mon Dieu qui m'a aidé à chaque pas pour
+      	que je puisse réaliser mes ambitions.
+      	Je dédie ce mémoire de fin d'études:
+      \end{it}   
+      
+      \begin{it} \hspace{0.5cm} \textbf{A mon très cher père Chokri:} Pour vos immenses sacrifices, votre courage et surtout votre patience et votre compréhension. Grâce à votre bienveillance, à votre encouragement et à votre générosité, j'ai pu terminer mes études dans L'enthousiasme. Je ferai de mon mieux pour rester un sujet de fierté à vos yeux avec l'espoir de ne jamais vous décevoir. Que ce travail puisse être le résultat de vos efforts. Que Dieu le tout puissant soit à vos côtés et vous accorde une meilleure santé.
+      \end{it}
+      
+      
+      
+      
+      
+      \begin{it} \hspace{0.5cm} \textbf{Au symbole de douceur et d'affection ma mère Chiraz :} Pour l'amour dont tu m'as toujours entouré, pour le sacrifice et le dévouement dont tu as toujours fait preuve, pour l'encouragement sans limites que tu ne cesses de manifester. Aucun mot, aucune phrase ne peut exprimer mes sentiments profonds d'amour, de respect et de reconnaissance. Que ce modeste travail soit un début de mes récompenses envers toi.
+      \end{it}
+      
+      
+      
+      
+      
+     %% \begin{it} \hspace{0.5cm} \textbf{A ma s\oe{ur} Cyrine et mes frères Mustafa et Ahmed:} 
+      %	Pour toute l'ambiance dont vous m'avez entouré, pour tous les souvenirs dont nous avons partagé les meilleurs et les plus agréables moments et pour toute la complicité et l'entente qui nous unissent, ce travail est un témoignage de mon attachement et de mon amour. Puisse Dieu le tout puissant exhausser tous tes v\oe{ux}. \end{it}
+      
+      \begin{it} \hspace{0.5cm} \textbf{A Toute ma Famille :} Qui a été toujours pour moi la garante d'une existence paisible et d'un avenir radieux.\end{it}
+      
+      
+    
+      
+      
+      
+      \begin{it} \hspace{0.5cm} \textbf{A mes chers amis :} 
+     Merci pour l’amitié qui nous a unies et pour tous les merveilleux moments et les 
+souvenirs partagés.
+	... 
+      \end{it}
+      \vspace{2cm}
+      
+      \textcolor{white}{aaaaaaaaaaaaaaaaaaaaaaaaaadssaaaaaaaaaaaaaaaaaaaaaaaaaaaaxdsdjjhjjhhhjd}\begin{it}\textbf{Aymen} \end{it}
+      
+      
+      
+    
+      %%%%%%%%%%%%%%%%%%%%%%%Remerciements%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+      
+      
+      \hspace{0.5cm} Avant de rédiger ce rapport, nous tenons à remercier toutes les personnes ayant contribué au bon déroulement de notre stage de projet de fin d'études. 
+      
+            \vspace{0.8cm}
+     \hspace{0.5cm}   Au terme de ce travail nous tenons à remercier vivement notre encadreuse Mme.\textbf{ Sondos Zina} pour son encadrement, sa disponibilité et ses précieux conseils qui nous ont prodigué pendant la durée de notre stage de fin d'études au sein de la \textbf{banque centrale de tunisie}.
+      
+      
+      
+      \vspace{0.8cm}
+      \hspace{0.5cm}  Par la suite, nous tenons également à exprimer notre profond respect et à remercier infiniment mon encadrante à ESPRIT Mme. \textbf{Manel Khamassi}  pour son aide utile et précieuse, son excellent encadrement et ses encouragements qui nous ont motivés à réaliser ce travail.
+      
+      \vspace{0.8cm}
+      \hspace{0.5cm} On adresse nos sincères remerciements et tous nos respects à tous les membres du jury qui ont bien voulu accepter de juger notre rapport de projet de fin d'études. 
+      
+      \vspace{0.8cm}
+      \hspace{0.5cm} On tient à remercier aussi tous le personnel de la \textbf{banque centrale de tunisie } qui nous a aidés et nous a encouragés à réaliser ce rapport et pour l'ambiance amicale tout le long de ce projet. 
+      
+      \vspace{0.8cm}
+      \hspace{0.5cm}   Il est indispensable de ne pas rater cette occasion pour exprimer notre gratitude et notre respect à \textbf{nos enseignants à ESPRIT }pour leur collaboration et soutien durant nos études.
+       %%%%%%%%%%%%%%%%%%%%%%%Abréviations%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+      \chapter*{Abréviations}
+\begin{acronym}[LONGEST]
+\acro{API}{Application Programming Interface}
+\acro{AHP}{Analytic Hierarchy Process}
+\acro{AST}{Abstract Syntax Tree}
+\acro{AUC}{Area Under the Curve}
+\acro{CSV}{Comma-Separated Values}
+\acro{DPG}{Digital Public Goods}
+\acro{DPI}{Digital Public Infrastructure}
+\acro{G2P}{Government-to-Person}
+\acro{HTTP}{HyperText Transfer Protocol}
+\acro{JSON}{JavaScript Object Notation}
+\acro{JWT}{JSON Web Token}
+\acro{LLM}{Large Language Model}
+\acro{ML}{Machine Learning}
+\acro{MLflow}{Machine Learning Flow}
+\acro{NLP}{Natural Language Processing}
+\acro{ORM}{Object Relational Mapping}
+\acro{PIAF}{Pipeline Intégré d'Analyse de Fraude}
+\acro{PMT}{Proxy Means Test}
+\acro{REST}{Representational State Transfer}
+\acro{ROC}{Receiver Operating Characteristic}
+\acro{SHAP}{SHapley Additive exPlanations}
+\acro{SMOTE}{Synthetic Minority Over-sampling Technique}
+\acro{SQL}{Structured Query Language}
+\acro{UML}{Unified Modeling Language}
+\acro{XAI}{Explainable Artificial Intelligence}
+\acro{XGBoost}{eXtreme Gradient Boosting}
+\end{acronym}
+       
+       %%%%%%%%%%%%%%%%%%%%%%%table des matieres%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+       \renewcommand{\contentsname}{Table des matières}
+       \tableofcontents
+
+       \newpage
+
+       %%%%%%%%%%%%%%%%%%%%%%%liste des figures%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+       \renewcommand{\listfigurename}{Table des figures}
+       \listoffigures
+       \thispagestyle{plain}  % Enlever l'en-tête de cette page
+
+       \newpage
+
+       %%%%%%%%%%%%%%%%%%%%%%%liste des tableaux%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+       \renewcommand{\listtablename}{Table des tableaux}
+       \listoftables
+     \thispagestyle{plain}  % Enlever l'en-tête de cette page
+      \newpage
+
+       \mainmatter % numeroté les pages
+       %%%%%%%%%%%%%%%%Introduction G´en´erale%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+       \chapter*{Introduction Générale}  
+       \markboth{Introduction Générale}{}
+         \addcontentsline{toc}{chapter}{Contexte général}
+       
+\hspace{0.5cm}Dans un monde où \textbf{1,3 milliard de personnes} vivent encore sous le seuil de pauvreté\cite{BM_PovertyData2023}, la protection sociale n'est plus un luxe, c'est un impératif de survie. Chaque jour, des millions de familles dans les pays émergents et en développement dépendent d'un transfert monétaire pour nourrir leurs enfants, payer une consultation médicale ou maintenir un enfant à l'école. Ces programmes de transferts monétaires directs, désignés sous le terme \textbf{Government-to-Person (G2P)}, constituent aujourd'hui le mécanisme le plus efficace pour réduire la pauvreté et les inégalités dans les pays les plus vulnérables.
+
+\hspace{0.5cm}Pour rendre ces programmes possibles à grande échelle, les gouvernements se tournent vers un concept transformateur: \textbf{les Infrastructures Publiques Numériques (DPI)}. 
+
+\hspace{0.5cm}\textbf{Les DPI (Digital Public Infrastructure)} désignent l'ensemble des systèmes numériques partagés, tels que les systèmes d'identification biométrique, les registres sociaux centralisés ou les plateformes de paiement, qui constituent le socle technologique nécessaire à la fourniture de services publics modernes, transparents et inclusifs.
+
+\hspace{0.5cm}Afin de développer et d'opérer efficacement ces infrastructures numériques, les gouvernements peuvent s'appuyer sur les \textbf{Biens Publics Numériques (Digital Public Goods)}, des solutions logicielles open source conçues pour être réutilisées, adaptées et déployées à grande échelle dans différents contextes nationaux.
+
+\hspace{0.5cm}\textbf{OpenG2P} est une plateforme open source conçue pour digitaliser la gestion des programmes de protection sociale. Déployée dans plusieurs pays tels que le Kenya, le Malawi et la Sierra Leone, OpenG2P constitue une solution robuste pour les institutions engagées dans la modernisation de leurs infrastructures numériques et l'amélioration de la gouvernance des aides sociales sans dépendance à un éditeur privé.
+
+
+\hspace{0.5cm}Cependant, les programmes G2P font face à un adversaire silencieux: \textbf{la fraude}. 
+
+\hspace{0.5cm}Les tactiques sont multiples: multi-inscription sous des identités différentes, ménages fictifs etc. Selon la Banque mondiale, \textbf{jusqu'à 27 \% du budget destiné à la protection sociale}  est perdu à cause de ces fuites \cite{BM_Sourcebook2020}. 
+
+\hspace{0.5cm}Le problème est aggravé par le fait que les contrôles actuels interviennent trop tard. Les audits manuels sont lents, coûteux, et ne couvrent qu'un échantillon limité. Les solutions commerciales, quant à elles, sont coûteuses et incompatibles avec la philosophie open-source des DPG.
+
+\hspace{0.5cm}\textbf{C'est dans ce cadre que notre stage effectué au sein d'EY Tunisia s'inscrit}: concevoir un moteur intelligent de détection de fraude  libre, proactif et explicable, intégré à OpenG2P, pour protéger les budgets de protection sociale avant même le versement.
+
+\hspace{0.5cm}Ce rapport détaille la conception, le développement et l'évaluation de ce projet, en mettant l'accent sur la rigueur scientifique, l'adaptabilité à différents contextes nationaux et la capacité à protéger efficacement les budgets d'aide sociale.
+
+
+
+
+
+
+
+
+
+
+\chapter{Contexte du projet}
+
+%       \minted
+      
+    \section{Introduction: }
+      \hspace{0.5cm}Ce chapitre expose le contexte général des travaux menés, nous allons présenter le contexte global du projet, en débutant par l’introduction de l'organisme d'accueil qui est « EY Tunisie », décrire ses activités et ses différentes équipes. Par la suite, nous procédons à la description de notre problématique qui a mené au développement de ce projet. Enfin, nous expliquons la méthodologie choisie pour accomplir ce travail.
+      
+       \section{Présentation de l’organisme d’accueil: EY Tunisie}
+       \begin{figure}[H]
+            \centering
+            \includegraphics[scale=0.3,height=3cm]{EY_logo_2019.svg.png}
+          \caption{Logo d'EY}
+
+          \end{figure}
+
+\hspace{0.5cm}Fondé en 1849, Ernst and Young est un cabinet d’audit financier et de conseil multinational implanté dans plus de 152 pays organisés en trois régions~: Amérique~; Europe, Moyen Orient, Inde et Afrique (EMEIA)~; Asie-Pacifique. EY fait partie des «~Big Four~», soit les quatre plus grands groups d’audit à l’échelle mondiale. EY est une organisation de services professionnels approfondie avec plus de 700 bureaux et 350 000 associés et collaborateurs dans le monde entier.
+
+\begin{figure}[H]
+     \centering
+     \includegraphics[scale=0.5,height=5cm]{EYGlobal.png}
+     \caption{EY Global}
+\end{figure}
+
+\hspace{0.5cm}{EY est une entreprise de premier plan à l'échelle mondiale évoluant dans le domaine d’assurance, de fiscalité, de transaction, et de conseil.  
+EY bénéficie d'une équipe mondiale en expansion constante.  
+}      
+     \subsection{AMC EY Tunisie}
+
+\hspace{0.5cm}Établie sur le territoire depuis 1987, AMC EY Tunisie se positionne comme l’une des pionnières dans le domaine des services professionnels du pays. Elle fait partie de la région EMEIA et compte plus de 1000 employés avec plus de 900 consultants en service de conseil. Grâce à plus de 620 missions réalisées annuellement, l’entreprise a atteint un chiffre d’affaires de 50 Millions de dinars tunisiens en 2022 avec plus de 50\% réalisées auprès de clients internationaux.
+
+\begin{figure}[H]
+     \centering
+     \includegraphics[scale=1.5,height=5cm]{AMCEYTunisia.png}
+     \caption{AMC EY Tunisie}
+\end{figure}
+
+\hspace{0.5cm}EY Tunisie intervient dans différents secteurs économiques en Tunisie, notamment dans le secteur des technologies de l’information et de la communication, méritant la confiance tant du secteur public local (ministères, agences de développement local) que du secteur privé grâce à la proposition de solutions adaptées et pertinentes.
+
+\subsection{Services proposés par EY Tunisie}
+\hspace{0.5cm}
+\hspace{0.5cm}EY Tunisie structure son offre autour de quatre grands métiers complémentaires qui permettent à l’entreprise de répondre aux besoins variés de ses clients résumés dans le tableau suivant:
+
+\vspace{0.5cm}
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\textwidth}{|p{2.5cm}|X|}
+\hline
+\thead{Service} & \thead{Description} \\
+\hline
+\textbf{Conseil} & EY aide ses clients à créer de la valeur à long terme pour toutes les parties prenantes. En s’appuyant sur les données et la technologie, ses services et ses solutions orientent les clients et les aident à prendre des décisions sur le plan stratégique et opérationnel afin de parvenir favorablement à leurs attentes. \\
+\hline
+\textbf{Audit} & EY fournit des renseignements et cherche à offrir aux clients (investisseurs) la meilleure gestion et l’adéquate structuration de ses rapports et de ses opérations dans le but d’améliorer voire de valoriser leurs tâches et d’accroître leurs opportunités envers les autres entreprises. \\
+\hline
+\textbf{Fiscalité et droit (Tax)} & EY possède une expertise en matière d’impôt sur les sociétés, d’impôt international, d’impôt sur les transactions et de ressources humaines, de conformité et de déclaration, et d’impôt statutaire. \\
+\hline
+\textbf{Stratégies et Transactions} & EY aide ses clients à surmonter la crise et à stabiliser leurs activités à court terme. EY aide également les entreprises à surmonter les ralentissements et à se préparer à la reprise, ou à regarder au-delà pour permettre la transformation par le biais de la stratégie d’entreprise, des transactions, des fusions et acquisitions et des désinvestissements. \\
+\hline
+\end{tabularx}
+\caption{Services professionnels d’EY Tunisie}
+\end{table}
+
+
+\subsection{Présentation du département Technology Transformation:}
+\hspace{0.5cm}Le département \textbf{« Technology Transformation »} qui fait partie du service line Conseil occupe une position centrale dans la transformation d'entreprise et propose des possibilités d'optimisation des rendements, de supervision des risques et de promotion de l’innovation des entreprises.
+
+\hspace{0.5cm}En s'appuyant sur une gamme diversifiée de projets technologiques, la division \textbf{« Technology Transformation »} offre à ses clients la possibilité d'améliorer leurs pratiques et d'acquérir un avantage compétitif. L’équipe offre cinq (5) principales activités pour cinq (5) secteurs intersectoriels, comme l’illustre la figure ci-dessous.
+\begin{figure}[H]
+     \centering
+     \includegraphics[scale=1.5,height=6cm]{TechTransfo.png}
+     \caption{Les activités de la division « Technology Transformation »}
+\end{figure}
+
+
+
+\section{Présentation du projet}
+ 
+\subsection{Cadre du projet}
+\hspace{0.5cm}Notre projet s'inscrit dans le cadre de la préparation du stage de fin d'études pour l'obtention du Diplôme National d'Ingénieur en Informatique. Notre mission consiste à concevoir et développer un moteur intelligent de détection des risques et fraudes intégré à la plateforme de protection sociale OpenG2P, réalisé au sein du cabinet EY Tunisia.
+\subsection{Contexte du projet}
+\hspace{0.5cm}Le projet s'inscrit dans l'axe de modernisation des services publics, où EY accompagne les organismes gouvernementaux dans l'adoption de solutions technologiques modernes. Notre mission porte sur la plateforme OpenG2P, un logiciel libre utilisé par plusieurs pays pour gérer leurs programmes d'aide sociale : identifier les bénéficiaires, organiser les versements, et suivre les paiements.
+ 
+\hspace{0.5cm}Afin de bien cerner les enjeux de ce projet, nous avons commencé par étudier en profondeur le fonctionnement d'OpenG2P et de son écosystème. Les observations issues de cette étude nous ont permis d'identifier des lacunes critiques en matière de lutte contre la fraude, que nous détaillons dans les sections suivantes.
+
+\subsection{Problématique}
+\hspace{0.5cm}Les programmes de protection sociale gèrent chaque année des flux financiers considérables destinés aux populations vulnérables. Cependant, selon la Banque mondiale, \textbf{jusqu'à 27\% de ce budget} est perdu à cause de la fraude et des erreurs de ciblage\cite{BM_Sourcebook2020}. Les principaux problèmes identifiés sont les suivants :
+
+\begin{itemize}
+    \item \textbf{La fraude prend des formes variées et évolutives:} faux bénéficiaires, ménages fictifs, identités partagées, manipulation de paiements.
+    \item \textbf{Les contrôles actuels} \textbf{interviennent après le versement:} quand l'argent a déjà quitté les caisses de l'État.
+    \item \textbf{Les vérifications manuelles} sont lentes, coûteuses, et ne couvrent qu'un échantillon limité.
+    \item \textbf{Les règles de contrôle figées} ne détectent que les fraudes connues et ne s'adaptent pas aux nouvelles tactiques.
+    \item \textbf{Les solutions commerciales} existantes sont \textbf{coûteuses, opaques, et incompatibles} avec la philosophie open-source d'OpenG2P.
+\end{itemize}
+
+
+\hspace{0.5cm}Il devient donc indispensable de disposer d'une solution intelligente, proactive et explicable, capable de détecter la fraude \textbf{avant} le versement.
+
+\subsection{Étude de l'existant: la plateforme OpenG2P}
+\hspace{0.5cm}Avant de proposer une solution, il est essentiel de comprendre comment fonctionne la plateforme sur laquelle elle sera intégrée. Nous avons donc mené une étude approfondie d'OpenG2P, son architecture, ses modules, et ses processus métier, afin d'identifier précisément où se situent les faiblesses face à la fraude.
+
+\subsubsection{Présentation d'OpenG2P}
+\begin{figure}[H]
+            \centering
+            \includegraphics[scale=1.5,height=5cm]{OpenG2P.png}
+          \caption{Logo de OpenG2P}
+
+          \end{figure}
+\hspace{0.5cm}\textbf{OpenG2P} est une plateforme open-source bâtie sur Odoo 17, conçue pour centraliser la gestion des programmes de protection sociale. Elle est déployée dans plusieurs pays (Kenya, Malawi, Sierra Leone) et couvre l'ensemble du cycle de vie d'un programme social, depuis l'enregistrement des bénéficiaires jusqu'au versement des aides. La plateforme s'organise autour de plusieurs modules interconnectés:
+
+\begin{itemize}[label=\textbullet]
+    \item \textbf{Registre social} : base de données centralisée des bénéficiaires avec leurs informations personnelles, démographiques et socio-économiques
+    \item \textbf{Gestion des programmes} : définition des programmes d'aide, organisation des cycles de versement (trimestriels, mensuels)
+    \item \textbf{Droits et paiements}  : calcul automatisé des montants dus à chaque bénéficiaire et suivi de chaque versement
+    \item \textbf{Données transactionnelles}  : registre des coordonnées téléphoniques et bancaires utilisées pour les transferts
+    \item \textbf{Groupes et ménages} : gestion des liens familiaux et des regroupements de bénéficiaires
+\end{itemize}
+
+
+\subsubsection{Processus actuel dans OpenG2P et les limites face au risque de fraude}
+\hspace{0.5cm}Le processus de contrôle anti-fraude dans OpenG2P repose actuellement sur un système minimal : quelques vérifications manuelles effectuées par les agents sociaux lors de l'enregistrement des bénéficiaires, complétées par des audits post-versement sur un échantillon limité. Aucun moteur automatisé de détection n'est intégré à la plateforme.
+ 
+\hspace{0.5cm}Afin de mieux comprendre les limites du système actuel, nous présentons ci-dessous une analyse des mécanismes de contrôle existants.
+ 
+\hspace{0.5cm}La Figure 1.6 illustre le processus actuel de vérification dans OpenG2P, où l'agent social consulte manuellement les fiches des bénéficiaires et effectue des contrôles ponctuels sans outil d'aide à la décision :
+ 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{processus_openg2p.png}
+    \caption{Processus actuel dans OpenG2P et les zones de vulnérabilité à la fraude}
+    \label{fig:processus_openg2p}
+\end{figure}
+
+\hspace{0.5cm}Comme le montre cette figure, \textbf{aucun mécanisme de détection automatique} n'intervient entre l'enregistrement et le versement. La fraude peut s'infiltrer à chaque étape sans être détectée, et les contrôles manuels post-versement ne couvrent qu'une fraction des cas.
+ 
+\subsection{Objectif du projet}
+\hspace{0.5cm}Face à ces constats, notre projet a pour ambition de transformer fondamentalement la manière dont les programmes de protection sociale luttent contre la fraude. L'objectif n'est pas simplement de détecter des cas suspects, mais de \textbf{changer le paradigme} : passer d'un système réactif, qui découvre la fraude après le versement, à un système intelligent qui la prévient avant qu'elle ne cause des dégâts. Pour y parvenir, nous avons structuré notre travail autour de cinq objectifs principaux :
+
+\begin{itemize}[label=\textbullet]
+    \item \textbf{Détection proactive :} identifier les bénéficiaires à risque avant le versement, au moment même de leur enregistrement dans le système.
+    \item \textbf{Analyse multi-couches :} croiser plusieurs signaux complémentaires règles métier, apprentissage automatique, comportements inhabituels et liens entre bénéficiaires pour ne laisser aucun angle mort.
+    \item \textbf{Explicabilité des décisions :} accompagner chaque alerte d'une explication claire en français, permettant à un agent social de comprendre et de justifier pourquoi un cas est signalé.
+    \item \textbf{Amélioration continue :} créer un système qui apprend des retours des enquêteurs et devient plus performant au fil du temps.
+    \item \textbf{Accessibilité et intégration :} offrir une solution 100\% open-source, gratuite et intégrée directement à la plateforme OpenG2P que les gouvernements utilisent déjà.
+\end{itemize}
+
+\section{Choix méthodologique et conceptuel}
+
+\subsection{Méthodologie de conception}
+\hspace{0.5cm}Pour la conception de ce projet, nous avons adopté le langage de modélisation \textbf{UML} afin de représenter les différentes vues du système de manière standardisée. Nous avons retenu quatre diagrammes : cas d'utilisation, classes, séquence et déploiement, qui permettent de couvrir respectivement les interactions, la structure, le flux de scoring et l'architecture Docker du système.
+
+\subsection{Méthodologie adoptée}
+\hspace{0.5cm}La nature exploratoire d'un projet de data science — où les données évoluent, les modèles doivent être comparés et les hypothèses remises en question — impose une méthodologie flexible. Nous avons donc adopté la méthode \textbf{SCRUM}, un cadre agile structuré en sprints de 1 à 2 semaines, permettant de livrer des incréments fonctionnels et d'intégrer les retours d'EY Tunisia de manière continue.
+
+\subsubsection{Comparaison entre les méthodologies traditionnelles et agiles}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|p{4.5cm}|p{5cm}|p{5cm}|}
+\hline
+\thead{Critère} & \thead{Traditionnelle} & \thead{Agile} \\
+\hline
+Approche & Linéaire et séquentielle & Itérative et incrémentale \\
+\hline
+Exigences & Figées au départ & Évolutives \\
+\hline
+Changement & Difficile et coûteux & Flexible et intégré \\
+\hline
+Client & Impliqué au début et à la fin & Impliqué en continu \\
+\hline
+Livraison & Une seule fois à la fin & Fréquente (cycles courts) \\
+\hline
+Risques & Identifiés tardivement & Maîtrisés en continu \\
+\hline
+\end{tabular}
+\caption{Méthodologies Traditionnelles vs Agiles}
+\label{tab:comparaison_methodo}
+\end{table}
+
+\subsubsection{Pilotage du projet}
+\hspace{0.5cm}Le projet a été organisé en six phases : cadrage, conception, génération de données, modélisation ML, intégration et tests. L'équipe SCRUM est composée comme suit :\\
+
+\noindent\textbf{Product Owner :} EY Tunisia \\
+\textbf{Scrum Master :} [Cyrine Garram, Mariem Abcha] \\
+\textbf{Équipe de développement :} [Halim Trabelsi]
+
+\section{Diagramme de Gantt}
+\hspace{0.5cm}Le diagramme de Gantt ci-dessous présente la planification temporelle du projet, découpée en phases et en sprints sur la durée du stage. La Figure~\ref{fig:gantt} illustre cette répartition en utilisant les mois comme unité de temps.
+
+\begin{figure}[H]
+    \centering
+    % \includegraphics[width=0.95\textwidth]{gantt.png}
+    \caption{Diagramme de Gantt du projet}
+    \label{fig:gantt}
+\end{figure}
+
+\section*{Conclusion}
+\hspace{0.5cm}Ce chapitre a posé les fondations du projet: après avoir présenté le cadre institutionnel, étudié les lacunes d'OpenG2P et du marché, et défini nos objectifs, nous avons adopté une méthodologie SCRUM adaptée à la nature itérative d'un projet de data science. Le chapitre suivant sera consacré à l'\textbf{état de l'art}, où nous examinerons les techniques de détection de fraude dans la littérature scientifique afin de justifier les choix techniques de notre solution.
+
+
+\chapter{État de l'art}
+
+\section*{Introduction}
+\hspace{0.5cm}Avant de détailler la conception et la réalisation de notre solution, il est essentiel de poser les bases théoriques sur lesquelles elle repose. Ce chapitre a pour objectif de présenter les notions fondamentales nécessaires à la compréhension du projet et d'examiner les techniques existantes dans la littérature scientifique pour la détection de fraude.
+
+\section{Définitions et concepts clés}
+
+\hspace{0.5cm}Il est indispensable de définir le vocabulaire et les notions fondamentales qui seront mobilisés tout au long de ce rapport. Cette section a pour but de rendre le reste du document accessible à tout lecteur, y compris ceux qui ne sont pas familiers avec les domaines de l'intelligence artificielle ou de l'analyse de données.
+
+% ═══════════════════════════════════════════════════════════
+% FRAUDE ET PROTECTION SOCIALE
+% ═══════════════════════════════════════════════════════════
+
+\subsection{Concepts liés à la fraude et à la protection sociale:}
+
+\begin{itemize}[label=\textbullet]
+
+    \item \textbf{Programme G2P (Government-to-Person):} mécanisme par lequel un gouvernement verse des aides financières directement aux citoyens éligibles (allocations familiales, bourses, aides alimentaires). C'est le contexte métier de notre projet.
+
+    \item \textbf{Détection de fraude:} ensemble des méthodes permettant d'identifier des comportements malhonnêtes ou irréguliers dans un système. Dans notre cas, il s'agit de repérer les bénéficiaires qui tentent de recevoir indûment des aides sociales.
+
+    
+\end{itemize}
+
+% ═══════════════════════════════════════════════════════════
+% IA ET DONNÉES
+% ═══════════════════════════════════════════════════════════
+
+\subsection{Concepts d'Intelligence Artificielle et Machine Learning}
+
+\hspace{0.5cm}L'intelligence artificielle, et plus précisément le machine learning, 
+est au cœur de notre solution. Pour comprendre comment notre système apprend à 
+distinguer un bénéficiaire légitime d'un fraudeur, il est nécessaire de maîtriser 
+les notions suivantes:
+
+\begin{itemize}[label=\textbullet]
+
+    \item \textbf{Machine Learning (apprentissage automatique):} branche de 
+    l'intelligence artificielle où un programme apprend à prendre des décisions 
+    à partir d'exemples passés, sans être explicitement programmé pour chaque cas. 
+    Le programme identifie des régularités dans les données et les utilise pour 
+    faire des prédictions sur de nouveaux cas.
+
+    \item \textbf{Apprentissage supervisé:} type de machine learning où le modèle 
+    apprend à partir d'exemples dont on connaît déjà la réponse (par exemple : 
+    « ce bénéficiaire est un fraudeur » ou « ce bénéficiaire est légitime »). Le 
+    modèle apprend la relation entre les caractéristiques d'un bénéficiaire et son 
+    statut, puis applique cette connaissance aux nouveaux cas.
+
+    \item \textbf{Apprentissage non supervisé:} type de machine learning où le 
+    modèle ne dispose pas de réponses connues. Il cherche à identifier des 
+    comportements atypiques ou des groupes naturels dans les données, sans savoir 
+    à l'avance ce qui est normal ou anormal.
+
+    \item \textbf{Feature engineering (extraction de caractéristiques):} étape qui 
+    consiste à transformer les données brutes en variables exploitables par un 
+    modèle. Par exemple, à partir du nombre de téléphones partagés et du nombre de 
+    comptes bancaires partagés, on calcule un « score de risque réseau » qui 
+    résume l'information en un seul chiffre.
+
+    \item \textbf{Data leakage (fuite de données):} erreur dans la construction du 
+    modèle où des informations liées à la réponse (le label fraude/légitime) se 
+    retrouvent accidentellement dans les données d'entraînement. Le modèle semble 
+    alors parfait, mais ses performances sont artificiellement gonflées et ne se 
+    reproduisent pas en conditions réelles.
+
+    \item \textbf{Collusion:} forme de fraude collective où plusieurs individus 
+    collaborent pour tromper le système — par exemple, en partageant un même 
+    compte bancaire ou un même numéro de téléphone pour multiplier les inscriptions.
+
+\end{itemize}
+
+\subsection{Métriques d'Évaluation et Concepts de Validité}
+
+\hspace{0.5cm}Pour évaluer la performance d'un modèle de détection de fraude, 
+il est essentiel de comprendre les métriques suivantes, qui permettent de mesurer 
+son efficacité et ses limitations :
+
+\begin{itemize}[label=\textbullet]
+
+    \item \textbf{Vrai positif:} cas où le système identifie correctement une 
+    transaction ou un bénéficiaire réellement frauduleux comme étant frauduleux.
+
+    \item \textbf{Vrai négatif:} cas où le système identifie correctement une 
+    transaction ou un bénéficiaire légitime comme étant non frauduleux.
+
+    \item \textbf{Faux positif:} cas où le système signale un bénéficiaire comme 
+    fraudeur alors qu'il est légitime. Un excès de faux positifs surcharge 
+    inutilement les enquêteurs et nuit à la confiance envers le système.
+
+    \item \textbf{Faux négatif:} cas où le système laisse passer un vrai fraudeur 
+    sans le détecter. C'est la situation la plus coûteuse, car l'argent est versé 
+    à une personne qui n'y a pas droit.
+
+    \item \textbf{Accuracy (exactitude):} proportion de prédictions correctes 
+    (vrais positifs + vrais négatifs) parmi l'ensemble des prédictions effectuées.
+    
+    \item \textbf{Précision (precision):} proportion de cas réellement frauduleux 
+    parmi tous les cas que le système a prédits comme frauduleux.
+    
+    \item \textbf{Rappel (recall):} proportion de cas réellement frauduleux que le 
+    système a effectivement réussi à détecter parmi tous les cas frauduleux 
+    existants.
+    
+    \item \textbf{F1-score:} moyenne harmonique de la précision et du rappel, 
+    offrant une mesure équilibrée de la performance du modèle, surtout lorsque les 
+    classes sont déséquilibrées (comme c'est souvent le cas en détection de fraude).
+
+    \item \textbf{AUC-ROC (Area Under the Receiver Operating Characteristic Curve):} 
+    métrique d'évaluation qui mesure la capacité d'un modèle à distinguer les 
+    fraudeurs des légitimes, sur une échelle de 0 à 1. Un AUC de 0.5 signifie que 
+    le modèle ne fait pas mieux que le hasard ; un AUC de 1.0 signifie une 
+    détection parfaite. Dans la pratique, un AUC supérieur à 0.85 est considéré 
+    comme bon.
+
+\end{itemize}
+% ═══════════════════════════════════════════════════════════
+% EXPLICABILITÉ
+% ═══════════════════════════════════════════════════════════
+
+\subsection{Explicabilité et génération d'explications}
+
+\hspace{0.5cm}Un système de détection de fraude ne peut être utile que s'il est compréhensible par ses utilisateurs. Un agent social doit pouvoir expliquer à un bénéficiaire pourquoi son dossier a été signalé. C'est le rôle de l'explicabilité :
+
+\begin{itemize}[label=\textbullet]
+
+    \item \textbf{XAI (Explainable Artificial Intelligence):} domaine de l'intelligence artificielle qui vise à rendre les décisions des modèles compréhensibles par des humains. Plutôt qu'une « boîte noire » qui dit simplement « fraude détectée », un système explicable indique \textit{pourquoi} : quels facteurs ont pesé dans la décision.
+
+    \item \textbf{SHAP (SHapley Additive exPlanations):} méthode d'explicabilité qui attribue à chaque caractéristique du bénéficiaire une contribution précise au score final. Par exemple : « le partage de téléphone avec 4 autres bénéficiaires a augmenté le score de risque de +0.15 ». SHAP est fondé sur la théorie des jeux (valeurs de Shapley) et constitue aujourd'hui le standard de l'industrie.
+
+    \item \textbf{LLM (Large Language Model):} modèle d'intelligence artificielle capable de comprendre et de générer du texte en langage naturel. Dans notre projet, nous utilisons Mistral (via Ollama) pour transformer les facteurs SHAP et les drapeaux de règles en une \textbf{explication rédigée en français}, compréhensible par un agent social non-technique.
+
+    \item \textbf{RAG (Retrieval-Augmented Generation):} technique qui enrichit la réponse d'un LLM en lui fournissant des documents pertinents avant la génération. Dans notre contexte, le LLM reçoit les facteurs SHAP, les règles déclenchées et le score du bénéficiaire comme contexte, ce qui lui permet de produire une explication précise et fondée sur des faits réels, et non sur des connaissances génériques.
+
+\end{itemize}
+
+% ═══════════════════════════════════════════════════════════
+% ANALYSE DE GRAPHE
+% ═══════════════════════════════════════════════════════════
+
+\subsection{Analyse de graphe et détection de réseaux}
+
+\hspace{0.5cm}La fraude n'est pas toujours l'acte d'un individu isolé. Souvent, plusieurs personnes collaborent en partageant des ressources (téléphones, comptes bancaires). L'analyse de graphe permet de révéler ces réseaux invisibles:
+
+\begin{itemize}[label=\textbullet]
+
+    \item \textbf{Graphe:} structure mathématique composée de \textbf{nœuds} (les entités — ici, les bénéficiaires) et d'\textbf{arêtes} (les relations entre eux — ici, le partage d'un téléphone ou d'un compte bancaire). Si deux bénéficiaires partagent le même numéro de téléphone, une arête les relie.
+
+    \item \textbf{Détection de communautés:} technique qui identifie des groupes de nœuds fortement connectés entre eux. Une communauté dense de 5 à 15 bénéficiaires partageant plusieurs téléphones et comptes bancaires est un signal fort de fraude organisée.
+
+    \item \textbf{Centralité (PageRank):} mesure d'importance d'un nœud dans un réseau. Un bénéficiaire très connecté (lié à de nombreux autres bénéficiaires suspects) obtient un score de centralité élevé. Notre solution utilise l'algorithme PageRank, le même que celui inventé par Google pour classer les pages web adapté au contexte de la fraude sociale.
+
+\end{itemize}
+
+\subsection{Modèles de Machine Learning et Architectures de Détection}
+
+\hspace{0.5cm}Au-delà des principes fondamentaux du machine learning, plusieurs 
+modèles et architectures spécialisés ont été développés pour traiter les problèmes 
+complexes comme la détection de fraude. Voici les plus importants:
+
+\begin{itemize}[label=\textbullet]
+
+    \item \textbf{XGBoost (eXtreme Gradient Boosting):} algorithme qui combine 
+    des centaines d'arbres de décision simples, chacun corrigeant les erreurs du 
+    précédent, pour obtenir des prédictions très précises. C'est le modèle principal 
+    retenu dans notre solution en raison de sa performance exceptionnelle sur 
+    les données déséquilibrées.
+
+    \item \textbf{Random Forest (forêt aléatoire):} algorithme qui construit 
+    plusieurs arbres de décision indépendants et combine leurs prédictions par vote 
+    majoritaire. Il est robuste au surapprentissage et sert de modèle de comparaison 
+    fiable.
+
+    \item \textbf{Isolation Forest:} algorithme de détection d'anomalies qui isole 
+    les comportements atypiques en mesurant leur facilité à se séparer du reste des 
+    données. Plus un individu est isolé rapidement, plus il est suspect.
+
+    \item \textbf{Régression logistique:} modèle supervisé qui estime la probabilité 
+    qu'un cas appartienne à une classe (fraude ou légitime). Bien que simple, il 
+    offre une excellente interprétabilité — chaque coefficient explique directement 
+    son impact.
+
+    \item \textbf{Sur-apprentissage (overfitting):} situation où un modèle apprend 
+    les détails spécifiques des données d'entraînement au lieu des régularités 
+    générales. Un modèle surappris performe parfaitement sur les données vues mais 
+    échoue sur les nouvelles.
+
+    \item \textbf{Sous-apprentissage (underfitting):} situation inverse où le modèle 
+    est trop simple pour capturer les régularités des données. Un modèle 
+    sous-appris performe mal sur l'entraînement et ne généralise pas aux données 
+    nouvelles.
+
+    \item \textbf{Validation croisée (cross-validation):} technique qui divise les 
+    données en plusieurs sous-ensembles et entraîne le modèle sur chaque combinaison. 
+    Elle offre une évaluation robuste et fiable de la performance réelle du modèle.
+
+    \item \textbf{SHAP (SHapley Additive exPlanations):} technique d'interprétabilité 
+    basée sur la théorie des jeux qui assigne une « contribution » à chaque feature. 
+    Elle garantit que les explications de chaque prédiction sont équitables et 
+    théoriquement justifiées.
+
+    \item \textbf{Analyse de réseau et PageRank:} approche qui construit un graphe 
+    où les nœuds sont des bénéficiaires et les arêtes représentent des connexions 
+    (téléphones ou comptes partagés). PageRank attribue un score de centralité qui 
+    révèle les réseaux de fraude organisée.
+
+    \item \textbf{Stacking (méta-apprentissage):} technique qui combine les 
+    prédictions de plusieurs modèles en entraînant un méta-modèle pour fusionner les 
+    scores optimalement. Elle tire parti des forces de chaque modèle et réduit leurs 
+    faiblesses individuelles.
+
+    \item \textbf{Déséquilibre de classes (class imbalance):} problème courant en 
+    détection de fraude où les fraudes sont rares (1-5\%) et les données 
+    d'entraînement contiennent beaucoup plus d'exemples légitimes. On le résout par 
+    des techniques comme SMOTE, l'ajustement des poids de classe, ou l'évaluation 
+    sur des métriques appropriées.
+
+    \item \textbf{Calibration du modèle:} processus qui garantit que la probabilité 
+    prédite par le modèle (par exemple 0.7) reflète la véritable probabilité empirique 
+    de fraude. Un modèle bien calibré fournit des seuils de décision fiables pour 
+    les systèmes de production.
+
+\end{itemize}
+
+% ═══════════════════════════════════════════════════════════
+% ARCHITECTURE ET PLATEFORME
+% ═══════════════════════════════════════════════════════════
+
+%\subsection{Architecture et plateforme}
+
+%\hspace{0.5cm}Notre solution s'intègre dans un écosystème technique existant. Les termes suivants décrivent les briques d'architecture utilisées:
+
+%\begin{itemize}[label=\textbullet]
+
+    %\item \textbf{Moteur de règles (Rule Engine):} composant logiciel qui évalue un ensemble de conditions prédéfinies par des experts métier (par exemple :« si le bénéficiaire partage son compte bancaire avec 2 autres personnes, déclencher une alerte »). Les règles sont transparentes, auditables et modifiables sans toucher au code.
+
+   % \item \textbf{Architecture hybride:} approche qui combine plusieurs techniques complémentaires: règles métier, apprentissage automatique et analyse de graphe, pour couvrir un maximum de scénarios de fraude. Aucune technique seule ne suffit, c'est leur combinaison qui fait la force du système.
+
+  %  \item \textbf{OpenG2P / Odoo:} OpenG2P est la plateforme open-source de protection sociale sur laquelle notre solution est intégrée. Elle est bâtie sur Odoo 17, un progiciel de gestion intégré (ERP) modulaire et extensible.
+
+ %   \item \textbf{API REST:} interface de communication standardisée qui permet à différents systèmes d'échanger des données via le protocole HTTP. Notre moteur de fraude expose une API REST pour que d'autres applications (dashboard, OpenG2P, outils de monitoring) puissent lui envoyer des requêtes et recevoir des scores.
+
+%    \item \textbf{Pipeline:} chaîne de traitement automatisée où les données passent successivement par plusieurs étapes: extraction des caractéristiques, évaluation par les règles, scoring ML, analyse de graphe, explicabilité, pour produire un résultat final. Le terme « pipeline » évoque l'idée d'un tuyau où les données entrent d'un côté et le score de risque sort de l'autre.
+
+%\end{itemize}
+
+\hspace{0.5cm}Ces définitions posées, nous disposons maintenant du vocabulaire nécessaire pour examiner en détail chacune des techniques de détection de fraude dans les sections suivantes.
+
+% ═══════════════════════════════════════════════════════════
+% IDENTIFICATION DES ACTEURS 
+% ═══════════════════════════════════════════════════════════
+
+\subsection{Identification des acteurs}
+\hspace{0.5cm}Notre système de détection de fraude interagit avec plusieurs acteurs, qu'ils soient des utilisateurs humains ou des systèmes informatiques. L'identification de ces acteurs est une étape essentielle pour définir les besoins fonctionnels de la solution. Le Tableau~\ref{tab:acteurs_internes} présente les acteurs internes qui utilisent directement le système, tandis que le Tableau~\ref{tab:acteurs_externes} décrit les acteurs externes et les systèmes avec lesquels notre solution communique.
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{|p{4cm}|p{11cm}|}
+\hline
+\thead{Acteur} & \thead{Rôle} \\
+\hline
+Bénéficiaire &
+Personne inscrite au programme de protection sociale qui reçoit (ou tente de recevoir) les aides. C'est l'entité analysée par le moteur de détection de fraude. \\
+\hline
+Agent social &
+Personnel chargé de l'enregistrement des bénéficiaires dans OpenG2P et de la vérification des informations sur le terrain. Il est le premier point de contact avec le bénéficiaire. \\
+\hline
+Analyste fraude &
+Utilisateur qui consulte les alertes générées par le système, examine les explications fournies (SHAP + LLM) et décide des actions à entreprendre : validation, investigation ou blocage du versement. \\
+\hline
+Administrateur &
+Responsable de la configuration des règles métier, des seuils de détection et de la gestion technique de la plateforme (utilisateurs, droits d'accès, paramètres ML). \\
+\hline
+Superviseur &
+Responsable qui consulte les tableaux de bord pour suivre les indicateurs globaux (taux de fraude, performance du modèle, tendances), du réentraînement des modèles et prendre des décisions stratégiques sur le programme. \\
+\hline
+\end{tabular}
+\caption{Acteurs internes du système}
+\label{tab:acteurs_internes}
+\end{table}
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{|p{4cm}|p{11cm}|}
+\hline
+\centering\thead{Acteur / Système} & \centering\arraybackslash\thead{Rôle} \\
+\hline
+OpenG2P / Odoo &
+Plateforme source qui gère le registre des bénéficiaires, les programmes et les paiements. Elle transmet les données au moteur de détection et reçoit les alertes de fraude en retour. \\
+\hline
+Moteur intelligent  de détection de fraude &
+Système central qui reçoit les données, applique les quatre couches d'analyse (règles, ML, graphe, anomalie), produit un score de risque et génère une explication en langage naturel. \\
+\hline
+Organisme de protection sociale &
+Entité institutionnelle (ministère, agence gouvernementale) bénéficiaire des rapports de fraude, responsable des politiques publiques et des décisions budgétaires. \\
+\hline
+\end{tabular}
+\caption{Acteurs externes et systèmes}
+\label{tab:acteurs_externes}
+\end{table}
+
+
+% ═══════════════════════════════════════════════════════════
+% Presentation des travaux existants 
+% ═══════════════════════════════════════════════════════════
+\subsection{Présentation des travaux existants}
+
+\hspace{0.5cm}Avant de développer notre solution technologique, il est essentiel de réaliser un état de l'art des travaux existants dans le domaine de la détection de la fraude sociale. Les tableaux suivants présentent une synthèse de ce panorama sectoriel. Pour plus de clarté, la littérature académique, les solutions commerciales et les architectures DPI  ont été séparées. Cette classification permet de mettre en lumière les leviers techniques ainsi que les méthodes analytiques qui caractérisent chaque approche.
+\begin{table}[H]
+\centering
+\caption{Comparaison des méthodes de détection de fraude: avantages et limites}
+\label{tab:comparaison_approches}
+\renewcommand{\arraystretch}{1.3}
+\small
+\begin{tabular}{|>{\bfseries\raggedright\arraybackslash}p{2.8cm}|p{3.8cm}|p{4.5cm}|p{4.5cm}|}
+\hline
+\thead{Approche} & \thead{Principe} & \thead{{Avantages}} & \thead{{Limites}} \\
+\hline
+ 
+Règles métier (rule-based) 
+& Conditions explicites définies par des experts métier (seuils, combinaisons logiques)
+& \cellcolor{GreenBG}
+  \textcolor{GreenTxt}{\textbf{+}} Transparent et facile à auditer \newline
+  \textcolor{GreenTxt}{\textbf{+}} Exécution rapide, sans entraînement \newline
+  \textcolor{GreenTxt}{\textbf{+}} Pas besoin de données labellisées
+& 
+  {\textbf{--}} Rigide face aux nouvelles fraudes \newline
+  {\textbf{--}} Maintenance manuelle lourde \newline
+  {\textbf{--}} Ne détecte que les schémas connus \\
+\hline
+ 
+ML supervisé (XGBoost, RF) 
+& Apprentissage à partir d'exemples étiquetés fraude / légitime
+& \cellcolor{GreenBG}
+  \textcolor{GreenTxt}{\textbf{+}} Détecte des schémas subtils et complexes \newline
+  \textcolor{GreenTxt}{\textbf{+}} Bonne précision globale (AUC élevé) \newline
+  \textcolor{GreenTxt}{\textbf{+}} S'améliore avec le volume de données
+& 
+  \textcolor{RedTxt}{\textbf{--}} Nécessite des données labellisées \newline
+  \textcolor{RedTxt}{\textbf{--}} Risque de fuite de données \newline
+  \textcolor{RedTxt}{\textbf{--}} Peu explicable par défaut \\
+\hline
+ 
+Détection d'anomalies (Isolation Forest) 
+& Identification de comportements atypiques sans étiquettes, par isolement statistique
+& \cellcolor{GreenBG}
+  \textcolor{GreenTxt}{\textbf{+}} Détecte la fraude inconnue \newline
+  \textcolor{GreenTxt}{\textbf{+}} Aucun label requis (non supervisé) \newline
+  \textcolor{GreenTxt}{\textbf{+}} Complémentaire au ML supervisé
+& 
+  \textcolor{RedTxt}{\textbf{--}} Taux de faux positifs élevé \newline
+  \textcolor{RedTxt}{\textbf{--}} Difficile à interpréter \newline
+  \textcolor{RedTxt}{\textbf{--}} Sensible au paramétrage \\
+\hline
+ 
+Analyse de réseau (PageRank) 
+& Graphe de liens entre bénéficiaires (téléphone, compte bancaire partagé)
+& \cellcolor{GreenBG}
+  \textcolor{GreenTxt}{\textbf{+}} Révèle la fraude organisée \newline
+  \textcolor{GreenTxt}{\textbf{+}} Capture la collusion invisible au ML \newline
+  \textcolor{GreenTxt}{\textbf{+}} Vision relationnelle unique
+& 
+  \textcolor{RedTxt}{\textbf{--}} Coûteux en calcul \newline
+  \textcolor{RedTxt}{\textbf{--}} Dépend de la qualité des liens \newline
+  \textcolor{RedTxt}{\textbf{--}} Complexe à mettre en place \\
+\hline
+ 
+ 
+\end{tabular}
+
+\end{table}
+ 
+% ═══════════════════════════════════════════════════════════════
+% TABLEAU2 — Solutions commerciales de détection de fraude
+% ═══════════════════════════════════════════════════════════════
+
+\begin{table}[H]
+\centering
+\caption{Solutions commerciales de détection de fraude sur le marché}
+\label{tab:solutions_commerciales}
+\renewcommand{\arraystretch}{1.4}
+\small
+\begin{tabular}{|>{\bfseries\raggedright\arraybackslash}p{2.4cm}|p{3.8cm}|p{4.5cm}|p{4.5cm}|}
+\hline
+\thead{Solution} & \thead{Principe / Utilité} & \thead{{Avantages}} & \thead{{Limites}} \\
+\hline
+FICO Falcon Fraud Manager
+& Scoring en temps réel basé sur un consortium de données partagées entre banques et un moteur ML supervisé.
+& \cellcolor{GreenBG}
+  \textcolor{GreenTxt}{\textbf{+}} Consortium mondial (9~000+ institutions) \newline
+  \textcolor{GreenTxt}{\textbf{+}} Détection temps réel à très haute échelle \newline
+  \textcolor{GreenTxt}{\textbf{+}} AUC $\sim$0.95 sur la fraude bancaire
+& \cellcolor{RedBG}
+  \textcolor{RedTxt}{\textbf{--}} \textbf{Coût : 100k--500k+ \$/an }\newline
+  \textcolor{RedTxt}{\textbf{--}} Conçu pour \textbf{la fraude bancaire} uniquement \newline
+  \textcolor{RedTxt}{\textbf{--}} \textbf{Code propriétaire fermé} \\
+\hline
+
+Feedzai (RiskOps)
+& Plateforme IA-native combinant ML supervisé et analyse de graphe pour le scoring de transactions en temps réel.
+& \cellcolor{GreenBG}
+  \textcolor{GreenTxt}{\textbf{+}} Analyse de graphe intégrée \newline
+  \textcolor{GreenTxt}{\textbf{+}} Architecture API-first moderne \newline
+  \textcolor{GreenTxt}{\textbf{+}} Adaptable à plusieurs canaux de paiement
+& \cellcolor{RedBG}
+  \textcolor{RedTxt}{\textbf{--}} \textbf{Coût : 150k--600k+ \$/an} \newline
+  \textcolor{RedTxt}{\textbf{--}} Ciblé \textbf{paiements / fintech} \newline
+  \textcolor{RedTxt}{\textbf{--}} Pas d'intégration G2P possible \\
+\hline
+
+SAS Fraud Management
+& Suite analytique avancée combinant des modèles ensemblistes, des alertes configurables et un moteur d'investigation.
+& \cellcolor{GreenBG}
+  \textcolor{GreenTxt}{\textbf{+}} Couverture multi-secteurs \newline
+  \textcolor{GreenTxt}{\textbf{+}} Moteur d'investigation intégré \newline
+  \textcolor{GreenTxt}{\textbf{+}} Plateforme cloud SAS Viya
+& \cellcolor{RedBG}
+  \textcolor{RedTxt}{\textbf{--}} \textbf{Coût : 200k--1M+ \$/an} \newline
+  \textcolor{RedTxt}{\textbf{--}} Intégration sur mesure complexe \newline
+  \textcolor{RedTxt}{\textbf{--}} Explicabilité limitée pour le terrain \\
+\hline
+
+NICE Actimize
+& Surveillance des transactions et conformité anti-blanchiment (AML) avec workflows d'enquête intégrés.
+& \cellcolor{GreenBG}
+  \textcolor{GreenTxt}{\textbf{+}} Leader en conformité réglementaire \newline
+  \textcolor{GreenTxt}{\textbf{+}} Workflows d'investigation complets \newline
+  \textcolor{GreenTxt}{\textbf{+}} Couverture AML et fraude combinée
+& \cellcolor{RedBG}
+  \textcolor{RedTxt}{\textbf{--}} \textbf{Coût : 300k--2M+ \$/an} \newline
+  \textcolor{RedTxt}{\textbf{--}} Aucune analyse de réseau (graphe) \newline
+  \textcolor{RedTxt}{\textbf{--}} Dépendance éditeur très forte \\
+\hline
+
+Featurespace (ARIC)
+& Analyse comportementale adaptative qui modélise le comportement normal de chaque utilisateur et détecte les déviations en temps réel.
+& \cellcolor{GreenBG}
+  \textcolor{GreenTxt}{\textbf{+}} Détection non supervisée innovante \newline
+  \textcolor{GreenTxt}{\textbf{+}} S'adapte sans réentraînement \newline
+  \textcolor{GreenTxt}{\textbf{+}} XAI avec reason codes
+& \cellcolor{RedBG}
+  \textcolor{RedTxt}{\textbf{--}} \textbf{Coût : 100k--400k \$/an} \newline
+  \textcolor{RedTxt}{\textbf{--}} Ciblé \textbf{banque et assurance} \newline
+  \textcolor{RedTxt}{\textbf{--}} Pas d'analyse de graphe \\
+\hline
+
+
+\end{tabular}
+\end{table}
+ 
+% ═══════════════════════════════════════════════════════════════
+% TABLEAU 3 — Limites des travaux existants face au DPI / DPG
+% ═══════════════════════════════════════════════════════════════
+ 
+\begin{table}[H]
+\centering
+\caption{Limites des travaux existants face à la philosophie DPI / DPG}
+\label{tab:limites_existant}
+\renewcommand{\arraystretch}{1.4}
+\small
+\begin{tabular}{|>{\columncolor{EYgray}\bfseries\raggedright\arraybackslash}p{3cm}|>{\raggedright\arraybackslash}p{6cm}|>{\raggedright\arraybackslash}p{6cm}|}
+\hline
+\thead{Dimension} & \theadRed{Ce qui manque dans les solutions actuelles} & \theadOrange{Problème non résolu face au DPI / DPG} \\
+\hline
+ 
+Accessibilité financière 
+& Les solutions commerciales \textbf{coûtent de 100k\$ à plus de 2M\$ par an}, hors de portée des budgets publics en développement. 
+& \textbf{Contredit l'objectif d'inclusion des DPG:} une technologie réservée aux pays riches reproduit les inégalités qu'elle prétend combattre. \\
+\hline
+ 
+Ouverture du code 
+& \textbf{Les moteurs de détection sont propriétaires et fermés}, impossible de les auditer, les adapter ou les réutiliser. 
+& \textbf{Va à l'encontre du principe fondamental des Biens Publics Numériques:} code ouvert, réutilisable et vérifiable par tous. \\
+\hline
+ 
+Souveraineté des données 
+& Les plateformes cloud propriétaires imposent que \textbf{les données sensibles transitent par des serveurs externes}. 
+& \textbf{Menace la souveraineté numérique des États:} les données des bénéficiaires doivent rester sous contrôle national. \\
+\hline
+ 
+Intégration native OpenG2P 
+& Aucune solution du marché n'est conçue pour s'intégrer nativement à OpenG2P ou aux registres sociaux. 
+& \textbf{Oblige des développements sur mesure coûteux:} rompt l'interopérabilité modulaire promue par l'écosystème DPI. \\
+\hline
+ 
+Spécificité de la fraude sociale 
+& \textbf{Les outils ciblent la fraude bancaire} (carte, paiement) et non les fraudes propres au social: multi-inscription, ménages fictifs.
+& \textbf{Les schémas de fraude G2P (collusion, partage d'identité)} restent mal couverts par des modèles pensés pour la finance. \\
+\hline
+ 
+Explicabilité pour le terrain 
+& \textbf{Les scores sont produits par des boîtes noires}, sans justification compréhensible par un agent social non-technique. 
+& \textbf{Empêche la redevabilité exigée dans les services publics:} une décision d'aide doit pouvoir être expliquée au citoyen. \\
+\hline
+ 
+Proactivité (avant versement) 
+& \textbf{Les contrôles traditionnels (audits manuels)} interviennent après le versement, quand la perte est déjà subie.
+& \textbf{Le modèle DPI vise une prévention en amont:} l'absence de détection temps réel laisse fuir les budgets avant toute action. \\
+\hline
+ 
+\end{tabular}
+\end{table}
+
+\section*{Conclusion}
+
+\hspace{0.5cm}L'examen des travaux et des outils actuels montre que chacune des approches explorées apporte une contribution utile mais reste limitée lorsqu'elle est appliquée isolément aux programmes de protection sociale du contexte des DPI et DPG, spécifiquement OpenG2P. À partir de ces constats, nous élaborons dans le chapitre suivant une spécification détaillée des exigences fonctionnelles et une architecture technologique hybride capable de surmonter ces limitations.
+
+% ═══════════════════════════════════════════════════════════
+% CHAPITRE3: Spécifications fonctionnelles et choix technologiques
+% ═══════════════════════════════════════════════════════════
+
+\chapter{Spécifications fonctionnelles et choix technologiques}
+\section{Introduction}
+\hspace{0.5cm}Forts des constats du chapitre précédent, l'absence de solution satisfaisant simultanément les exigences d'accessibilité, de transparence et de souveraineté. Nous orientons notre conception vers une approche systématique et traçable. Ce chapitre traduit ces apprentissages en spécifications formelles qui guident la construction de notre moteur intelligent de détection de fraude.
+
+\section{Identification des besoins fonctionelles}
+\renewcommand{\arraystretch}{1.35}
+\begin{center}
+\begin{longtable}{|>{\cellcolor{EYgray}\bfseries\raggedright\arraybackslash}p{1.6cm}|>{\raggedright\arraybackslash}p{2.2cm}|p{11.2cm}|}
+\caption{Spécification des besoins fonctionnels du moteur intelligent de détection de fraude par acteur}
+\label{tab:besoins_piaf} \\
+\hline
+\thead{ID} & \thead{Acteur} & \thead{Besoin fonctionnel} \\
+\hline
+\endfirsthead
+
+\hline
+\thead{ID} & \thead{Acteur} & \thead{Besoin fonctionnel} \\
+\hline
+\endhead
+
+\hline
+\endfoot
+
+\endlastfoot
+
+\multicolumn{3}{|c|}{\cellcolor{EYdark}\textcolor{white}{\textbf{AGENT SOCIAL — Analyse unitaire}}} \\
+\hline
+
+\textbf{BF01} & \textbf{Agent social} & \textbf{Déclencher un scan unitaire:} lancer manuellement l'analyse de fraude sur un bénéficiaire et consulter le score de risque. \\
+\hline
+
+\textbf{BF01} & \textbf{Agent social} & \textbf{Consulter le score de risque:} Consulter si le bénéficiaire est classé LOW, MEDIUM, HIGH ou CRITICAL et visualiser les règles déclenchées. \\
+\hline
+
+\multicolumn{3}{|c|}{\cellcolor{EYdark}\textcolor{white}{\textbf{ANALYSTE FRAUDE — Examiner et valider les alertes}}}. \\
+\hline
+\textbf{BF02} & \textbf{Analyste fraude}  & \textbf{Consulter les alertes de fraude:} visualiser liste des cas détectés avec score, niveau de risque et règles déclenchées. \\
+\hline
+
+\textbf{BF03} & \textbf{Analyste fraude} & \textbf{Examiner les explications:} consulter facteurs SHAP et explication en français générée par le LLM. \\
+\hline
+
+\textbf{BF04} & \textbf{Analyste fraude} & \textbf{Donner un feedback:} valider ou infirmer une alerte (fraude confirmée, faux positif, indéterminé) pour boucle d'amélioration. \\
+\hline
+
+\textbf{BF05} & \textbf{Analyste fraude} & \textbf{Exporter un rapport d'investigation:} générer rapport en PDF ou CSV pour un cas de fraude. \\
+\hline
+
+\textbf{BF06} & \textbf{Analyste fraude} & \textbf{Versionner les modèles:} consulter historique MLflow, comparer performances et effectuer un rollback. \\
+\hline
+
+\multicolumn{3}{|c|}{\cellcolor{EYdark}\textcolor{white}{\textbf{ADMINISTRATEUR — Configurer le moteur}}}. \\
+\hline
+
+\textbf{BF07} & \textbf{Admin} & \textbf{Gérer les règles métier:} ajouter, modifier, activer/désactiver règles de détection (seuils, poids, conditions). \\
+\hline
+
+\textbf{BF08} & \textbf{Admin} & \textbf{Recharger les règles en temps réel:} appliquer modifications sans redémarrer le système. \\
+\hline
+
+\textbf{BF09} & \textbf{Admin} & \textbf{Réentraîner le modèle ML:} déclencher réentraînement avec nouvelles données et feedbacks collectés. \\
+\hline
+
+\multicolumn{3}{|c|}{\cellcolor{EYdark}\textcolor{white}{\textbf{SUPERVISEUR — Monitorer et décider}}} \\
+\hline
+
+\textbf{BF10} & \textbf{Superviseur} & \textbf{Consulter le tableau de bord:} visualiser indicateurs (nombre cas, répartition par risque, tendances, taux faux positifs). \\
+\hline
+
+\textbf{BF10} & \textbf{Superviseur} & \textbf{Bloquer ou authentifier les bénéficiaires:} visualiser indicateurs (nombre cas, répartition par risque, tendances, taux faux positifs). \\
+\hline
+
+\textbf{BF10} & \textbf{Superviseur} & \textbf{Suivre la performance du modèle:} consulter métriques ML (AUC, précision, rappel) et détecter dégradation. \\
+\hline
+
+\multicolumn{3}{|c|}{\cellcolor{EYdark}\textcolor{white}{\textbf{Traiter et générer automatiquement}}} \\
+\hline
+
+\textbf{BF12} & \textbf{Système} & \textbf{Scanner en masse:} analyser automatiquement l'ensemble des bénéficiaires en un seul appel (scoring batch). \\
+\hline
+
+\textbf{BF13} & \textbf{Système} & \textbf{Scoring temps réel:} déclencher automatiquement l'analyse à chaque nouvel enregistrement via webhook. \\
+\hline
+
+\textbf{BF14} & \textbf{Système} & \textbf{Calculer le score hybride:} combiner quatre sous-scores (règles, ML, anomalie, graphe) en score final unique. \\
+\hline
+
+\textbf{BF15} & \textbf{Système} & \textbf{Générer l'explication:} produire automatiquement facteurs SHAP et explication en français via LLM Mistral. \\
+\hline
+
+\textbf{BF16} & \textbf{Système} & \textbf{Synchroniser avec Odoo:} créer automatiquement cas de fraude dans module Odoo et mettre à jour leur statut. \\
+\hline
+
+\textbf{BF17} & \textbf{Système} & \textbf{Envoyer des alertes:} notifier analystes lorsqu'un cas CRITICAL ou HIGH est détecté. \\
+\hline
+
+
+
+\end{longtable}
+\end{center}
+
+\section{Identification des besoins non fonctionnels }
+\hspace{0.5cm}Les besoins non fonctionnels concernent les contraintes à prendre en considération pour mettre en place une solution adéquate aux attentes des clients. Notre plateforme doit nécessairement assurer ces besoins :
+\begin{itemize}[label=\textbullet]
+    \item \textbf{Sécurité:} La plateforme doit garantir la confidentialité et l'intégrité des données personnelles des bénéficiaires, en conformité avec les réglementations en vigueur (ex : RGPD)
+    \item \textbf{Scalabilité:} La solution doit être capable de gérer un nombre croissant de bénéficiaires et de transactions sans dégradation des performances.
+    \item \textbf{Accessibilité:} L'interface utilisateur doit être intuitive et accessible à des agents sociaux ayant des compétences techniques limitées.
+    \item \textbf{Interopérabilité:} Le moteur de détection doit s'intégrer facilement avec d'autres systèmes utilisés par les organismes de protection~sociale.
+    \item \textbf{Maintenabilité:} Le code doit être bien structuré, documenté et modulaire pour faciliter les mises à jour et les évolutions futures.
+\end{itemize}
+
+\section{Diagramme de cas d’utilisation général}
+
+\hspace{0.5cm} Le diagramme de cas d’utilisation est le meilleur outils pour décrire les interactions entre nos acteurs et notre système étudié. Il représente les différents cas d’utilisation du système, en décrivant les scénarios dans lesquels les acteurs interagissent avec celui-ci :
+
+\vspace{-0.3cm}
+\begin{figure}[H]
+            \centering
+            \includegraphics[width=0.92\textwidth,height=1\textheight,keepaspectratio]{use_case_uml.png}
+          \caption{Diagramme de cas d’utilisation général}
+\end{figure}
+
+\newpage
+\section{Diagramme de classes général  }
+
+\hspace{0.5cm} Le diagramme de classes est l’un des outils de modélisation les plus efficaces pour représenter la structure statique d’un système. Il permet de décrire les différentes classes du système révélant leurs attributs définissant aussi les relations entre elles : l’héritage, l’association, l’agrégation ou la composition.Il procure une vue d’ensemble de l’agencement et de l’organisation interne du système étudié.:
+
+\begin{figure}[H]
+     \centering
+     \includegraphics[width=0.92\textwidth,height=1.2\textheight,keepaspectratio]{AgentsOrchestratorClassDiagram.png}
+     \caption{Diagramme de classe général}
+\end{figure} 
+
+\newpage
+\section{Architecture physique} 
+\hspace{0.5cm} Cette section présente l'architecture matérielle et logicielle de l'application, en décrivant la mise en œuvre concrète des différents nœuds qui composent le système. La configuration physique, telle qu'illustrée sur le schéma, établit une distinction claire entre le poste de travail de l'utilisateur, les serveurs d'application, le serveur de persistance et les services distants.
+
+\hspace{0.5cm}Le système s'articule autour des composants physiques suivants:
+
+\begin{figure}[H]
+     \centering
+          \includegraphics[width=0.92\textwidth,height=1.3\textheight,keepaspectratio]{Architecture_Physique.png}
+     \caption{Architecture physique du moteur intelligent de détection de fraude}
+\end{figure} 
+
+\newpage
+
+\section{Architecture logique } 
+\hspace{0.5cm} Dans cette section, nous allons présenter les technologies, les frameworks et les composants matériels que nous avons choisis pour notre application. Notre application est basée sur une architecture client–serveur distribuée composée de plusieurs machines logiques : client, serveur d’application, serveur d’intelligence artificielle et serveur de base de données.
+
+\hspace{0.5cm} Le système est constitué des éléments suivants:
+\begin{figure}[H]
+     \centering
+          \includegraphics[width=1\textwidth,height=1\textheight,keepaspectratio]{Architecture_logiqueSmall.jpg}
+     \caption{Architecture logique du moteur intelligent de détection de fraude}
+\end{figure} 
+
+\section{Organisation de flux de données}
+\hspace{0.5cm} Le diagramme de flux de données (DFD) est un outil de modélisation qui permet de représenter les flux d'informations au sein d'un système. Il illustre comment les données circulent entre les différents composants du système, en mettant en évidence les processus, les entités externes et les magasins de données:
+
+\begin{figure}[H]
+     \centering
+          \includegraphics[width=0.8\textwidth,height=0.8\textheight,keepaspectratio]{archi_flux_donnees.png}
+     \caption{Diagramme de flux de données du moteur intelligent de détection de fraude}
+\end{figure} 
+
+
+\newpage
+\section{Spécifications techniques et environnement logiciel}
+
+\hspace{0.5cm}Après avoir défini les besoins fonctionnels et non fonctionnels de notre moteur de détection de fraude, nous devons maintenant présenter le stack technologique sur lequel repose l'implémentation. Cette section détaille les choix architecturaux et les outils logiciels qui nous ont permis de construire une solution robuste, explicable et facilement maintenable.
+
+\hspace{0.5cm}Notre solution s'appuie sur une architecture hybride et modulaire, combinant des composants d'intelligence artificielle (apprentissage automatique, graphes, explicabilité), des règles métier paramétrables, et une infrastructure cloud-native. Cette approche multicouche nous permet de couvrir un maximum de scénarios de fraude tout en restant auditables et transparentes vis-à-vis des parties prenantes.
+
+\section{Stack de développement backend et données}
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.5}
+\begin{tabular}{|p{3.5cm}|p{11.8cm}|}
+\hline
+\thead{Composant} & \thead{Technologie / Description} \\
+\hline
+\textbf{Base de données} & \textbf{PostgreSQL:} Système de gestion de base de données relationnelle open source hautement fiable, avec support complet du SQL et des transactions ACID. Utilisé pour persister les données d'enregistrement des bénéficiaires, les alertes de fraude et l'historique des décisions. \\
+\hline
+\textbf{Système intégré} & \textbf{OpenG2P / Odoo 17:} Plateforme open-source de gestion de programmes de protection sociale. Manage l'enregistrement des bénéficiaires, l'administration des programmes d'aide et l'intégration de notre moteur de détection de fraude. \\
+\hline
+\textbf{ML et graphe} & \textbf{Python (scikit-learn, XGBoost, NetworkX, IsolationForest, RandomForest, Linear Regression):} Écosystème utilisé pour développer les modèles de machine learning, l'extraction de caractéristiques et l'analyse de graphe. \\
+\hline
+\end{tabular} 
+ 
+\caption{Technologies de base du système de détection de fraude}
+\end{table}
+
+\hspace{0.5cm}Au-delà de ces composants fondamentaux, notre architecture s'appuie sur un ensemble d'outils dédiés à l'explicabilité, au monitoring et à la gestion du cycle de vie du modèle :
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.5}
+\begin{tabular}{|p{3.5cm}|p{11.8cm}|}
+\hline
+\thead{Couche} & \thead{Outil / Technologie} \\
+\hline
+\textbf{Explicabilité} & \textbf{SHAP:} Bibliothèque Python pour l'interprétabilité calculant la contribution de chaque caractéristique au score de fraude. \textbf{Mistral via Ollama:} Modèle de langue généraliste exécuté localement pour transformer les coefficients SHAP et règles en explications textuelles en français. \\
+\hline
+\textbf{Analyse de graphe} & \textbf{Neo4j:} Base de données graphe pour stocker et analyser les réseaux de bénéficiaires (partage de téléphones, comptes bancaires). Permet la détection de communautés frauduleuses et le calcul de centralité (PageRank). \\
+\hline
+\textbf{Gestion des modèles} & \textbf{MLflow:} Plateforme pour la gestion du cycle de vie des modèles ML. Enregistre les hyperparamètres, métriques de performance (AUC, précision, rappel) et permet un rollback facilité. \\
+\hline
+\end{tabular}
+\caption{Technologies d'explicabilité et de gestion des modèles}
+\end{table}
+
+\section{Stack de développement et DevOps}
+
+\hspace{0.5cm}Pour assurer la qualité, la maintenabilité et le déploiement continu de notre solution, nous avons intégré des outils modernes de développement et d'automatisation :
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.5}
+\begin{tabular}{|p{3.5cm}|p{11.8cm}|}
+\hline
+\thead{Catégorie} & \thead{Outil / Framework} \\
+\hline
+\textbf{Éditeur de code} & \textbf{Visual Studio Code:} Éditeur léger offrant le débogage intégré, autocomplétion intelligente, intégration native de Git et extensions pour Python, SQL et Docker. \\
+\hline
+\textbf{Gestion de version} & \textbf{Git / GitHub:} Système de contrôle de version pour la collaboration, suivi des changements et gestion des branches. GitHub héberge le dépôt avec workflows d'intégration continue. \\
+\hline
+\textbf{Containerisation} & \textbf{Docker:} Plateforme de containerisation pour packager l'application avec toutes ses dépendances. Assure la cohérence entre développement, test et production. \\
+\hline
+\textbf{Orchestration} & \textbf{Docker Compose:} Outil d'orchestration de conteneurs permettant de définir et de lancer l'ensemble de l'infrastructure applicative (backend, base de données, services auxiliaires) via un fichier de configuration YAML unique. Facilite les déploiements reproductibles et le développement local multi-conteneur. \\
+\hline
+\end{tabular}
+\caption{Outils de développement et d'infrastructure}
+\end{table}
+
+
+\subsection{Dashboards et visualisation des résultats}
+
+\hspace{0.5cm}Au-delà de la détection elle-même, il est essentiel de fournir aux différents utilisateurs (analystes fraude, superviseurs, administrateurs) des interfaces de visualisation intuitive et interactive. Notre solution intègre plusieurs couches de dashboards et de reporting :
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.5}
+\begin{tabular}{|p{3.5cm}|p{11.8cm}|}
+\hline
+\thead{Dashboard / Plateforme} & \thead{Description et cas d'usage} \\
+\hline
+\textbf{Streamlit - Interface analytique} & Plateforme web interactive développée en Python permettant aux analystes fraude et superviseurs de consulter les alertes détectées, visualiser les explications SHAP en temps réel, et accéder à des statistiques globales de fraude. Le dashboard Streamlit offre une réactivité immédiate et permet des filtres dynamiques (par zone géographique, programme, niveau de risque). \\
+\hline
+\textbf{MLflow - Suivi des modèles} & Tableau de bord dédié au versionnage et au monitoring des modèles ML. Permet de comparer les performances de différentes versions du modèle (AUC, précision, rappel), de visualiser les métriques d'entraînement, et de tracer la provenance de chaque artefact ML. Essential pour la gouvernance et la reproductibilité. \\
+\hline
+\textbf{Heatmap géographique} & Visualisation cartographique interactive montrant la concentration géographique des alertes de fraude détectées. Chaque zone est colorée proportionnellement au nombre et à la sévérité des cas signalés, permettant aux superviseurs d'identifier rapidement les hotspots de fraude et d'adapter les stratégies d'investigation par région. \\
+\hline
+\textbf{Tableau de bord superviseur} & Vue synthétique affichant les KPI globaux : nombre total de cas analysés, taux de fraude détecté, proportion de vrais positifs, tendances temporelles, distribution par niveau de risque, et état des investigations en cours. Utilisé par les décideurs pour le monitoring stratégique du programme. \\
+\hline
+\textbf{Système de reporting automatisé} & Génération automatique de rapports PDF ou CSV consolidant les résultats de détection, les explications SHAP, les analyses de réseau et les recommandations d'action pour chaque bénéficiaire signalé. Ces rapports sont exportables pour audit externe ou communication auprès du management. \\
+\hline
+\end{tabular}
+\caption{Dashboards et plateformes de visualisation}
+\end{table}
+
+\hspace{0.5cm}Ces outils de visualisation sont complémentaires aux couches techniques : tandis que MLflow assure la traçabilité des modèles côté développement, Streamlit et les dashboards superviseur fournissent des interfaces métier accessibles aux non-techniciens. La heatmap géographique facilite le diagnostic spatial de la fraude, et le système de reporting garantit que chaque décision prise peut être justifiée et auditée.
+
+\newpage
+\subsection{Collaboration et documentation}
+
+\hspace{0.5cm}Enfin, pour faciliter la communication entre les membres de l'équipe et maintenir une documentation à jour :
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|p{3.5cm}|p{11.8cm}|}
+\hline
+\thead{Fonction} & \thead{Outil} \\
+\hline
+\textbf{Tests et validation d'API} & \textbf{Postman / Swagger:} Clients HTTP interactifs pour tester manuellement et automatiquement l'API REST du moteur de fraude. Permettent de vérifier les endpoints, les paramètres, les codes de retour et de générer de la documentation API automatique. \\
+\hline
+\textbf{Monitoring opérationnel} & \textbf{ELK Stack (Elasticsearch, Logstash, Kibana):} Centralisation et visualisation en temps réel des logs de l'application. Permet de détecter rapidement les erreurs en production, d'analyser les tendances de performance et de diagnostiquer les problèmes. \\
+\hline
+\textbf{Documentation technique} & \textbf{Confluence / Wiki GitHub:} Dépôt centralisé pour les guides d'installation, les diagrammes d'architecture, les spécifications API complètes, les tutoriels d'utilisation et l'historique des décisions techniques. \\
+\hline
+\end{tabular}
+\caption{Outils de collaboration et de documentation}
+\end{table}
+
+\hspace{0.5cm}Cet ensemble complet d'outils et de technologies forme un écosystème cohérent et bien articulé. Chaque composant remplit un rôle spécifique : les technologies de base assurent la performance et la fiabilité, les outils d'explicabilité garantissent la transparence, les dashboards et visualisations rendent les résultats accessibles aux utilisateurs métier, et enfin les outils de collaboration et documentation maintiennent la qualité et la traçabilité du projet. 
+
+
+\section{Conclusion }
+
+\hspace{0.5cm}Ce chapitre a consolidé les fondations techniques et conceptuelles de notre moteur de détection de fraude pour les programmes de protection sociale. En commençant par une analyse détaillée des acteurs internes et externes, nous avons défini les besoins fonctionnels et non fonctionnels qui doivent guider l'implémentation.
+
+% ============================================================
+%  CHAPITRE 4 — Réalisation
+% ============================================================
+
+
+
+\chapter{Réalisation}
+
+% ─────────────────────────────────────────────────────────────
+\section*{Introduction}
+% ─────────────────────────────────────────────────────────────
+
+\hspace{0.5cm}Le chapitre précédent a posé les bases du système : nous y avons défini les besoins fonctionnels, justifié les choix technologiques et modélisé les flux de données. Ce chapitre passe à la mise en œuvre concrète. Il suit le parcours réel de la donnée à travers le système : depuis son extraction des tables PostgreSQL d'OpenG2P jusqu'à la décision de fraude finale restituée à l'agent social Chaque section répond à une question d'ingénierie précise: pourquoi cette étape est nécessaire, comment elle a été implémentée, et quel résultat elle produit.
+
+% ─────────────────────────────────────────────────────────────
+\section{Environnement de développement}
+% ─────────────────────────────────────────────────────────────
+
+\hspace{0.5cm}Le développement du moteur intelligent s'appuie sur un ensemble de technologies assurant le traitement des données, l'intelligence artificielle, le stockage et le déploiement de la solution. La Figure~\ref{fig:tech-stack} présente les principaux langages, frameworks et outils utilisés ainsi que leur rôle dans le projet.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{TechStack.png}
+    \caption{Langages et outils utilisés pour le développement du moteur intelligent de détection de fraude}
+    \label{fig:tech-stack}
+\end{figure}
+
+\subsection{Configuration Docker Compose}
+
+\hspace{0.5cm}L'ensemble du système fonctionne via Docker Compose, ce qui garantit un déploiement reproductible et isolé. Le Tableau~\ref{tab:conteneurs} détaille les six conteneurs orchestrés, leur port d'exposition, l'image de base utilisée et leur rôle respectif dans l'architecture globale.
+
+\begin{table}[H]
+\centering
+\caption{Conteneurs Docker du système}
+\label{tab:conteneurs}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{>{\bfseries}p{3.2cm} p{1.8cm} p{4cm} p{5cm}}
+\hline
+\thead{Conteneur} & \thead{Port} & \thead{Image / Base} & \thead{Rôle} \\
+\hline
+\rowcolor{EYgray}
+\texttt{fraud-engine} & 8002 & Python 3.11 (custom) & API FastAPI — moteur de détection de fraude \\
+\texttt{odoo} & 8069 & \texttt{openG2P/odoo:17} & Plateforme sociale OpenG2P \\
+\rowcolor{EYgray}
+\texttt{postgresql} & 5432 & \texttt{postgres:15} & Base partagée (OpenG2P + Fraud DB) \\
+\texttt{streamlit} & 8501 & Python 3.11 (custom) & Dashboard alertes et monitoring \\
+\rowcolor{EYgray}
+\texttt{mlflow} & 5000 & \texttt{ghcr.io/mlflow} & Suivi des expériences ML \\
+\texttt{ollama} & 11434 & \texttt{ollama/ollama} & Serveur LLM local (Mistral 7B) \\
+\hline
+\end{tabular}
+\end{table}
+
+\hspace{0.5cm}La Figure~\ref{fig:docker-compose} présente un extrait de la configuration Docker Compose pour les deux services principaux du système, illustrant la manière dont ces conteneurs sont déclarés, reliés en réseau et paramétrés.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.1\textwidth]{Docker.png}
+    \caption{Extrait de la configuration Docker Compose pour le moteur intelligent et la plateforme OpenG2P}
+    \label{fig:docker-compose}
+\end{figure}
+
+
+
+\hspace{0.5cm} Les Figures~\ref{fig:docker-compose2} et ~\ref{fig:docker-compose3}présentent la configuration complète du fichier \texttt{docker-compose.full.yml}, qui orchestre l'ensemble des services nécessaires au fonctionnement du moteur intelligent et de la plateforme OpenG2P. Chaque service y est défini avec ses dépendances, ses variables d'environnement et ses volumes de données, afin d'assurer la persistance et l'isolation des données.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.1\textwidth]{Extrait1.png}
+    \caption{Extrait de la configuration Docker Compose pour le moteur intelligent et la plateforme OpenG2P}
+    \label{fig:docker-compose2}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.1\textwidth]{Docker2.png}
+    \caption{Extrait des conteneurs Docker Compose pour le moteur intelligent et la plateforme OpenG2P}
+    \label{fig:docker-compos3}
+\end{figure}
+\newpage
+
+\newpage
+\hspace{0.5cm}Cette orchestration a été pensée pour minimiser la friction de déploiement : une seule commande suffit pour démarrer l'ensemble du système, comme le montre la Figure~\ref{fig:docker-start}.
+
+\hspace{0.5cm}\textbf{docker compose -f docker-compose.full.yml up -d}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.5\linewidth,height=1.8\textheight,keepaspectratio]{DockerStart.png}
+    \caption{Démarrage de l'ensemble du système via Docker Compose}
+    \label{fig:docker-start}
+\end{figure}
+
+\hspace{0.5cm}Cet environnement technique une fois posé, il reste à en dériver une organisation logicielle cohérente : comment le code est-il structuré pour refléter cette séparation entre plateforme sociale et moteur intelligent, et comment les composants du moteur communiquent-ils entre eux ? C'est l'objet de la section suivante.
+
+% ─────────────────────────────────────────────────────────────
+\section{Architecture logicielle}
+% ─────────────────────────────────────────────────────────────
+
+\hspace{0.5cm}L'architecture logicielle traduit, au niveau du code, la séparation fonctionnelle établie au chapitre précédent entre la plateforme sociale OpenG2P et le moteur intelligent de détection de fraude. Cette section présente successivement l'organisation générale du projet, la structure interne du moteur intelligent, ses composants principaux, puis la manière dont ces composants interagissent pour produire une décision de fraude.
+
+\subsection{Organisation du projet}
+
+\hspace{0.5cm}Le code est organisé en deux ensembles distincts : les modules OpenG2P, qui assurent le bon fonctionnement de la plateforme et l'interopérabilité entre Odoo et le moteur intelligent, et les modules du moteur intelligent, qui implémentent les couches de détection de fraude et d'intelligence artificielle. La Figure~\ref{fig:code-structure} donne une vision globale de cette organisation.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{CodeStructure.png}
+    \caption{Vision globale sur la structure du code source}
+    \label{fig:code-structure}
+\end{figure}
+
+\subsection{Architecture du moteur intelligent}
+
+\hspace{0.5cm}En zoomant sur le second ensemble, le moteur intelligent est lui-même structuré en couches, chacune responsable d'une préoccupation distincte. La Figure~\ref{fig:fe-structure} détaille cette structure interne.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.6\textwidth]{FEStructure.png}
+  \caption{Structure du code source du moteur intelligent de détection de fraude}
+  \label{fig:fe-structure}
+\end{figure}
+
+\hspace{0.5cm}
+\begin{itemize}
+    \item \textbf{Couche Présentation (API) :} \texttt{api} — Expose les services REST permettant la communication entre OpenG2P et le moteur antifraude.
+
+    \item \textbf{Couche Métier (Business Layer) :} \texttt{services}, \texttt{rules} — Contient la logique métier, les règles de détection et le calcul du score de risque.
+
+    \item \textbf{Couche Données (Data Layer) :} \texttt{db}, \texttt{data}, \texttt{schemas} — Gère l'accès aux données, leur stockage et leur validation.
+
+    \item \textbf{Couche Intelligence Artificielle :} \texttt{models\_saved} — Regroupe les modèles de Machine Learning entraînés et leurs artefacts.
+
+    \item \textbf{Couche Technique (Infrastructure) :} \texttt{core}, \texttt{middleware}, \texttt{config.py}, \texttt{logging\_config.py} — Assure la configuration, la sécurité, le middleware et les services techniques.
+
+    \item \textbf{Point d'entrée de l'application :} \texttt{main.py} — Initialise et lance le moteur de détection de fraude.
+\end{itemize}
+
+\hspace{0.5cm}Cette architecture en couches est conçue pour être modulaire et extensible : chaque composant peut être remplacé ou amélioré indépendamment, et de nouvelles sources de données ou modèles peuvent être intégrés sans perturber le reste du système. Reste à savoir ce que chacun de ces modules fait concrètement, et comment ils s'articulent pour transformer un profil de bénéficiaire en décision de fraude.
+
+\subsection{Composants principaux du moteur}
+
+\hspace{0.5cm}Chaque module de la couche métier a une responsabilité unique et bien délimitée. La Figure~\ref{fig:core-components} présente la structure de ces composants principaux, dont le rôle est détaillé ci-après.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.4\textwidth]{CoreComponenets.png}
+  \caption{La structure des composants principaux du moteur intelligent de détection de fraude}
+  \label{fig:core-components}
+\end{figure}
+
+\begin{itemize}
+    \item \textbf{\texttt{rule\_engine.py}} : lit les règles depuis \texttt{fraud\_rules.json}, évalue chaque condition de façon sécurisée (via l'AST Python), et retourne un \texttt{rule\_score} entre 0 et 1.
+    \item \textbf{\texttt{ml\_scorer.py}} : charge le modèle XGBoost depuis \texttt{models\_saved/}, construit le vecteur de features et retourne une probabilité de fraude (\texttt{ml\_score}).
+    \item \textbf{\texttt{graph\_analyzer.py}} : construit un graphe à partir des numéros de téléphone et des comptes bancaires partagés entre bénéficiaires, puis applique PageRank pour identifier les nœuds les plus risqués.
+    \item \textbf{\texttt{shap\_explainer.py}} : calcule les valeurs SHAP sur la prédiction XGBoost et retourne les 5 features ayant le plus influencé le résultat.
+    \item \textbf{\texttt{llm\_explainer.py}} : construit un prompt enrichi avec les scores, les flags et les facteurs SHAP, l'envoie à Mistral via Ollama, et retourne une explication en français naturel.
+    \item \textbf{\texttt{pipeline.py}} : orchestre l'appel séquentiel des 4 moteurs, agrège les scores et retourne la réponse finale.
+\end{itemize}
+
+\hspace{0.5cm}Cette décomposition répond à une question centrale : comment ces composants s'interconnectent-ils pour déterminer si un bénéficiaire est frauduleux ou non ? Le diagramme de séquence de la sous-section suivante répond précisément à cette question en traçant, étape par étape, le trajet complet d'une requête de scoring.
+
+
+\subsection{Les interactions entre les composants du systeme}
+
+\hspace{0.5cm}Une requête de scoring traverse le système selon un flux séquentiel bien défini, illustré à haut niveau par la Figure~\ref{fig:modules-principaux}, avant d'être détaillé pas à pas.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=1.0\textwidth]{Modules_principaux.png}
+  \caption{Processus de scoring d'un bénéficiaire à travers les composants du moteur intelligent de détection de fraude}
+  \label{fig:modules-principaux}
+\end{figure}
+
+\begin{enumerate}
+    \item Le \textbf{scanner\_service} du moteur antifraude détecte un bénéficiaire à analyser (nouvel enregistrement ou re-scan périodique) et appelle \texttt{POST /score}.
+    \item FastAPI reçoit la requête et l'achemine vers \textbf{pipeline.py}.
+    \item Le pipeline appelle les 4 moteurs \textbf{(règles, XGBoost, Isolation Forest, PageRank)} qui s'exécutent sur les mêmes features.
+    \item Les 4 sous-scores sont agrégés en un score final (formule pondérée).
+    \item SHAP identifie les facteurs clés et Mistral rédige l'explication en langage naturel.
+    \item L'alerte est sauvegardée en base par le moteur antifraude.
+    \item Un cron Odoo (\textbf{fraud\_sync.py}) interroge périodiquement \textbf{GET /cases} et crée les enregistrements \textbf{fraud.case} correspondants ; pour les cas \textbf{CRITICAL}/\textbf{HIGH}, il déclenche aussi automatiquement \textbf{POST /cases/\{id\}/llm\_explain} pour pré-générer l'explication IA.
+    \item L'analyste fraude consulte le cas dans \textbf{Odoo} (menu \textit{Fraud Detection}), peut régénérer l'explication IA, consulter la heatmap Streamlit, ou faire évoluer le statut du dossier (investigation, confirmation, rejet).
+\end{enumerate}
+
+%\hspace{0.5cm}La Figure~\ref{fig:interaction-composants} illustre ce flux sous forme de diagramme de séquence détaillé, depuis le déclenchement du scoring jusqu'à la prise en charge du cas par l'agent social dans Odoo.
+
+%\begin{landscape}
+%\begin{figure}[H]
+ % \centering
+  %\includegraphics[width=\linewidth,height=\textheight,keepaspectratio]{Interaction_composant.png}
+  %\caption{Diagramme de séquence des interactions entre les composants du moteur intelligent de détection de fraude}
+  %\label{fig:interaction-composants}
+%\end{figure}
+%\end{landscape}
+
+
+% ─────────────────────────────────────────────────────────────
+\section{Développement des fonctionnalités}
+% ─────────────────────────────────────────────────────────────
+\subsection{Construction du dataset}
+\hspace{0.5cm}Le moteur intelligent repose sur des algorithmes de Machine Learning, qui ne peuvent apprendre à distinguer un comportement frauduleux d'un comportement légitime qu'à partir d'exemples étiquetés. Or, \textbf{OpenG2P ne dispose d'aucune donnée de fraude} : la plateforme a été conçue pour gérer des programmes de protection sociale, pas pour documenter des cas de fraude confirmés. Construire un dataset d'entraînement exploitable est donc un préalable incontournable, et la première étape de la mise en œuvre du moteur intelligent.
+
+\hspace{0.5cm}Ce dataset ne peut cependant pas être improvisé : il doit être construit à partir des données réelles disponibles dans OpenG2P, structurées de façon à représenter fidèlement le profil et le comportement de chaque bénéficiaire. La Figure~\ref{fig:construction-dataset} illustre le processus retenu dans son ensemble, avant que chacune de ses étapes ne soit détaillée.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.2\textwidth]{Construction_dataset.png}
+  \caption{Processus de construction du dataset de détection de fraude à partir des données OpenG2P}
+  \label{fig:construction-dataset}
+\end{figure}
+
+\subsubsection{Extraction SQL et jointures}
+
+\hspace{0.5cm}La première difficulté rencontrée tient à la taille et à la complexité de la base OpenG2P elle-même. En tant qu'écosystème Odoo complet, elle compte plusieurs centaines de tables couvrant de nombreux modules sans rapport avec la détection de fraude (comptabilité, CRM, notifications, etc.), au sein desquelles il faut identifier le sous-ensemble réellement pertinent. La Figure~\ref{fig:schema-complexity} quantifie cet écart entre le schéma disponible et le schéma effectivement exploité : sur les 587 tables du schéma \texttt{public}, seules 7 sont mobilisées par l'extraction, et parmi celles-ci, seule une fraction des colonnes disponibles (par exemple 93 colonnes dans \texttt{res\_partner}) alimente réellement les 25 features du modèle.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{openg2p_schema_complexity.png}
+    \caption{Complexité du schéma OpenG2P (587 tables) et colonnes disponibles dans les 7 tables retenues pour l'extraction}
+    \label{fig:schema-complexity}
+\end{figure}
+
+\hspace{0.5cm}Le module \textbf{feature\_extractor.py} est responsable de l'extraction des informations depuis la base PostgreSQL d'OpenG2P. Afin de limiter les accès à la base de données, une requête SQL unique utilisant des Common Table Expressions (CTE) est exécutée. Cette requête réalise les jointures entre les tables retenues et agrège les informations relatives à chaque bénéficiaire en une seule ligne par profil — un prérequis technique indispensable avant de pouvoir formuler précisément ce que le moteur doit être capable de détecter.
+
+\newpage
+\subsubsection{Prétraitement et scénarios de fraude simulés}
+
+\hspace{0.5cm}Une fois la donnée rendue accessible, encore faut-il définir précisément l'objectif de détection : quels comportements, parmi la multitude de profils possibles, doivent être reconnus comme frauduleux ? Le prétraitement répond à cette question en simulant neuf scénarios de fraude reconnus dans la littérature sur la protection sociale, qui servent de référence pour étiqueter les exemples du dataset d'entraînement :
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{ScenarioFraude.png}
+    \caption{Scénarios de fraude simulés}
+    \label{fig:scenarios-fraude}
+\end{figure}
+
+\hspace{0.5cm}Un bruit gaussien réaliste est ajouté sur les features sensibles (revenus, score PMT, nombre de programmes) pour éviter une séparation parfaite entre les classes, ce qui rendrait le modèle peu généralisable en production. 8~\% des fraudeurs reçoivent des features proches des légitimes (cas borderline), ce qui simule les cas difficiles à détecter — une exigence essentielle pour qu'un modèle entraîné sur ce jeu de données reste pertinent face à des fraudeurs réels qui cherchent activement à passer inaperçus.
+
+\hspace{0.5cm}Ces neuf scénarios une fois définis, la question suivante devient celle des moyens : quelles variables, parmi celles disponibles dans OpenG2P, permettent réellement de les détecter ?
+
+\subsubsection{Sélection des sources de données}
+
+\hspace{0.5cm}La solution retenue consiste à sélectionner, parmi l'ensemble des tables OpenG2P, celles qui contiennent un signal pertinent pour caractériser le profil socio-économique d'un bénéficiaire, sa participation aux programmes sociaux et son historique de paiements. L'analyse du schéma relationnel de la base PostgreSQL a permis d'identifier les modules et tables listés au Tableau~\ref{tab:data_sources}, qui constituent les principales sources utilisées pour construire les variables d'entrée du moteur de détection de fraude.
+
+\begin{table}[H]
+\centering
+\caption{Principales sources de données exploitées pour la construction du dataset}
+\label{tab:data_sources}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{>{\bfseries}p{4cm} p{4cm} p{7cm}}
+\hline
+\thead{Module OpenG2P} & \thead{Tables principales} & \thead{Informations exploitées} \\
+\hline
+\rowcolor{EYgray}
+Social Registry &
+\texttt{res\_partner} &
+Informations d'identification du bénéficiaire (âge, sexe, téléphone, compte bancaire, revenu, etc.) \\
+
+Program Management &
+\texttt{g2p\_program} \newline
+\texttt{g2p\_program\_membership} &
+Programmes sociaux, inscriptions, statut d'adhésion et ancienneté du bénéficiaire. \\
+
+\rowcolor{EYgray}
+Entitlements &
+\texttt{g2p\_entitlement} &
+Prestations attribuées aux bénéficiaires, droits ouverts et historique des allocations. \\
+
+Paiements &
+\texttt{g2p\_payment} \newline
+\texttt{g2p\_payment\_batch} &
+Historique des paiements, montants versés, statuts, cycles et fréquence des versements. \\
+
+\rowcolor{EYgray}
+Registre des ménages &
+\texttt{g2p\_group} \newline
+\texttt{g2p\_group\_members} &
+Composition du ménage, liens familiaux et nombre de personnes à charge. \\
+
+Évaluation socio-économique &
+\texttt{PMT Assessment} &
+Score PMT (Proxy Means Test) utilisé pour estimer le niveau de vulnérabilité des bénéficiaires. \\
+\hline
+\end{tabular}
+\end{table}
+
+\hspace{0.5cm}Ces six sources couvrent l'identité du bénéficiaire, son inscription aux programmes, ses prestations, ses paiements, la composition de son ménage et son évaluation socio-économique — soit l'ensemble des dimensions nécessaires pour détecter aussi bien une fraude individuelle (revenus sous-déclarés) qu'une fraude organisée (réseau de comptes ou téléphones partagés). Ces variables sélectionnées, il reste à les transformer en un dataset structuré, directement exploitable par les algorithmes de Machine Learning.
+
+\subsubsection{Construction des features et tableau des 25 variables}
+
+\hspace{0.5cm}À l'issue du prétraitement, chaque profil de bénéficiaire est traduit en un vecteur de 25 features numériques, résumées par catégorie au Tableau~\ref{tab:features}. Ces variables couvrent la démographie, la composition du ménage, la participation aux programmes, le score PMT, l'historique de paiements, les signaux réseau et des indicateurs dérivés (flags).
+
+\begin{table}[H]
+\centering
+\caption{Les 25 features extraites pour le modèle ML}
+\label{tab:features}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{>{\bfseries}p{2.5cm} p{5cm} p{6cm}}
+\hline
+\thead{Catégorie} & \thead{Features} & \thead{Signification} \\
+\hline
+\rowcolor{EYgray}
+Démographie & \texttt{age}, \texttt{income}, \texttt{income\_per\_person} & Âge, revenu total et revenu par personne \\
+Ménage & \texttt{household\_size}, \texttt{nb\_children}, \texttt{nb\_elderly}, \texttt{dependency\_ratio} & Composition et vulnérabilité du ménage \\
+\rowcolor{EYgray}
+Ménage & \texttt{has\_disabled}, \texttt{single\_head} & Présence d'handicap, chef de ménage seul \\
+Programmes & \texttt{nb\_programs}, \texttt{nb\_active\_programs}, \texttt{avg\_enrollment\_days} & Inscriptions actives et ancienneté \\
+\rowcolor{EYgray}
+Score PMT & \texttt{pmt\_score}, \texttt{pmt\_score\_min} & Score de ciblage proxy-means test \\
+Paiements & \texttt{payment\_count}, \texttt{payment\_gap\_ratio}, \texttt{payment\_success\_rate} & Volume et taux d'échec des paiements \\
+\rowcolor{EYgray}
+Paiements & \texttt{amount\_variance}, \texttt{cycle\_count} & Variabilité des montants reçus \\
+Réseau & \texttt{shared\_phone\_count}, \texttt{shared\_account\_count}, \texttt{network\_risk} & Partage de ressources entre bénéficiaires \\
+\rowcolor{EYgray}
+Groupe & \texttt{group\_membership\_count} & Appartenance à des groupes ménagers \\
+Flags & \texttt{high\_amount\_flag}, \texttt{income\_program\_inconsistency} & Signaux dérivés de règles heuristiques \\
+\hline
+\end{tabular}
+\end{table}
+
+\hspace{0.5cm}Au-delà de ce regroupement par catégorie métier, un audit technique du schéma réel du fichier généré confirme la cohérence des types de données : les 25 features sont toutes numériques (entiers, flottants ou booléens), sans valeur manquante, ce qui les rend directement exploitables par les modèles de Machine Learning sans étape d'encodage supplémentaire. Ces variables une fois construites, elles doivent encore être assemblées en un dataset tabulaire cohérent, avant de pouvoir être généré à grande échelle et injecté dans OpenG2P.
+
+\subsubsection{Structure du dataset final}
+
+\hspace{0.5cm}À l'issue des différentes étapes d'extraction, de nettoyage et de construction des features, les informations relatives à chaque bénéficiaire sont regroupées dans un dataset tabulaire destiné à l'entraînement et à l'évaluation des modèles de détection de fraude.
+
+\hspace{0.5cm}Le dataset obtenu est organisé sous forme tabulaire, où chaque ligne représente un bénéficiaire et chaque colonne une information descriptive ou une feature calculée. Il comporte 36 colonnes, dont 25 features utilisées par les modèles de Machine Learning, les autres étant dédiées aux identifiants et aux informations de supervision. La Figure \textbf{~\ref{fig:openg2p-dtypes}} présente la structure complète de ce dataset.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{openg2p_columns_dtypes.png}
+    \caption{Colonnes et types du dataset OpenG2P généré (36 colonnes, dont les 25 features ML)}
+    \label{fig:openg2p-dtypes}
+\end{figure}
+
+\hspace{0.5cm}Ce dataset structuré n'a de valeur que s'il peut être produit à l'échelle et alimenter réellement la plateforme : c'est l'objet de la dernière étape de cette construction.
+
+\subsubsection{Génération du dataset synthétique et injection PostgreSQL}
+
+\hspace{0.5cm}Une fois les features construites, le script \texttt{generate\_dataset.py} permet de produire automatiquement un grand nombre de profils synthétiques reproduisant les caractéristiques observées dans les données OpenG2P. Ces données peuvent être injectées directement dans la base PostgreSQL grâce à l'option \texttt{--inject}, afin d'alimenter l'environnement de test avec un jeu de données cohérent et immédiatement exploitable.
+
+\begin{lstlisting}[language=bash, caption=Génération et injection du dataset]
+docker exec fraud-engine python ml/scripts/generate_dataset.py \
+    --n 10000 \
+    --fraud-rate 0.12 \
+    --inject
+\end{lstlisting}
+
+\hspace{0.5cm}Lors de l'injection, le script respecte automatiquement les contraintes d'intégrité référentielle d'OpenG2P en suivant l'ordre de création des différentes entités (programmes, cycles, bénéficiaires, inscriptions, comptes bancaires, allocations puis paiements). Cette approche garantit l'obtention d'une base de données synthétique mais conforme au modèle relationnel de la plateforme.
+
+\hspace{0.5cm}Le dataset ainsi généré constitue le point d'entrée du moteur intelligent. Les 25 features extraites servent désormais de variables d'entrée communes aux différents mécanismes de détection de fraude présentés dans les sections suivantes : moteur de règles, modèles de Machine Learning, analyse de réseau et moteur d'explicabilité. Afin d'évaluer la robustesse des modèles supervisés dans un contexte transactionnel complémentaire, un second jeu de données, \textit{PaySim}, est également utilisé lors de la phase d'entraînement et de validation.
+
+\subsubsection{Un second banc d'essai: le dataset PaySim}
+
+\hspace{0.5cm}\textit{PaySim} est un jeu de données public (Kaggle, dérivé de journaux de transactions mobile money) simulant environ 470 000 transactions bancaires, dont un sous-ensemble de 172 473 lignes de type \texttt{TRANSFER} et \texttt{CASH\_OUT} est retenu pour cette étude — les deux types d'opération réellement exposés à la fraude dans le simulateur. Contrairement au dataset OpenG2P, où chaque ligne représente un \textbf{bénéficiaire}, chaque ligne de PaySim représente une \textbf{transaction} horodatée : montant transféré, soldes du compte source et du compte destination avant et après l'opération, type d'opération, et libellé de fraude. Cette différence de grain — profil de bénéficiaire contre événement transactionnel isolé — signifie que les deux jeux de données ne partagent ni schéma ni identifiant commun, et ne peuvent donc pas être fusionnés en un seul dataset d'entraînement.
+
+\hspace{0.5cm}Le taux de fraude réel de PaySim est d'environ 0.3~\%, très inférieur au 14~\% du dataset OpenG2P généré. Un premier obstacle technique a dû être traité avant tout entraînement : le simulateur PaySim fabrique les transactions frauduleuses en mettant le solde du compte émetteur à zéro sans réellement soustraire le montant transféré, ce qui rend la colonne \texttt{balance\_anomaly} (et les soldes bruts qui en dérivent) corrélée à près de 100~\% avec le label de fraude. Un modèle entraîné sur ces colonnes obtient un score parfait en apparence, sans avoir appris de signal réellement exploitable. Ces six colonnes ont donc été retirées, ne conservant que les 11 features suivantes : \texttt{tx\_step}, \texttt{tx\_amount}, \texttt{full\_drain}, \texttt{round\_amount}, \texttt{dest\_was\_empty}, \texttt{dest\_is\_merchant}, \texttt{log\_amount}, \texttt{amount\_to\_balance\_ratio}, \texttt{hour\_of\_day}, \texttt{is\_night} et \texttt{tx\_type\_transfer}.
+
+\hspace{0.5cm}La Figure~\ref{fig:paysim-overview} présente trois angles de lecture du dataset ainsi nettoyé. Le premier panneau montre que le montant de la transaction, seul, ne sépare pas nettement les transactions frauduleuses des transactions légitimes — la distribution des deux classes se chevauche largement. Le deuxième panneau révèle en revanche un signal temporel marqué : le taux de fraude grimpe fortement entre 2h et 8h du matin, avant de retomber à un niveau quasi nul le reste de la journée, ce qui confirme l'intérêt de la feature \texttt{is\_night} pour la détection. Le troisième panneau compare la performance du meilleur modèle entraîné sur PaySim à celle du meilleur modèle entraîné sur OpenG2P, sur leurs jeux de test respectifs.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{paysim_overview.png}
+    \caption{Vue d'ensemble du dataset PaySim : distribution des montants par classe, taux de fraude par heure, et comparaison de performance avec le moteur OpenG2P}
+    \label{fig:paysim-overview}
+\end{figure}
+
+\hspace{0.5cm}Le modèle XGBoost calibré entraîné sur PaySim atteint un ROC-AUC de 1.000 et un PR-AUC de 0.996 sur un jeu de test dont le taux de fraude réel (0.82~\%) a été restauré après un split chronologique — une performance nettement supérieure à celle obtenue sur OpenG2P (ROC-AUC 0.863, PR-AUC 0.710). Cet écart ne signifie pas que le second problème est mieux résolu que le premier : il reflète plutôt une différence de nature entre les deux tâches. Une transaction bancaire frauduleuse laisse une empreinte numérique très caractéristique (vidage intégral du compte, montant non arrondi, horaire nocturne), alors qu'un profil de bénéficiaire frauduleux se distingue par des écarts plus subtils et returnant sur plusieurs dimensions (revenu, réseau, historique de paiement).
+
+\hspace{0.5cm}Comment ces résultats peuvent-ils alors profiter au moteur intelligent, si les deux jeux de données ne peuvent être fusionnés~? PaySim est utilisé comme un \textbf{second banc d'essai} pour les mêmes familles d'algorithmes (XGBoost, Isolation Forest), sur un contexte de fraude différent de celui d'OpenG2P. Cette validation croisée entre deux domaines apporte trois bénéfices concrets au moteur, sans toucher au score hybride actuel :
+
+\begin{itemize}
+    \item \textbf{Détection de fuites de données} : la découverte de la fuite via \texttt{balance\_anomaly} sur PaySim a permis d'auditer plus rigoureusement le pipeline de features d'OpenG2P à la recherche de fuites analogues (une feature calculée après le fait déclencheur de la fraude, par exemple), renforçant la confiance dans le caractère généralisable des 25 features retenues.
+    \item \textbf{Choix de métriques adaptées au déséquilibre} : le déséquilibre extrême de PaySim (0.3~\% de fraude réelle) a imposé l'usage systématique du PR-AUC et des indicateurs de type \textit{precision@k} plutôt que du seul ROC-AUC — une pratique désormais appliquée également à l'évaluation du modèle OpenG2P.
+    \item \textbf{Preuve de robustesse de la stack technique} : entraîner avec succès XGBoost et Isolation Forest sur un volume et un contexte différents (172~473 transactions contre 5~000 bénéficiaires) confirme que le pipeline d'entraînement du moteur n'est pas surajusté aux particularités du dataset OpenG2P généré.
+\end{itemize}
+
+\hspace{0.5cm}Une intégration future du signal transactionnel au score hybride pondéré (voir la sous-section~\ref{sec:score-hybride}) nécessiterait de disposer d'un historique de paiement réel lié aux bénéficiaires — par exemple les tables \texttt{g2p\_payment} d'OpenG2P enrichies de features analogues à celles de PaySim (montant, horaire, ratio au solde) — et non le dataset PaySim tel quel, qui reste un jeu de données public sans lien avec les bénéficiaires du système. Cette piste est présentée comme perspective d'évolution au dernier chapitre de ce rapport.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\subsection{Moteur de détection de fraude}
+
+\hspace{0.5cm}Le moteur de règles permet de capter des patterns de fraude connus sans avoir besoin d'un modèle ML — une première ligne de détection, déterministe et immédiatement interprétable, qui complète les modèles statistiques développés dans la suite du chapitre. Chaque règle est définie dans \texttt{fraud\_rules.json} sous la forme d'une condition, d'un poids et d'un niveau de sévérité.
+
+\hspace{0.5cm}Les 10 règles couvrent les scénarios suivants : partage de compte bancaire (R001, poids 0.35), partage de téléphone (R002, poids 0.30), trop de programmes (R003, poids 0.30), score PMT suspect (R004, poids 0.20), écart de paiements (R005, poids 0.30), ménage fantôme (R006, poids 0.25), combinaison téléphone + compte (R007, poids 0.40), risque réseau élevé (R008, poids 0.30), sous-déclaration de revenus (R009, poids 0.20), et manipulation + réseau (R010, poids 0.35).
+
+\hspace{0.5cm}Les conditions sont évaluées de façon sécurisée via l'AST Python (\texttt{ast.NodeVisitor}), ce qui évite tout risque d'injection de code — un choix d'implémentation déterminant puisque les règles peuvent, à terme, être modifiées par un administrateur métier sans revalidation du code source.
+
+\hspace{0.5cm}Le \texttt{rule\_score} est la somme des poids des règles déclenchées, plafonnée à 1.0. Une liste de flags (ex. : \texttt{SHARED\_ACCOUNT}, \texttt{FRAUD\_NETWORK\_COMBO}) accompagne le score pour expliquer les déclenchements.
+
+\hspace{0.5cm}Si le moteur de règles capture efficacement les patterns de fraude déjà répertoriés, il reste par nature limité aux scénarios anticipés lors de sa conception. La détection de patterns plus subtils ou non explicitement codifiés nécessite un second moteur, statistique cette fois : le pipeline de Machine Learning.
+
+\subsection{Conception du moteur de détection de fraude par Machine Learning}
+
+\hspace{0.5cm}Le pipeline ML entraîne trois modèles supervisés et un modèle non-supervisé, tous comparés via MLflow, afin de sélectionner objectivement le modèle offrant le meilleur compromis entre précision et rappel sur la détection de fraude.
+
+\paragraph{Rééquilibrage des classes avec SMOTE.}
+Le dataset est déséquilibré (88~\% légitimes / 12~\% fraudes) — un déséquilibre qui, sans traitement, biaiserait tout modèle supervisé vers la classe majoritaire. SMOTE (\textit{Synthetic Minority Over-sampling Technique}) génère des exemples synthétiques de la classe minoritaire pour équilibrer les données d'entraînement :
+
+\begin{lstlisting}[language=python, caption=Rééquilibrage avec SMOTE]
+from imblearn.over_sampling import SMOTE
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, stratify=y, random_state=42
+)
+
+smote = SMOTE(sampling_strategy=0.5, random_state=42)
+X_train_bal, y_train_bal = smote.fit_resample(X_train, y_train)
+\end{lstlisting}
+
+\paragraph{Entraînement XGBoost.}
+XGBoost est le modèle retenu pour sa capacité à capturer des interactions non-linéaires entre features.
+
+\paragraph{Isolation Forest pour la détection d'anomalies.}
+En complément du modèle supervisé, l'Isolation Forest détecte les bénéficiaires dont le comportement est statistiquement atypique, même sans label de fraude disponible — un filet de sécurité pour les fraudes émergentes qu'aucun exemple d'entraînement ne représente encore.
+
+\hspace{0.5cm}Le Tableau~\ref{tab:comparaison_modeles} compare les performances des trois modèles supervisés évalués sur le jeu de test.
+
+\begin{table}[H]
+\centering
+\caption{Comparaison des modèles supervisés}
+\label{tab:comparaison_modeles}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{lcccc}
+\hline
+\thead{Modèle} & \thead{AUC-ROC} & \thead{F1 (fraude)} & \thead{Précision} & \thead{Rappel} \\
+\hline
+\rowcolor{EYyellow!30}
+\textbf{XGBoost calibré (retenu)} & \textbf{0.858} & \textbf{0.630} & \textbf{0.895} & \textbf{0.486} \\
+Random Forest & 0.841 & 0.608 & 0.871 & 0.470 \\
+\rowcolor{EYgray}
+Régression Logistique & 0.794 & 0.571 & 0.812 & 0.440 \\
+\hline
+\end{tabular}
+\end{table}
+
+\hspace{0.5cm}XGBoost est retenu pour son AUC la plus élevée et sa précision de 89.5~\%, ce qui signifie que 9 alertes sur 10 générées sont de vraies fraudes — une propriété essentielle pour maintenir la confiance des agents sociaux dans le système.
+
+\hspace{0.5cm}Le moteur ML détecte efficacement les anomalies au niveau individuel, mais certaines fraudes ne se révèlent qu'au niveau collectif — lorsque plusieurs bénéficiaires partagent des ressources entre eux. C'est ce que l'analyse de réseau vient compléter.
+
+\subsection{Analyse de réseau}
+
+\hspace{0.5cm}Les fraudes organisées, comme le partage de compte bancaire entre plusieurs bénéficiaires fictifs, ne sont pas toujours visibles au niveau individuel. L'analyse de réseau les révèle en construisant un graphe où les nœuds sont les bénéficiaires et les arêtes représentent des ressources partagées.
+
+\hspace{0.5cm}Les comptes bancaires partagés ont un poids double (0.8 contre 0.5) car ils représentent un signal de fraude plus fort : partager un numéro de téléphone peut être légitime en contexte rural, mais partager un compte bancaire est très rarement justifiable. L'algorithme PageRank est ensuite appliqué sur ce graphe pour identifier les nœuds les plus centraux, donc les plus susceptibles d'appartenir à un réseau frauduleux organisé.
+
+\hspace{0.5cm}À ce stade, le système dispose de trois signaux indépendants — règles, ML, réseau — chacun capturant une facette différente du risque de fraude. Encore faut-il les combiner en une décision unique et exploitable : c'est le rôle de la fusion des scores.
+
+\subsection{Fusion des scores}
+\label{sec:score-hybride}
+
+\hspace{0.5cm}Les quatre moteurs produisent chacun un sous-score normalisé dans l'intervalle [0, 1]. Le score final est une combinaison pondérée :
+
+\begin{equation}
+\text{score\_final} = 0{,}70 \times s_{\text{ML}} + 0{,}20 \times s_{\text{règles}} + 0{,}10 \times s_{\text{graphe}}
+\end{equation}
+
+\hspace{0.5cm}Le poids dominant accordé au modèle ML (70~\%) reflète sa capacité à capturer des interactions complexes entre features. Les règles métier (20~\%) couvrent les cas évidents et déterministes. Le graphe (10~\%) enrichit la détection des fraudes organisées sans dominer la décision. Ce score est ensuite converti en niveau de risque, sur une échelle à quatre paliers permettant de prioriser l'action des agents sociaux.
+
+\hspace{0.5cm}Un score de risque, aussi bien calibré soit-il, reste cependant une boîte noire pour l'agent social qui doit décider d'une action. Les deux couches suivantes — SHAP puis LLM Mistral — répondent à cette exigence d'explicabilité.
+
+\subsection{Explicabilité SHAP}
+
+\hspace{0.5cm}Un score seul n'est pas exploitable par un agent social : encore faut-il pouvoir justifier pourquoi un bénéficiaire donné a été signalé. Le moteur intelligent génère deux niveaux d'explication, dont le premier repose sur SHAP.
+
+\paragraph{SHAP} (\textit{SHapley Additive exPlanations}) décompose la prédiction XGBoost en contributions individuelles de chaque feature, permettant d'identifier les cinq variables ayant le plus influencé le score attribué à un bénéficiaire donné.
+
+\hspace{0.5cm}Cette décomposition technique, bien qu'indispensable pour un data scientist ou un auditeur, demeure difficile à interpréter directement par un agent social non spécialiste. La dernière couche du pipeline traduit donc ces facteurs SHAP en une explication rédigée en langage naturel.
+
+\subsection{Explication LLM}
+
+\paragraph{LLM Mistral} reçoit les facteurs SHAP, le score final et les flags déclenchés, et génère une explication lisible. Le RAG ChromaDB enrichit le contexte avec des cas de fraude similaires issus de la base de connaissance, ce qui permet à l'explication générée de s'appuyer sur des précédents comparables plutôt que sur les seules variables numériques.
+
+\textbf{Exemple de réponse générée :}
+\begin{quote}
+\textit{«~Ce bénéficiaire présente plusieurs signaux d'alerte : son taux d'échec de paiement est anormalement élevé (68~\%), son compte bancaire est partagé avec 3 autres personnes, et il est inscrit à 4 programmes simultanément. Ces éléments combinés suggèrent une fraude coordonnée. Une revue manuelle est recommandée avant tout versement.~»}
+\end{quote}
+
+\hspace{0.5cm}Avec cette explication en langage naturel, le pipeline de scoring est complet : de l'extraction SQL jusqu'à la restitution d'une décision justifiée. Reste à situer ce pipeline dans son environnement d'exploitation réel — comment il est exposé via FastAPI, synchronisé avec Odoo, restitué dans un dashboard, et déployé en production. C'est l'objet de la section suivante.
+
+% ─────────────────────────────────────────────────────────────
+\section{Intégration dans OpenG2P}
+% ─────────────────────────────────────────────────────────────
+
+\hspace{0.5cm}Le moteur intelligent, aussi complet soit-il, n'a de valeur opérationnelle que s'il s'intègre naturellement dans le quotidien des agents sociaux qui utilisent OpenG2P. Cette section décrit les quatre mécanismes qui assurent cette intégration : l'exposition du pipeline via FastAPI, la synchronisation automatique avec Odoo, la restitution visuelle dans le dashboard Streamlit, et le déploiement d'ensemble via Docker.
+
+\subsection{Exposition via FastAPI}
+
+\hspace{0.5cm}FastAPI expose l'ensemble du pipeline décrit à la section précédente sous forme de services REST, ce qui permet à n'importe quel client — Odoo, Streamlit, ou un appel direct — de déclencher un scoring ou de consulter un cas sans connaître les détails d'implémentation du pipeline interne.
+
+\subsection{Synchronisation Odoo}
+
+\hspace{0.5cm}Un module Odoo personnalisé (\texttt{g2p\_fraud\_detection}) synchronise périodiquement les cas de fraude détectés par le moteur intelligent et les affiche dans un menu dédié (\textit{Fraud Detection}) sans quitter l'interface OpenG2P.
+
+\hspace{0.5cm}Un webhook (\texttt{POST /v1/webhook/beneficiary-saved}) permet également de déclencher un scoring en tâche de fond dès qu'un bénéficiaire est créé ou mis à jour dans OpenG2P, sans action manuelle de l'agent. Cette synchronisation garantit que la donnée reste fraîche côté Odoo sans imposer à l'agent social un aller-retour vers un outil distinct.
+
+\subsection{Dashboard Streamlit}
+
+\hspace{0.5cm}Le dashboard Streamlit (\texttt{dashboard/app.py}) offre une vue consolidée des alertes en temps réel, complémentaire à l'intégration Odoo pour les usages d'analyse et de monitoring. Il est accessible à l'adresse \texttt{http://localhost:8501} et comporte quatre onglets :
+
+\begin{itemize}
+    \item \textbf{Alertes actives} : liste des bénéficiaires CRITICAL et HIGH avec filtre par programme, niveau de risque et date.
+    \item \textbf{Graphe de réseau} : visualisation interactive (PyVis) du réseau de fraude, avec les communautés détectées colorées.
+    \item \textbf{Performance ML} : courbes ROC, matrice de confusion et évolution des métriques au fil des versions MLflow.
+    \item \textbf{Analyse SHAP} : graphique \textit{beeswarm} montrant l'impact de chaque feature sur l'ensemble des prédictions.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    %\includegraphics[width=\textwidth]{}
+    \caption{Dashboard Streamlit : vue des alertes actives avec niveaux de risque}
+    \label{fig:dashboard}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+   % \includegraphics[width=\textwidth]{dashboard_shap_beeswarm.png}
+    \caption{Graphique SHAP beeswarm : importance des features sur l'ensemble des prédictions}
+  \label{fig:shap}
+\end{figure}
+
+\subsection{Déploiement Docker}
+
+\hspace{0.5cm}L'ensemble de ces composants — moteur intelligent, base de données, Odoo, dashboard, MLflow et Ollama — est déployé et orchestré via la configuration Docker Compose présentée en début de chapitre (Tableau~\ref{tab:conteneurs}, Figures~\ref{fig:docker-compose} et \ref{fig:docker-start}), ce qui garantit que l'intégration décrite dans cette section repose sur un socle de déploiement unique, reproductible et versionné.
+
+% ─────────────────────────────────────────────────────────────
+\section{Conclusion partielle}
+% ─────────────────────────────────────────────────────────────
+
+\hspace{0.5cm}Ce chapitre a présenté la mise en œuvre complète du moteur intelligent, depuis la génération des données d'entraînement jusqu'au déploiement de l'interface utilisateur. Toutes les fonctionnalités spécifiées au chapitre précédent ont été réalisées et intégrées dans un système cohérent et déployable via une seule commande Docker Compose.
+
+\textbf{Récapitulatif des fonctionnalités développées :}
+
+\begin{itemize}
+    \item Génération d'un dataset synthétique de 10~000 bénéficiaires (12~\% de fraudes, 9 scénarios) avec injection PostgreSQL
+    \item Extraction de 25 features SQL multi-tables depuis OpenG2P avec gestion défensive des valeurs manquantes
+    \item Moteur de règles métier : 10 règles JSON, évaluation sécurisée AST, \texttt{rule\_score} avec liste de flags
+    \item Modèle XGBoost calibré (AUC~0.858, précision~89.5~\%) avec SMOTE, suivi MLflow et versioning des artefacts
+    \item Isolation Forest pour la détection d'anomalies non-supervisée
+    \item Graphe NetworkX + PageRank pour l'identification des réseaux frauduleux
+    \item Score hybride pondéré (70~\% ML + 20~\% règles + 10~\% graphe) avec 4 niveaux de risque
+    \item Explicabilité SHAP (top 5 features) + LLM Mistral (explication en français naturel via RAG)
+    \item Module Odoo \texttt{g2p\_fraud\_detection} avec synchronisation automatique et webhook de scoring
+    \item Dashboard Streamlit : alertes, graphe de réseau, courbes ROC, graphique SHAP
+\end{itemize}
+
+\hspace{0.5cm}Le chapitre suivant évalue la performance de ce système dans des conditions proches de la production : métriques ML approfondies, tests d'intégration avec OpenG2P, analyse des cas limites et mesure des temps de réponse.
+
+
+
+
+
+
+
+
+
+
+
+
+
+%═════════════════════════════════════════════════
+% SECTION RÉFÉRENCES (à inclure dans votre biblio)
+% ═════════════════════════════════════════════════
+ 
+\begin{thebibliography}{99}
+ 
+\bibitem{BM_PovertyData2023}
+Banque Mondiale. (2023). \textit{World Development Indicators}. 
+\url{https://data.worldbank.org/indicator}
+
+\bibitem{OpenG2P_Docs2023}
+OpenG2P Community. (2023). \textit{OpenG2P Technical Documentation and Deployment Guide}.
+\url{https://openg2p.dev/docs/}
+
+\bibitem{BM_Sourcebook2020}
+Banque Mondiale. (2020). \textit{The Sourcebook of Social Protection Programmes}.
+Chapter 8: Social Protection Finance and Risk. Washington, DC.
+
+
+\end{thebibliography}
+
+\end{document}

@@ -1,0 +1,37 @@
+\babel@toc {french}{}\relax 
+\addvspace {10\p@ }
+\contentsline {xchapter}{Contexte du projet}{2}{}%
+\contentsline {figure}{\numberline {1.1}{\ignorespaces Logo d'EY}}{2}{}%
+\contentsline {figure}{\numberline {1.2}{\ignorespaces EY Global}}{2}{}%
+\contentsline {figure}{\numberline {1.3}{\ignorespaces AMC EY Tunisie}}{3}{}%
+\contentsline {figure}{\numberline {1.4}{\ignorespaces Les activités de la division « Technology Transformation »}}{4}{}%
+\contentsline {figure}{\numberline {1.5}{\ignorespaces Logo de OpenG2P}}{6}{}%
+\contentsline {figure}{\numberline {1.6}{\ignorespaces Processus actuel dans OpenG2P et les zones de vulnérabilité à la fraude}}{7}{}%
+\contentsline {figure}{\numberline {1.7}{\ignorespaces Diagramme de Gantt du projet}}{8}{}%
+\addvspace {10\p@ }
+\contentsline {xchapter}{État de l'art}{10}{}%
+\addvspace {10\p@ }
+\contentsline {xchapter}{Spécifications fonctionnelles et choix technologiques}{18}{}%
+\contentsline {figure}{\numberline {3.1}{\ignorespaces Diagramme de cas d’utilisation général}}{20}{}%
+\contentsline {figure}{\numberline {3.2}{\ignorespaces Diagramme de classe général}}{21}{}%
+\contentsline {figure}{\numberline {3.3}{\ignorespaces Architecture physique du moteur intelligent de détection de fraude}}{22}{}%
+\contentsline {figure}{\numberline {3.4}{\ignorespaces Architecture logique du moteur intelligent de détection de fraude}}{23}{}%
+\contentsline {figure}{\numberline {3.5}{\ignorespaces Diagramme de flux de données du moteur intelligent de détection de fraude}}{24}{}%
+\addvspace {10\p@ }
+\contentsline {xchapter}{Réalisation}{29}{}%
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Langages et outils utilisés pour le développement du moteur intelligent de détection de fraude}}{29}{}%
+\contentsline {figure}{\numberline {4.2}{\ignorespaces Extrait de la configuration Docker Compose pour le moteur intelligent et la plateforme OpenG2P}}{30}{}%
+\contentsline {figure}{\numberline {4.3}{\ignorespaces Extrait de la configuration Docker Compose pour le moteur intelligent et la plateforme OpenG2P}}{31}{}%
+\contentsline {figure}{\numberline {4.4}{\ignorespaces Extrait des conteneurs Docker Compose pour le moteur intelligent et la plateforme OpenG2P}}{32}{}%
+\contentsline {figure}{\numberline {4.5}{\ignorespaces Démarrage de l'ensemble du système via Docker Compose}}{33}{}%
+\contentsline {figure}{\numberline {4.6}{\ignorespaces Vision globale sur la structure du code source}}{34}{}%
+\contentsline {figure}{\numberline {4.7}{\ignorespaces Structure du code source du moteur intelligent de détection de fraude}}{34}{}%
+\contentsline {figure}{\numberline {4.8}{\ignorespaces La structure des composants principaux du moteur intelligent de détection de fraude}}{35}{}%
+\contentsline {figure}{\numberline {4.9}{\ignorespaces Processus de scoring d'un bénéficiaire à travers les composants du moteur intelligent de détection de fraude}}{36}{}%
+\contentsline {figure}{\numberline {4.10}{\ignorespaces Processus de construction du dataset de détection de fraude à partir des données OpenG2P}}{37}{}%
+\contentsline {figure}{\numberline {4.11}{\ignorespaces Complexité du schéma OpenG2P (587 tables) et colonnes disponibles dans les 7 tables retenues pour l'extraction}}{38}{}%
+\contentsline {figure}{\numberline {4.12}{\ignorespaces Scénarios de fraude simulés}}{39}{}%
+\contentsline {figure}{\numberline {4.13}{\ignorespaces Colonnes et types du dataset OpenG2P généré (36 colonnes, dont les 25 features ML)}}{42}{}%
+\contentsline {figure}{\numberline {4.14}{\ignorespaces Vue d'ensemble du dataset PaySim : distribution des montants par classe, taux de fraude par heure, et comparaison de performance avec le moteur OpenG2P}}{44}{}%
+\contentsline {figure}{\numberline {4.15}{\ignorespaces Dashboard Streamlit : vue des alertes actives avec niveaux de risque}}{49}{}%
+\contentsline {figure}{\numberline {4.16}{\ignorespaces Graphique SHAP beeswarm : importance des features sur l'ensemble des prédictions}}{49}{}%

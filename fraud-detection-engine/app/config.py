@@ -5,9 +5,9 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    # Database
-    openg2p_db_url: str = "postgresql://odoo:odoo@localhost:5432/openg2p"
-    feature_store_url: str = "postgresql://fraud:fraud@localhost:5432/fraud_store"
+    # Database — NO hardcoded passwords. Must be set via .env or env vars.
+    openg2p_db_url: str = ""
+    feature_store_url: str = ""
 
     # Models
     models_dir: Path = Path("app/models_saved")
@@ -17,18 +17,19 @@ class Settings(BaseSettings):
     xgboost_weight: float = 0.70
     isolation_forest_weight: float = 0.30
 
-    # Ensemble weights (rules / ML / graph) — optimised by grid search
-    ensemble_rules_weight: float = 0.25
-    ensemble_ml_weight: float = 0.30
-    ensemble_graph_weight: float = 0.45
+    # Ensemble weights (rules / ML / graph) — optimised by grid search (2025-07)
+    # Reflects that ML (stacking ensemble) is the strongest signal.
+    ensemble_rules_weight: float = 0.20
+    ensemble_ml_weight: float = 0.55
+    ensemble_graph_weight: float = 0.25
 
     # Scoring thresholds
     critical_threshold: float = 0.80
     high_threshold: float = 0.60
     medium_threshold: float = 0.40
 
-    # API
-    api_secret_key: str = "dev-secret-change-in-prod"
+    # API — set API_SECRET_KEY in .env (no default in code)
+    api_secret_key: str = ""
 
     # Alert system  (set ALERT_WEBHOOK_URL in .env to enable)
     alert_webhook_url: str = ""          # Slack / Teams / generic webhook URL

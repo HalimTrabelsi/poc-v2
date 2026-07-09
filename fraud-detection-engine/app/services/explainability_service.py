@@ -86,13 +86,28 @@ class Explainer:
 
         # Constrain to the EXACT features the model was trained on. Feeding
         # extra/missing columns to XGBoost's C backend triggers a segfault.
-        model_features = self._get_model_feature_names(tree_model)
-        if model_features:
-            feature_names = [f for f in model_features if f in features]
-        else:
-            feature_names = list(features.keys())
+        # Look up names on the original (pre-unwrap) object first: when model
+        # is a Pipeline(prep=ColumnTransformer, clf=XGBClassifier), the real
+        # trained-on column names live on the ColumnTransformer/Pipeline via
+        # feature_names_in_, not on the bare XGBClassifier step, whose booster
+        # only knows generic post-transform names (or none at all).
+        model_features = self._get_model_feature_names(model)
+        if not model_features:
+            model_features = self._get_model_feature_names(tree_model)
+        if not model_features:
+            logger.error("Cannot determine model feature names — SHAP disabled")
+            return []
+        feature_names = [f for f in model_features if f in features]
+        if not feature_names:
+            return []
         X = pd.DataFrame([{f: float(features.get(f, 0.0) or 0.0) for f in feature_names}])
 
+        # No LinearExplainer fallback here: it assumes a linear coefficient
+        # structure that a tree booster does not have. Calling it on an
+        # XGBoost/RF model previously caused native heap corruption
+        # ("free(): invalid next size") instead of a clean Python error, so
+        # if TreeExplainer can't handle this model we skip SHAP entirely and
+        # let the heuristic feature-based fallback in explain() take over.
         try:
             explainer = shap.TreeExplainer(tree_model)
             shap_values = explainer.shap_values(X)
@@ -105,10 +120,8 @@ class Explainer:
                 # Some explainers return shape (n_features, n_classes) per row
                 vals = arr[:, 1] if hasattr(arr, "ndim") and arr.ndim == 2 else arr
         except Exception as exc:
-            logger.debug("TreeExplainer failed, falling back to LinearExplainer: %s", exc)
-            explainer = shap.LinearExplainer(tree_model, X)
-            shap_values = explainer.shap_values(X)
-            vals = shap_values[0] if isinstance(shap_values, list) else shap_values[0]
+            logger.warning("TreeExplainer failed — disabling SHAP for this call: %s", exc)
+            return []
 
         contributions = [
             {

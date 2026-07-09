@@ -393,19 +393,29 @@ def inject(df, db_url):
         print(f"   {len(prog_ids)} programmes OK")
 
         # ── 2. g2p_cycle (FK → g2p_program) ────────────────
+        # Use INSERT ... ON CONFLICT DO NOTHING RETURNING id to be safe against
+        # TOCTOU races and re-runs against an already-seeded DB. If the row
+        # already exists, RETURNING yields NULL, so we fall back to a SELECT.
         base = date(2022, 1, 1)
         cycle_map = {}
         for pid in prog_ids:
             for ci in range(N_CYCLES):
+                nm = f"Cycle {ci+1}"
                 sd = base + timedelta(days=ci * 90)
                 ed = sd + timedelta(days=89)
                 cdb = c.execute(text("""
                     INSERT INTO g2p_cycle(
                         program_id, name, sequence,
                         start_date, end_date, state, company_id
-                    ) VALUES(:p, :nm, :sq, :sd, :ed, 'approved', :co) RETURNING id
-                """), {"p": pid, "nm": f"Cycle {ci+1}", "sq": ci+1,
+                    ) VALUES(:p, :nm, :sq, :sd, :ed, 'approved', :co)
+                    ON CONFLICT ON CONSTRAINT g2p_cycle_unique_cycle_name_program
+                    DO NOTHING RETURNING id
+                """), {"p": pid, "nm": nm, "sq": ci+1,
                        "sd": sd, "ed": ed, "co": cid}).scalar()
+                if cdb is None:
+                    cdb = c.execute(text(
+                        "SELECT id FROM g2p_cycle WHERE program_id=:p AND name=:nm"
+                    ), {"p": pid, "nm": nm}).scalar()
                 cycle_map[(pid, ci)] = cdb
         print(f"   {len(cycle_map)} cycles OK")
 
@@ -441,20 +451,22 @@ def inject(df, db_url):
                 prog_indices = ast.literal_eval(prog_indices)
 
             # 4. g2p_program_membership
+            # NOTE: this table has no company_id column (unlike g2p_program,
+            # g2p_cycle, g2p_entitlement, g2p_payment, res_partner_bank,
+            # res_partner — all of which do). Confirmed via information_schema.
             for pi in prog_indices:
                 if pi >= len(prog_ids):
                     continue
                 c.execute(text("""
                     INSERT INTO g2p_program_membership(
                         partner_id, program_id, state,
-                        enrollment_date, company_id
-                    ) VALUES(:p, :pr, 'enrolled', :ed, :co)
+                        enrollment_date
+                    ) VALUES(:p, :pr, 'enrolled', :ed)
                     ON CONFLICT DO NOTHING
                 """), {
                     "p":  pid_db,
                     "pr": prog_ids[pi],
                     "ed": row.get("enrollment_date", date(2022, 1, 1)),
-                    "co": cid,
                 })
 
             # 5. g2p_phone_number

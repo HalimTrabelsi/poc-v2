@@ -51,8 +51,8 @@ if page == "🏠 Vue globale":
     )
 
 # ── Page 2 : Analyser ────────────────────────────────────────
-elif page == "🔍 Analyser un bénéficiaire":
-    st.title("🔍 Analyse d'un bénéficiaire")
+elif page == "Analyser un bénéficiaire":
+    st.title("Analyse d'un bénéficiaire")
 
     with st.form("score_form"):
         st.subheader("Données du bénéficiaire")
@@ -135,9 +135,9 @@ elif page == "🔍 Analyser un bénéficiaire":
 
                 # Flags
                 if result.get("rule_flags"):
-                    st.subheader("🚩 Alertes règles métier")
+                    st.subheader("Alertes règles métier")
                     for flag in result["rule_flags"]:
-                        st.warning(f"⚠️ {flag}")
+                        st.warning(f" {flag}")
 
                 # SHAP factors
                 if result.get("shap_factors"):

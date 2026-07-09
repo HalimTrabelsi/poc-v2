@@ -1,0 +1,26 @@
+\babel@toc {french}{}\relax 
+\addvspace {10\p@ }
+\contentsline {xchapter}{Contexte du projet}{2}{}%
+\contentsline {table}{\numberline {1.1}{\ignorespaces Services professionnels d’EY Tunisie}}{4}{}%
+\contentsline {table}{\numberline {1.2}{\ignorespaces Méthodologies Traditionnelles vs Agiles}}{8}{}%
+\addvspace {10\p@ }
+\contentsline {xchapter}{État de l'art}{10}{}%
+\contentsline {table}{\numberline {2.1}{\ignorespaces Acteurs internes du système}}{14}{}%
+\contentsline {table}{\numberline {2.2}{\ignorespaces Acteurs externes et systèmes}}{14}{}%
+\contentsline {table}{\numberline {2.3}{\ignorespaces Comparaison des méthodes de détection de fraude: avantages et limites}}{15}{}%
+\contentsline {table}{\numberline {2.4}{\ignorespaces Solutions commerciales de détection de fraude sur le marché}}{16}{}%
+\contentsline {table}{\numberline {2.5}{\ignorespaces Limites des travaux existants face à la philosophie DPI / DPG}}{17}{}%
+\addvspace {10\p@ }
+\contentsline {xchapter}{Spécifications fonctionnelles et choix technologiques}{18}{}%
+\contentsline {table}{\numberline {3.1}{\ignorespaces Spécification des besoins fonctionnels du moteur intelligent de détection de fraude par acteur}}{18}{}%
+\contentsline {table}{\numberline {3.2}{\ignorespaces Technologies de base du système de détection de fraude}}{25}{}%
+\contentsline {table}{\numberline {3.3}{\ignorespaces Technologies d'explicabilité et de gestion des modèles}}{26}{}%
+\contentsline {table}{\numberline {3.4}{\ignorespaces Outils de développement et d'infrastructure}}{26}{}%
+\contentsline {table}{\numberline {3.5}{\ignorespaces Dashboards et plateformes de visualisation}}{27}{}%
+\contentsline {table}{\numberline {3.6}{\ignorespaces Outils de collaboration et de documentation}}{28}{}%
+\addvspace {10\p@ }
+\contentsline {xchapter}{Réalisation}{29}{}%
+\contentsline {table}{\numberline {4.1}{\ignorespaces Conteneurs Docker du système}}{30}{}%
+\contentsline {table}{\numberline {4.2}{\ignorespaces Principales sources de données exploitées pour la construction du dataset}}{40}{}%
+\contentsline {table}{\numberline {4.3}{\ignorespaces Les 25 features extraites pour le modèle ML}}{41}{}%
+\contentsline {table}{\numberline {4.4}{\ignorespaces Comparaison des modèles supervisés}}{46}{}%

@@ -3,6 +3,7 @@
   <menuitem id="menu_fraud_root"
             name="Fraud Detection"
             sequence="50"
+            groups="g2p_fraud_detection.group_fraud_officer,g2p_fraud_detection.group_fraud_supervisor"
             web_icon="g2p_fraud_detection,static/description/icon.png"/>
 
   <menuitem id="menu_fraud_dashboard"
@@ -17,10 +18,12 @@
             action="action_fraud_case"
             sequence="20"/>
 
-  <!-- External-dashboard links: open Streamlit in a new tab via URL actions -->
+  <!-- External-dashboard links: routed through /fraud/open_dashboard so a
+       fresh, short-lived, group-checked token is minted server-side on
+       every click rather than embedding a static Streamlit URL. -->
   <record id="action_open_heatmap" model="ir.actions.act_url">
     <field name="name">Geographic Heatmap</field>
-    <field name="url">http://localhost:8501/?page=geo</field>
+    <field name="url">/fraud/open_dashboard?page=geo</field>
     <field name="target">new</field>
   </record>
   <menuitem id="menu_fraud_heatmap"
@@ -31,7 +34,7 @@
 
   <record id="action_open_analytics" model="ir.actions.act_url">
     <field name="name">Analytics Dashboard</field>
-    <field name="url">http://localhost:8501/?page=cases</field>
+    <field name="url">/fraud/open_dashboard?page=cases</field>
     <field name="target">new</field>
   </record>
   <menuitem id="menu_fraud_analytics"
@@ -50,4 +53,16 @@
             parent="menu_fraud_root"
             action="action_open_swagger"
             sequence="50"/>
+
+  <record id="action_open_rules_management" model="ir.actions.act_url">
+    <field name="name">Rule Engine Management</field>
+    <field name="url">/fraud/open_dashboard?page=rules</field>
+    <field name="target">new</field>
+  </record>
+  <menuitem id="menu_fraud_rules"
+            name="Rule Engine Management"
+            parent="menu_fraud_root"
+            action="action_open_rules_management"
+            groups="g2p_fraud_detection.group_fraud_supervisor"
+            sequence="60"/>
 </odoo>

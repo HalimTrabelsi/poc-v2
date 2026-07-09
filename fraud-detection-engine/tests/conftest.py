@@ -13,6 +13,17 @@ def client() -> TestClient:
 
 
 @pytest.fixture
+def decision_orchestrator():
+    """Return a DecisionOrchestrator instance (monkeypatched to skip DB)."""
+    from unittest.mock import MagicMock
+    from app.services.decision_service import DecisionOrchestrator
+    orch = DecisionOrchestrator()
+    orch.repository = MagicMock()
+    orch.repository.get_known_fraud_scores.return_value = {}
+    return orch
+
+
+@pytest.fixture
 def sample_features() -> dict:
     """Return a complete feature dict matching the 25 ML_FEATURES."""
     return {

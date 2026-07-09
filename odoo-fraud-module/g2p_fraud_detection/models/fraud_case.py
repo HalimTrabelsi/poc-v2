@@ -1,6 +1,6 @@
 """Fraud case model — stores cases synced from the fraud-detection-engine."""
 from odoo import fields, models, api, _
-from odoo.exceptions import UserError
+from odoo.exceptions import AccessError, UserError
 
 
 RISK_LEVELS = [
@@ -31,7 +31,7 @@ class FraudCase(models.Model):
     _description = "Fraud Detection Case"
     _inherit = ["mail.thread", "mail.activity.mixin"]
     _order = "create_date desc"
-    _rec_name = "case_id"
+    _rec_name = "beneficiary_name"
 
     case_id = fields.Char(
         string="Case ID", required=True, copy=False, index=True, tracking=True,
@@ -42,6 +42,15 @@ class FraudCase(models.Model):
     partner_id = fields.Many2one(
         "res.partner", string="Beneficiary", compute="_compute_partner_id",
         store=True, index=True,
+    )
+    beneficiary_name = fields.Char(
+        string="Beneficiary Name", compute="_compute_beneficiary_display",
+        store=True, index=True,
+        help="Human-readable name, falls back to 'Beneficiary #<id>' if the "
+             "registry record can't be found (e.g. deleted since scoring).",
+    )
+    beneficiary_phone = fields.Char(
+        string="Phone", compute="_compute_beneficiary_display", store=True,
     )
     final_score = fields.Float(string="Risk Score", digits=(5, 4), tracking=True)
     risk_level = fields.Selection(
@@ -89,6 +98,16 @@ class FraudCase(models.Model):
                 continue
             rec.partner_id = self.env["res.partner"].browse(pid).exists()
 
+    @api.depends("partner_id", "partner_id.name", "partner_id.phone", "partner_id.mobile", "beneficiary_id")
+    def _compute_beneficiary_display(self):
+        for rec in self:
+            if rec.partner_id:
+                rec.beneficiary_name = rec.partner_id.name
+                rec.beneficiary_phone = rec.partner_id.phone or rec.partner_id.mobile or ""
+            else:
+                rec.beneficiary_name = _("Beneficiary #%s", rec.beneficiary_id) if rec.beneficiary_id else _("Unknown Beneficiary")
+                rec.beneficiary_phone = ""
+
     @api.depends("rules_triggered")
     def _compute_rules_count(self):
         for rec in self:
@@ -108,22 +127,40 @@ class FraudCase(models.Model):
         for rec in self:
             rec.color = color_map.get(rec.risk_level, 0)
 
+    def _check_fraud_role(self):
+        """Restrict fraud-case actions to Fraud Officers/Supervisors.
+
+        ir.model.access.csv/ir.rule only gate raw read/write on the model;
+        they don't stop a non-fraud user (e.g. the OpenG2P admin) from
+        calling these action methods directly via RPC/shell. Enforce it here.
+        """
+        user = self.env.user
+        if not (
+            user.has_group("g2p_fraud_detection.group_fraud_officer")
+            or user.has_group("g2p_fraud_detection.group_fraud_supervisor")
+        ):
+            raise AccessError(_("Only Fraud Officers or Supervisors can perform this action."))
+
     def action_mark_investigating(self):
+        self._check_fraud_role()
         self.write({"state": "investigating"})
         for rec in self:
             rec.message_post(body=_("Case moved to investigating."))
 
     def action_mark_confirmed(self):
+        self._check_fraud_role()
         self.write({"state": "confirmed"})
         for rec in self:
             rec.message_post(body=_("Confirmed as fraud."))
 
     def action_mark_dismissed(self):
+        self._check_fraud_role()
         self.write({"state": "dismissed"})
         for rec in self:
             rec.message_post(body=_("Dismissed as false positive."))
 
     def action_close(self):
+        self._check_fraud_role()
         self.write({"state": "closed"})
 
     def action_generate_llm_explanation(self):
@@ -134,6 +171,7 @@ class FraudCase(models.Model):
         import logging
 
         _logger = logging.getLogger(__name__)
+        self._check_fraud_role()
         self.ensure_one()
 
         ICP = self.env["ir.config_parameter"].sudo()
@@ -162,13 +200,10 @@ class FraudCase(models.Model):
     def action_view_on_heatmap(self):
         """Open the Streamlit heatmap centered on this beneficiary in a new tab."""
         self.ensure_one()
-        ICP = self.env["ir.config_parameter"].sudo()
-        base = ICP.get_param(
-            "fraud_detection.dashboard_url", "http://localhost:8501"
-        ).rstrip("/")
+        self._check_fraud_role()
         return {
             "type": "ir.actions.act_url",
-            "url": f"{base}/?page=geo&beneficiary={self.beneficiary_id}",
+            "url": f"/fraud/open_dashboard?page=geo&beneficiary={self.beneficiary_id}",
             "target": "new",
         }
 

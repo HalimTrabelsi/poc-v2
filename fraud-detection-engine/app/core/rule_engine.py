@@ -366,12 +366,12 @@ class RuleEngine:
 
     @staticmethod
     def _score_to_level(score: float) -> str:
-        """Même logique qu'avant"""
+        """Aligned with pipeline.py thresholds (2025-07 standardisation)."""
         if score >= 0.80:
             return "CRITICAL"
-        if score >= 0.55:
+        if score >= 0.60:
             return "HIGH"
-        if score >= 0.30:
+        if score >= 0.40:
             return "MEDIUM"
         return "LOW"
     
