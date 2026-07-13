@@ -37,6 +37,10 @@ python-multipart>=0.0.5
 # PDF Audit Report
 reportlab>=4.0.0
 
+# Synthetic identity generation (name/phone/address/national_id) for
+# ml/scripts/generate_dataset.py — 10 African locales, MIT licensed
+niafaker==1.0.0
+
 # MLflow Model Versioning
 mlflow>=2.13.0
 

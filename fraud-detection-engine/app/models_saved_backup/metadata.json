@@ -24,9 +24,7 @@
     "network_risk",
     "group_membership_count",
     "high_amount_flag",
-    "income_program_inconsistency",
-    "income_ratio_to_national",
-    "household_size_deviation"
+    "income_program_inconsistency"
   ],
   "target_column": "is_fraud",
   "base_models": [

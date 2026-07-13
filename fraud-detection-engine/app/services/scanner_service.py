@@ -77,9 +77,14 @@ class BeneficiaryScanner:
         self._running = False
         logger.info("BeneficiaryScanner stopping.")
 
-    def scan_now(self) -> dict:
-        """Trigger an immediate full scan. Called from the API."""
-        return self._run_poll_scan()
+    def scan_now(self, country_code: str | None = None) -> dict:
+        """Trigger an immediate full scan. Called from the API.
+
+        country_code: deployment country ISO-2 for income/poverty rule
+        calibration (app.core.country_reference). Defaults to the
+        configured deployment country if not given.
+        """
+        return self._run_poll_scan(country_code=country_code)
 
     # ── LISTEN/NOTIFY path ──────────────────────────────────────────────────
 
@@ -140,7 +145,7 @@ class BeneficiaryScanner:
                 logger.exception("Poll-scan error — will retry in %ds", self.POLL_INTERVAL)
             time.sleep(self.POLL_INTERVAL)
 
-    def _run_poll_scan(self) -> dict:
+    def _run_poll_scan(self, country_code: str | None = None) -> dict:
         from app.data.connector import OpenG2PConnector
         from app.data.repository import FraudCaseRepository
 
@@ -173,7 +178,7 @@ class BeneficiaryScanner:
             "errors": 0, "CRITICAL": 0, "HIGH": 0, "MEDIUM": 0, "LOW": 0,
         }
         for bid in new_ids:
-            result = self._score_one(bid)
+            result = self._score_one(bid, country_code=country_code)
             if result:
                 risk = result.get("risk_level", "LOW")
                 summary["scored"] += 1
@@ -185,14 +190,16 @@ class BeneficiaryScanner:
 
     # ── shared scoring ──────────────────────────────────────────────────────
 
-    def _score_one(self, beneficiary_id: str) -> dict | None:
+    def _score_one(self, beneficiary_id: str, country_code: str | None = None) -> dict | None:
         with self._lock:
             if beneficiary_id in self._scored_ids:
                 return None            # already in-flight from NOTIFY
 
         try:
             from app.services.decision_service import DecisionOrchestrator
-            result = DecisionOrchestrator().score_beneficiary(beneficiary_id)
+            result = DecisionOrchestrator().score_beneficiary(
+                beneficiary_id, country_code=country_code
+            )
             with self._lock:
                 self._scored_ids.add(beneficiary_id)
             logger.info(

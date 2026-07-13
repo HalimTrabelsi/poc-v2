@@ -102,7 +102,7 @@
                   invisible="state == 'closed'"/>
           <button name="action_generate_llm_explanation" type="object"
                   string="Regenerate AI Explanation" class="btn-secondary"
-                  groups="g2p_fraud_detection.group_fraud_supervisor"/>
+                  groups="g2p_fraud_detection.group_fraud_officer,g2p_fraud_detection.group_fraud_supervisor"/>
           <field name="state" widget="statusbar"
                  statusbar_visible="open,investigating,confirmed,closed"/>
         </header>

@@ -28,6 +28,11 @@ class Settings(BaseSettings):
     high_threshold: float = 0.60
     medium_threshold: float = 0.40
 
+    # Default deployment country (ISO-2). Used to calibrate income/poverty
+    # rule thresholds when a scan doesn't specify a country_code, so existing
+    # callers keep working unchanged.
+    default_country_code: str = "TN"
+
     # API — set API_SECRET_KEY in .env (no default in code)
     api_secret_key: str = ""
 

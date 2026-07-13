@@ -15,6 +15,7 @@ class LLMExplainer:
     def explain(
         self,
         beneficiary_id: str,
+        beneficiary_name: str,
         score: float,
         level: str,
         factors: list[dict],
@@ -30,6 +31,7 @@ class LLMExplainer:
             f"Tu es expert en detection de fraudes dans les programmes "
             f"de protection sociale.\n\n"
             f"Beneficiaire ID: {beneficiary_id}\n"
+            f"Beneficiaire Nom: {beneficiary_name}\n"
             f"Score de risque: {score:.0%} (niveau: {level})\n\n"
             f"Facteurs detectes par le modele IA:\n{factors_text}\n\n"
             f"Alertes regles metier: {flags_text}\n\n"

@@ -39,6 +39,9 @@ def _get_orchestrator():
 async def score_beneficiary(
     beneficiary_id: str,
     snapshot_date: Optional[date] = Query(None, description="Point-in-time evaluation date"),
+    country_code: Optional[str] = Query(
+        None, description="Deployment country ISO-2 for income/poverty calibration "
+                          "(defaults to the configured deployment country)"),
 ) -> FraudDecisionResponse:
     """Run the full fraud detection pipeline for a single beneficiary.
 
@@ -48,7 +51,9 @@ async def score_beneficiary(
     t0 = time.perf_counter()
     try:
         orchestrator = _get_orchestrator()
-        result = orchestrator.score_beneficiary(beneficiary_id, snapshot_date=snapshot_date)
+        result = orchestrator.score_beneficiary(
+            beneficiary_id, snapshot_date=snapshot_date, country_code=country_code
+        )
     except BeneficiaryNotFoundError:
         raise
     except ModelNotReadyError:
@@ -107,6 +112,7 @@ async def get_case_detail(case_id: str) -> dict:
 )
 async def generate_llm_explanation(case_id: str) -> dict:
     """Generate (or refresh) a human-readable explanation via Ollama."""
+    from app.data.extractors import RelationshipExtractor
     from app.data.repository import FraudCaseRepository
     from app.services.llm_explainer_service import LLMExplainer
 
@@ -115,8 +121,19 @@ async def generate_llm_explanation(case_id: str) -> dict:
     if not case:
         raise HTTPException(status_code=404, detail=f"Case {case_id} not found")
 
+    relationship_extractor = RelationshipExtractor()
+    try:
+        shared_entities = relationship_extractor.get_shared_entities(case["beneficiary_id"])
+    except Exception as exc:
+        logger.warning("Could not resolve shared-entity names for %s: %s", case_id, exc)
+        shared_entities = {}
+    try:
+        case["beneficiary_name"] = relationship_extractor.get_partner_name(case["beneficiary_id"])
+    except Exception as exc:
+        logger.warning("Could not resolve beneficiary name for %s: %s", case_id, exc)
+
     explainer = LLMExplainer()
-    text_explanation = explainer.explain_case(case)
+    text_explanation = explainer.explain_case(case, shared_entities=shared_entities)
     if text_explanation:
         repo.update_llm_explanation(case_id, text_explanation)
     return {"case_id": case_id, "llm_explanation": text_explanation}
@@ -183,7 +200,12 @@ async def explain_decision(beneficiary_id: str) -> ExplainResponse:
     response_model=FraudDecisionResponse,
     summary="Score pre-computed features directly (no OpenG2P DB lookup)",
 )
-async def score_from_features(features: dict) -> FraudDecisionResponse:
+async def score_from_features(
+    features: dict,
+    country_code: Optional[str] = Query(
+        None, description="Deployment country ISO-2 for income/poverty calibration "
+                          "(defaults to the configured deployment country)"),
+) -> FraudDecisionResponse:
     """Accept a complete feature dict and run rules + ML + explainability.
 
     Used for batch scoring synthetic data without requiring an OpenG2P connection.
@@ -206,12 +228,20 @@ async def score_from_features(features: dict) -> FraudDecisionResponse:
         from app.services.explainability_service import Explainer
         from app.services.features_service import _DEFAULTS
         from app.data.repository import FraudCaseRepository
+        from app.core.country_reference import get_country_profile
         from app.config import settings
 
         # Apply feature defaults so missing fields (e.g. temporal counters not
         # supplied by synthetic batch jobs) do not produce phantom rule triggers.
         complete_features = {**_DEFAULTS, **{k: v for k, v in features.items()
                                               if k != "beneficiary_id" and v is not None}}
+
+        # Inject the deployment country's economic anchors (same mechanism as
+        # DecisionOrchestrator.score_beneficiary) so SE002/SE003 calibrate to
+        # the local income scale instead of a hardcoded number.
+        country_profile = get_country_profile(country_code or settings.default_country_code)
+        complete_features["poverty_line"] = country_profile["poverty_line"]
+        complete_features["national_median_income"] = country_profile["median_income"]
 
         rule_svc = RuleService()
         rule_result = rule_svc.evaluate(complete_features)
@@ -280,7 +310,11 @@ async def score_from_features(features: dict) -> FraudDecisionResponse:
     "/v1/scan/now",
     summary="Trigger an immediate scan of all unscored OpenG2P beneficiaries",
 )
-async def trigger_scan() -> dict:
+async def trigger_scan(
+    country_code: Optional[str] = Query(
+        None, description="Deployment country ISO-2 for income/poverty calibration "
+                          "(defaults to the configured deployment country)"),
+) -> dict:
     """Scan OpenG2P for beneficiaries not yet scored and run the full pipeline on each.
 
     Returns a summary with counts by risk level. Safe to call repeatedly — already-scored
@@ -288,7 +322,7 @@ async def trigger_scan() -> dict:
     """
     try:
         from app.services.scanner_service import get_scanner
-        summary = get_scanner().scan_now()
+        summary = get_scanner().scan_now(country_code=country_code)
         return {"status": "ok", "summary": summary}
     except Exception as exc:
         logger.exception("Scan failed")
@@ -334,17 +368,72 @@ async def scan_status() -> dict:
 
 
 @router.get(
+    "/v1/stats/by-country",
+    summary="Per-country scan counts and risk-level breakdown",
+)
+async def stats_by_country() -> list[dict]:
+    """Return how many beneficiaries were scored under each deployment
+    country, with a risk-level breakdown. Powers the dashboard's
+    per-country statistics sidebar."""
+    from app.data.repository import FraudCaseRepository
+    return FraudCaseRepository().get_country_stats()
+
+
+@router.get(
+    "/v1/country-profile/{country_code}",
+    summary="Preview a country's economic reference data before launching a scan",
+)
+async def country_profile(country_code: str) -> dict:
+    """Return the World Bank-derived income/poverty profile for a country.
+
+    Lets the dashboard show median income, poverty line, and whether the
+    data came from the live World Bank API or a fallback, before the
+    analyst launches a scan calibrated to that country.
+    """
+    from app.core.country_reference import get_country_profile as _get_profile
+    return _get_profile(country_code)
+
+
+@router.get(
     "/v1/beneficiaries",
     summary="List beneficiary IDs from OpenG2P",
 )
 async def list_beneficiaries(limit: int = Query(100, ge=1, le=5000)) -> list[dict]:
-    """Return partner_id list from OpenG2P for batch scoring."""
+    """Return partner_id + name/age/phone from OpenG2P, for display and name search."""
     from app.data.extractors import BeneficiaryExtractor
 
     try:
         extractor = BeneficiaryExtractor()
         df = extractor.get_all_features(limit=limit)
-        return [{"partner_id": int(row)} for row in df["partner_id"].tolist()]
+        cols = ["partner_id"] + [c for c in ("name", "age") if c in df.columns]
+
+        # `age` comes from get_all_features(); raw phone doesn't (only used
+        # internally for shared_phone_count) — fetch it separately from
+        # res_partner.phone (same field Odoo's own case display reads from)
+        # rather than touching the large shared feature-extraction query.
+        phones: dict[int, str] = {}
+        try:
+            from sqlalchemy import text
+            ids = [int(x) for x in df["partner_id"].tolist()]
+            if ids:
+                with extractor._connector.engine.connect() as conn:
+                    rows = conn.execute(
+                        text("SELECT id, phone FROM res_partner WHERE id = ANY(:ids)"),
+                        {"ids": ids},
+                    ).fetchall()
+                phones = {r[0]: r[1] or "" for r in rows}
+        except Exception:
+            logger.warning("Could not fetch beneficiary phones", exc_info=True)
+
+        return [
+            {
+                "partner_id": int(row["partner_id"]),
+                "name": row.get("name") or "",
+                "age": int(row["age"]) if "age" in cols and row.get("age") is not None else None,
+                "phone": phones.get(int(row["partner_id"]), ""),
+            }
+            for _, row in df[cols].iterrows()
+        ]
     except Exception as exc:
         logger.exception("Failed to list beneficiaries")
         raise HTTPException(status_code=500, detail=str(exc)) from exc
@@ -502,6 +591,9 @@ async def export_cases_csv(
 async def score_batch_csv(
     file: UploadFile = File(..., description="CSV with a 'beneficiary_id' column"),
     background: bool = Query(False, description="Run in background; returns job_id immediately"),
+    country_code: Optional[str] = Query(
+        None, description="Deployment country ISO-2 for income/poverty calibration "
+                          "(defaults to the configured deployment country)"),
     background_tasks: BackgroundTasks = None,
 ) -> Response:
     """Accept a CSV file, score every listed beneficiary, and return a results CSV.
@@ -548,7 +640,7 @@ async def score_batch_csv(
         try:
             from app.services.decision_service import DecisionOrchestrator
             orch = DecisionOrchestrator()
-            result = orch.score_beneficiary(bid)
+            result = orch.score_beneficiary(bid, country_code=country_code)
             return {
                 "beneficiary_id": bid,
                 "case_id": result.get("case_id", ""),

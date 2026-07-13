@@ -51,7 +51,10 @@ class DecisionOrchestrator:
         self.repository = FraudCaseRepository()
 
     def score_beneficiary(
-        self, beneficiary_id: str, snapshot_date: Optional[date] = None
+        self,
+        beneficiary_id: str,
+        snapshot_date: Optional[date] = None,
+        country_code: Optional[str] = None,
     ) -> dict:
         """Execute the full pipeline and return a FraudDecision dict.
 
@@ -79,6 +82,16 @@ class DecisionOrchestrator:
             raise BeneficiaryNotFoundError(beneficiary_id) from exc
         except Exception as exc:
             raise FeatureExtractionError(beneficiary_id, str(exc)) from exc
+
+        # 1b. Inject the deployment country's economic anchors so income/
+        # poverty rules (SE002/SE003) calibrate to the local scale. Fetched
+        # once per scan (24h-cached, never per-beneficiary); never blocks.
+        from app.core.country_reference import get_country_profile
+
+        resolved_country = (country_code or settings.default_country_code)
+        country_profile = get_country_profile(resolved_country)
+        features["poverty_line"] = country_profile["poverty_line"]
+        features["national_median_income"] = country_profile["median_income"]
 
         # 2. Rule evaluation
         rule_result = self.rule_service.evaluate(features)
@@ -160,6 +173,8 @@ class DecisionOrchestrator:
             "explanation": explanation_result.get("summary", ""),
             "processing_ms": processing_ms,
             "features": features,
+            "country_code": country_profile["country_code"],
+            "country_data_source": country_profile["data_source"],
         }
 
         # 8. Persist

@@ -109,6 +109,41 @@ def test_safe_evaluator_blocks_arbitrary_code():
         evaluator.visit(malicious)
 
 
+def test_duplicate_national_id_rule_triggers():
+    """IDC003 (Duplicate National ID) triggers when duplicate_national_id_count > 0."""
+    rule = {
+        "id": "IDC003",
+        "name": "Duplicate National ID",
+        "weight": 0.35,
+        "alert_level": "HIGH",
+        "condition": "duplicate_national_id_count > 0",
+        "evidence_template": "National ID number matches {duplicate_national_id_count} "
+                              "other beneficiary record(s) — possible stolen or reused identity",
+    }
+    engine = RuleEngine([rule])
+
+    # No duplicate -> not triggered
+    _, triggered = engine.evaluate({"duplicate_national_id_count": 0})
+    assert len(triggered) == 0
+
+    # Duplicate found -> triggered, with the count in the explanation
+    score, triggered = engine.evaluate({"duplicate_national_id_count": 1})
+    assert score > 0.0
+    assert len(triggered) == 1
+    assert triggered[0]["rule_id"] == "IDC003"
+    assert "1" in triggered[0]["explanation"]
+
+
+def test_idc003_present_in_loaded_yaml_rules():
+    """The live network_fraud.yaml must define IDC003 with the expected shape."""
+    loader = RuleLoader()
+    rules = loader.load_from_dir(RULES_DIR)
+    idc003 = next((r for r in rules if r.get("id") == "IDC003"), None)
+    assert idc003 is not None, "IDC003 (Duplicate National ID) not found in loaded rules"
+    assert idc003["condition"] == "duplicate_national_id_count > 0"
+    assert 0.0 <= idc003["weight"] <= 1.0
+
+
 def test_rule_service_evaluate_returns_correct_keys(sample_features):
     """RuleService.evaluate must return rule_score, triggered_rules, explanations."""
     from app.services.rules_service import RuleService

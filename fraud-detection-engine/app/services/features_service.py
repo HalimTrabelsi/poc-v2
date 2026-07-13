@@ -34,6 +34,13 @@ FEATURE_NAMES = [
     "group_membership_count",
     "high_amount_flag",
     "income_program_inconsistency",
+    "income_ratio_to_national",
+    "household_size_deviation",
+    # Rule-engine-only signal (IDC003 "Duplicate National ID") — synthetic
+    # data path only for now; not computed by the live OpenG2P SQL extractor
+    # and NOT fed to the ML ensemble. See ml/scripts/generate_dataset.py
+    # apply_duplicate_national_id_scenario().
+    "duplicate_national_id_count",
     # Temporal features (referenced by rules TA001-TA005)
     "days_reg_to_first_payment",
     "enroll_last_30d",
@@ -72,6 +79,14 @@ _DEFAULTS: dict = {
     "group_membership_count": 0,
     "high_amount_flag": 0,
     "income_program_inconsistency": 0,
+    # Country-relative features: the model is trained on multi-scale data
+    # (see ml/scripts/generate_dataset.py add_country_scale_diversity), but no
+    # national-median source exists at serving time yet, so both stay at their
+    # neutral training-distribution centers (ratio-to-median=1.0, deviation=0.0).
+    # Wiring a real national median here is the follow-up that activates them.
+    "income_ratio_to_national": 1.0,
+    "household_size_deviation": 0.0,
+    "duplicate_national_id_count": 0,
     # Temporal defaults (sentinels chosen so missing data does NOT trigger rules)
     "days_reg_to_first_payment": 999,
     "enroll_last_30d": 0,

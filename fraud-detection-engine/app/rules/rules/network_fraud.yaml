@@ -56,3 +56,15 @@ rules:
     alert_level: "HIGH"
     condition: "identity_cluster_count >= 1"
     evidence_template: "Shares birthdate and family name with {identity_cluster_count} other beneficiary"
+
+  - id: "IDC003"
+    name: "Duplicate National ID"
+    flag: "DUPLICATE_NATIONAL_ID"
+    weight: 0.35
+    alert_level: "HIGH"
+    # duplicate_national_id_count is a rule-engine-only signal (synthetic
+    # data: ml/scripts/generate_dataset.py s10; production: would need a
+    # matching SQL CTE over g2p_reg_id in app/data/extractors.py — not
+    # wired yet). Deliberately NOT in ML_FEATURES/training this pass.
+    condition: "duplicate_national_id_count > 0"
+    evidence_template: "National ID number matches {duplicate_national_id_count} other beneficiary record(s) — possible stolen or reused identity"

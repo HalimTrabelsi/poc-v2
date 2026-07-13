@@ -57,6 +57,98 @@ RISK_STATUS = {
 RISK_ORDER = ["LOW", "MEDIUM", "HIGH", "CRITICAL"]
 RISK_COLORS = {"LOW": "🟢", "MEDIUM": "🟡", "HIGH": "🟠", "CRITICAL": "🔴"}  # table cells
 
+# French icon + label badges — icon AND text together (never color alone).
+RISK_BADGES_FR = {
+    "CRITICAL": "🔴 Critique",
+    "HIGH":     "🟠 Élevé",
+    "MEDIUM":   "🟡 Moyen",
+    "LOW":      "🟢 Faible",
+}
+
+
+def risk_badge(level: str) -> str:
+    """Icon + French label for a raw risk_level string (never the raw code)."""
+    return RISK_BADGES_FR.get(level, f"⚪ {level}")
+
+
+# Human-readable French labels for every technical column/feature name
+# currently displayed anywhere in a table, chart axis, or tooltip.
+COLUMN_LABELS = {
+    "final_score": "Score de risque",
+    "fraud_score": "Score de risque",
+    "risk_level": "Niveau de risque",
+    "recommendation": "Recommandation",
+    "status": "Statut",
+    "case_id": "N° de dossier",
+    "beneficiary_id": "Bénéficiaire",
+    "beneficiary_name": "Bénéficiaire",
+    "partner_id": "Bénéficiaire",
+    "created_at": "Créé le",
+    "payment_gap_ratio": "Taux d'échec de paiement",
+    "payment_success_rate": "Taux de réussite des paiements",
+    "shared_account_count": "Comptes partagés",
+    "shared_phone_count": "Téléphones partagés",
+    "nb_programs": "Programmes inscrits",
+    "nb_active_programs": "Programmes actifs",
+    "income": "Revenu",
+    "income_per_person": "Revenu par personne",
+    "household_size": "Taille du ménage",
+    "network_risk": "Risque réseau",
+    "network_risk_score": "Risque réseau",
+    "pmt_score": "Score PMT",
+    "country_code": "Pays",
+    "city": "Ville",
+    "region": "Région",
+    "lat": "Latitude",
+    "lon": "Longitude",
+    "cluster_id": "Cluster",
+    "count": "Nombre",
+    "fraud_count": "Cas à risque",
+    "fraud_rate": "Taux de fraude",
+    "avg_score": "Score moyen",
+    "risk_label": "Niveau",
+    "radius_km": "Rayon (km)",
+    "weight": "Poids",
+    "duplicate_national_id_count": "Doublons de pièce d'identité",
+    "age": "Âge",
+    "gender": "Genre",
+    "dependency_ratio": "Taux de dépendance",
+    "high_amount_flag": "Montant anormalement élevé",
+    "income_program_inconsistency": "Revenu incohérent avec les programmes",
+}
+
+# Feature names as they appear in SHAP output (English snake_case) — French,
+# non-technical labels for the chart axis and the detail table.
+FEATURE_LABELS = {
+    "income_per_person": "Revenu par personne",
+    "shared_account_count": "Comptes bancaires partagés",
+    "shared_phone_count": "Téléphones partagés",
+    "nb_programs": "Nombre de programmes",
+    "nb_active_programs": "Programmes actifs",
+    "network_risk": "Risque réseau",
+    "payment_gap_ratio": "Taux d'échec de paiement",
+    "payment_success_rate": "Taux de réussite des paiements",
+    "pmt_score": "Score d'éligibilité (PMT)",
+    "household_size": "Taille du ménage",
+    "income": "Revenu",
+    "age": "Âge",
+    "dependency_ratio": "Taux de dépendance",
+    "high_amount_flag": "Montant anormalement élevé",
+    "income_program_inconsistency": "Revenu incohérent avec les programmes",
+}
+DIRECTION_LABELS_FR = {
+    "increases_risk": "Augmente le risque",
+    "decreases_risk": "Diminue le risque",
+}
+
+
+def apply_column_labels(df: pd.DataFrame) -> pd.DataFrame:
+    """Rename any snake_case columns still present to their French label
+    (via COLUMN_LABELS) before any st.dataframe()/st.table() call. Columns
+    not in the dict are left as-is (already-friendly headers, e.g. hand-
+    built 'Case ID'/'Score', pass through unchanged)."""
+    return df.rename(columns=COLUMN_LABELS)
+
 ACCENT    = "#22d3ee"   # electric cyan — primary/brand
 ACCENT_2  = "#8b5cf6"   # violet — gradient partner
 INK_MUTED = "#8b98ad"   # blue-gray chart chrome, readable on light and dark
@@ -240,10 +332,12 @@ def kpi_row(items: list[dict]) -> None:
 
 
 def risk_pill(level: str) -> str:
+    """Colored pill with icon + French label — never the raw risk code alone."""
     s = RISK_STATUS.get(level, RISK_STATUS["LOW"])
+    label = RISK_BADGES_FR.get(level, level)
     return (
         f'<span class="pill" style="background:{s["color"]}1a;color:{s["color"]};">'
-        f'<span class="dot" style="background:{s["color"]}"></span>{level}</span>'
+        f'<span class="dot" style="background:{s["color"]}"></span>{label}</span>'
     )
 
 
@@ -325,7 +419,8 @@ def render_shap(features: list, title: str = "Top Feature Contributions (SHAP)")
             value = 0.0
         if value == 0.0:
             continue
-        rows.append({"feature": f.get("feature", "?"), "value": value,
+        raw_name = f.get("feature", "?")
+        rows.append({"feature": FEATURE_LABELS.get(raw_name, raw_name), "value": value,
                      "shap": _shap_value(f)})
     if not rows:
         return
@@ -334,16 +429,16 @@ def render_shap(features: list, title: str = "Top Feature Contributions (SHAP)")
     rows.sort(key=lambda r: abs(r["shap"]), reverse=True)
     chart_df = pd.DataFrame(rows)
     chart_df["direction"] = chart_df["shap"].map(
-        lambda v: "increases risk" if v > 0 else "decreases risk")
+        lambda v: "Augmente le risque" if v > 0 else "Diminue le risque")
 
     # Diverging encoding: red = increases risk, blue = decreases risk.
     base = alt.Chart(chart_df).encode(
         y=alt.Y("feature:N", sort=None, axis=_axis(""),
                 scale=alt.Scale(paddingInner=0.45)),
-        x=alt.X("shap:Q", axis=_axis("SHAP impact on fraud score")),
+        x=alt.X("shap:Q", axis=_axis("Impact sur le score de risque")),
         color=alt.Color(
             "direction:N",
-            scale=alt.Scale(domain=["increases risk", "decreases risk"],
+            scale=alt.Scale(domain=["Augmente le risque", "Diminue le risque"],
                             range=["#f87171", "#38bdf8"]),
             legend=alt.Legend(title="", orient="top", labelColor=INK_MUTED),
         ),
@@ -358,7 +453,7 @@ def render_shap(features: list, title: str = "Top Feature Contributions (SHAP)")
         "Feature":     r["feature"],
         "Value":       f"{r['value']:.3f}",
         "SHAP Impact": f"{r['shap']:+.4f}",
-        "Direction":   "increases_risk" if r["shap"] > 0 else "decreases_risk",
+        "Direction":   DIRECTION_LABELS_FR["increases_risk"] if r["shap"] > 0 else DIRECTION_LABELS_FR["decreases_risk"],
     } for r in rows]), use_container_width=True, hide_index=True)
 
 
@@ -374,14 +469,52 @@ def _get(path, params=None):
         return None
 
 
-def _post(path, json=None):
+def _post(path, json=None, params=None):
     try:
-        r = requests.post(f"{API_BASE}{path}", headers=HEADERS, json=json, timeout=30)
+        r = requests.post(f"{API_BASE}{path}", headers=HEADERS, json=json, params=params, timeout=30)
         r.raise_for_status()
         return r.json()
     except requests.RequestException as exc:
         st.error(f"API error: {exc}")
         return None
+
+
+@st.cache_data(ttl=300, show_spinner=False)
+def _beneficiary_info_map() -> dict:
+    """partner_id (str) -> {name, age, phone}, for display only.
+
+    Cases/heatmap data only carry beneficiary_id/partner_id; /beneficiaries
+    already returns real name/age/phone (wired in an earlier task) so this
+    avoids ever showing a raw ID or 'BEN-XXXXX' code in the UI, without
+    touching any backend/scoring endpoint.
+    """
+    bene_list = _get("/beneficiaries", params={"limit": 5000}) or []
+    return {
+        str(b.get("partner_id")): {
+            "name": (b.get("name") or "").strip(),
+            "age": b.get("age"),
+            "phone": (b.get("phone") or "").strip(),
+        }
+        for b in bene_list if b
+    }
+
+
+def beneficiary_display_name(beneficiary_id) -> str:
+    """Real name if known, else 'Beneficiary #N' — never a raw DB integer
+    or a placeholder code shown as if it were meaningful."""
+    name = _beneficiary_info_map().get(str(beneficiary_id), {}).get("name", "")
+    return name if name else f"Beneficiary #{beneficiary_id}"
+
+
+def beneficiary_age(beneficiary_id):
+    """Real age if known, else None (rendered as an empty cell, not 0)."""
+    return _beneficiary_info_map().get(str(beneficiary_id), {}).get("age")
+
+
+def beneficiary_phone(beneficiary_id) -> str:
+    """Real phone if known, else '—' (never a raw ID standing in for it)."""
+    phone = _beneficiary_info_map().get(str(beneficiary_id), {}).get("phone", "")
+    return phone if phone else "—"
 
 
 def _patch(path, json):
@@ -402,6 +535,181 @@ def _delete(path):
     except requests.RequestException as exc:
         st.error(f"API error: {exc}")
         return None
+
+
+# ── Country selector (deployment-country calibration for scans) ───────────────
+
+# Small hardcoded fallback if the World Bank country-list endpoint is
+# unreachable — enough to keep the selector usable offline/in a demo.
+_FALLBACK_COUNTRIES = [
+    ("TN", "Tunisia"), ("SN", "Senegal"), ("GN", "Guinea"),
+    ("ML", "Mali"), ("CI", "Côte d'Ivoire"), ("MA", "Morocco"),
+    ("NG", "Nigeria"), ("KE", "Kenya"),
+]
+
+# International calling codes by ISO2. Not exhaustive — covers the
+# countries relevant to this deployment plus common demo/report targets.
+# Unlisted countries just show the flag + name with no dial code.
+_CALLING_CODES = {
+    "TN": "+216", "SN": "+221", "GN": "+224", "ML": "+223", "CI": "+225",
+    "MA": "+212", "NG": "+234", "KE": "+254", "DZ": "+213", "EG": "+20",
+    "GH": "+233", "CM": "+237", "BF": "+226", "NE": "+227", "TD": "+235",
+    "TG": "+228", "BJ": "+229", "MR": "+222", "LY": "+218", "SD": "+249",
+    "ET": "+251", "TZ": "+255", "UG": "+256", "ZA": "+27", "FR": "+33",
+    "US": "+1", "GB": "+44", "DE": "+49", "ES": "+34", "IT": "+39",
+    "CA": "+1", "BE": "+32", "CH": "+41", "PT": "+351",
+}
+
+
+def _flag_emoji(iso2_code: str) -> str:
+    """Render a flag from an ISO2 code via Unicode regional-indicator symbols.
+
+    No lookup table needed: each letter A-Z maps to U+1F1E6.._1F1FF in
+    order, so e.g. "TN" -> 🇹 + 🇳 -> 🇹🇳. Falls back to the bare code if
+    it isn't two ASCII letters.
+    """
+    code = (iso2_code or "").strip().upper()
+    if len(code) != 2 or not code.isalpha():
+        return "🏳️"
+    return "".join(chr(0x1F1E6 + ord(ch) - ord("A")) for ch in code)
+
+
+def _country_label(code: str, name: str) -> str:
+    dial = _CALLING_CODES.get(code)
+    dial_part = f" {dial}" if dial else ""
+    return f"{_flag_emoji(code)} {name} ({code}){dial_part}"
+
+
+@st.cache_data(ttl=24 * 3600, show_spinner=False)
+def _fetch_country_list() -> tuple[list[tuple[str, str]], bool]:
+    """Return [(iso2_code, name), ...] from the World Bank country list.
+
+    Cached for 24h in the Streamlit session. Falls back to a small
+    hardcoded list (use_fallback=True) if the World Bank API is
+    unreachable, so the selector never breaks the dashboard.
+    """
+    try:
+        r = requests.get(
+            "https://api.worldbank.org/v2/country",
+            params={"format": "json", "per_page": 400},
+            timeout=8,
+        )
+        r.raise_for_status()
+        payload = r.json()
+        rows = payload[1] if isinstance(payload, list) and len(payload) > 1 else []
+        countries = [
+            # NB: row["id"] is the ISO3 code (e.g. "TUN") — the country-
+            # profile backend and default_country_code ("TN") use ISO2, so
+            # we must read row["iso2Code"] here, not row["id"].
+            (row["iso2Code"], row["name"])
+            for row in rows
+            # World Bank's country list includes aggregate regions (e.g.
+            # "Arab World") whose region.value is "Aggregates" — skip those,
+            # keep only real countries.
+            if row.get("region", {}).get("value") not in (None, "Aggregates")
+            and row.get("iso2Code")
+        ]
+        countries.sort(key=lambda c: c[1])
+        if countries:
+            return countries, False
+        return _FALLBACK_COUNTRIES, True
+    except Exception:
+        return _FALLBACK_COUNTRIES, True
+
+
+@st.cache_data(ttl=24 * 3600, show_spinner=False)
+def _fetch_country_profile_preview(country_code: str) -> dict | None:
+    """Preview a country's economic profile via the fraud-engine API."""
+    try:
+        r = requests.get(
+            f"{API_BASE}/country-profile/{country_code}", headers=HEADERS, timeout=10
+        )
+        r.raise_for_status()
+        return r.json()
+    except requests.RequestException:
+        return None
+
+
+def render_country_selector() -> str:
+    """Render the deployment-country selector shown before a scan.
+
+    Returns the selected ISO-2 country_code (stored in session_state so it
+    persists across the scoring page and the sidebar 'Scan Now' button).
+    """
+    countries, list_is_fallback = _fetch_country_list()
+    labels = [_country_label(code, name) for code, name in countries]
+    codes = [code for code, _ in countries]
+
+    default_code = st.session_state.get("scan_country_code", "TN")
+    default_idx = codes.index(default_code) if default_code in codes else 0
+
+    st.markdown("**Deployment country** — calibrates income/poverty rules to local economic data")
+    selected_label = st.selectbox(
+        "Deployment country", labels, index=default_idx,
+        label_visibility="collapsed", key="country_selectbox",
+    )
+    country_code = codes[labels.index(selected_label)]
+    st.session_state["scan_country_code"] = country_code
+
+    if list_is_fallback:
+        st.caption("⚠️ Country list: using built-in fallback (World Bank list unreachable)")
+
+    profile = _fetch_country_profile_preview(country_code)
+    if profile:
+        if profile.get("use_fallback"):
+            st.warning(
+                f"⚠️ Fallback data — World Bank data unavailable for {country_code}. "
+                f"Using neutral reference values (poverty line ≈ ${profile.get('poverty_line', 0):.0f}/month)."
+            )
+        else:
+            st.success(
+                f"✅ Live World Bank data — median income ≈ ${profile.get('median_income', 0):.0f}/month, "
+                f"poverty line ≈ ${profile.get('poverty_line', 0):.0f}/month"
+            )
+    else:
+        st.caption("Could not preview country profile (engine unreachable).")
+
+    return country_code
+
+
+def _fetch_country_stats() -> list[dict]:
+    return _get("/stats/by-country") or []
+
+
+def render_country_stats_sidebar() -> None:
+    """Sidebar panel: how many scans were calibrated under each country.
+
+    NB: this is NOT "where beneficiaries live" — this OpenG2P registry has
+    no populated country/region field on beneficiaries (confirmed: 0 of
+    20,042 registrants have country_id or area_id set). It's how many
+    scans were run under each deployment-country calibration (see
+    app/core/country_reference.py) — a scan setting, not beneficiary
+    demographics. Reads /v1/stats/by-country (grouped from
+    fraud_cases.country_code).
+    """
+    st.sidebar.markdown("---")
+    st.sidebar.markdown("**Scans by Calibration Country**")
+    st.sidebar.caption("Which country's economic data was used to calibrate each scan (not beneficiaries' home country — this registry has no location data).")
+    stats = _fetch_country_stats()
+    if not stats:
+        st.sidebar.caption("No scans recorded yet.")
+        return
+
+    countries, _ = _fetch_country_list()
+    name_by_code = {code: name for code, name in countries}
+
+    for row in stats:
+        code = row.get("country_code", "UNKNOWN")
+        name = name_by_code.get(code, code)
+        label = _country_label(code, name) if code != "UNKNOWN" else "❔ Unknown / pre-feature scans"
+        total = row.get("total", 0)
+        critical = row.get("critical", 0) or 0
+        high = row.get("high", 0) or 0
+        with st.sidebar.container():
+            st.markdown(f"**{label}**")
+            st.caption(
+                f"{total} scanned · 🔴 {critical} CRITICAL · 🟠 {high} HIGH"
+            )
 
 
 # ── Cases page ────────────────────────────────────────────────────────────────
@@ -444,11 +752,14 @@ def show_cases_page() -> None:
     rows = []
     for c in cases:
         rl = c.get("risk_level", "LOW")
+        bid = c.get("beneficiary_id")
         rows.append({
             "Case ID":       c.get("case_id", "")[:8] + "…",
-            "Beneficiary":   c.get("beneficiary_id"),
+            "Beneficiary":   beneficiary_display_name(bid),
+            "Age":           beneficiary_age(bid),
+            "Phone":         beneficiary_phone(bid),
             "Score":         float(c.get("final_score", 0) or 0),
-            "Risk":          f"{RISK_COLORS.get(rl, '')} {rl}",
+            "Risk":          risk_badge(rl),
             "Recommendation":c.get("recommendation"),
             "Status":        c.get("status"),
             "Created":       c.get("created_at", "")[:10],
@@ -581,19 +892,72 @@ def _render_decision(result: dict) -> None:
     )
 
 
+def render_threshold_comparison(selected_code: str) -> None:
+    """Show the SE002/SE003 income-underreporting thresholds side by side
+    for a few reference countries, so the calibration effect from
+    app.core.country_reference / socio_economic.yaml is visible BEFORE
+    running a scan, not just discoverable after the fact.
+    """
+    countries, _ = _fetch_country_list()
+    name_by_code = {code: name for code, name in countries}
+
+    # Always compare the selected country against 2 fixed references, so
+    # the effect is visible regardless of what's currently selected.
+    compare_codes = list(dict.fromkeys([selected_code, "TN", "SN"]))[:3]
+
+    st.caption("Income-underreporting rule (SE002/SE003) threshold by country — "
+               "the same reported income can be 'below poverty' in one country and normal in another:")
+    cols = st.columns(len(compare_codes))
+    for col, code in zip(cols, compare_codes):
+        profile = _fetch_country_profile_preview(code)
+        with col:
+            name = name_by_code.get(code, code)
+            st.markdown(f"{_flag_emoji(code)} **{name}**" + (" (selected)" if code == selected_code else ""))
+            if profile:
+                poverty_line = profile.get("poverty_line", 0)
+                st.metric("SE002 threshold (50%)", f"${poverty_line * 0.5:.0f}/mo")
+                st.caption(f"SE003 threshold (75%): ${poverty_line * 0.75:.0f}/mo")
+                if profile.get("use_fallback"):
+                    st.caption("⚠️ fallback data")
+            else:
+                st.caption("unavailable")
+
+
 def show_scoring_page() -> None:
     page_header("Score a Beneficiary",
                 "Run the hybrid pipeline — rules, ML, anomaly and graph", "⚡")
+
+    with st.container():
+        country_code = render_country_selector()
+    with st.expander("📊 See how this changes the rule thresholds", expanded=False):
+        render_threshold_comparison(country_code)
+    st.divider()
+
     tab_single, tab_batch, tab_csv = st.tabs(["Single Beneficiary", "Scan All from OpenG2P", "Batch CSV Upload"])
 
     with tab_single:
-        bid = st.text_input("Beneficiary ID (partner_id)", placeholder="e.g. 42")
+        bene_list = _get("/beneficiaries", params={"limit": 5000}) or []
+        # name -> partner_id; disambiguate duplicate names with the ID suffix
+        options = {
+            f"{(b.get('name') or 'Unnamed').strip()} (#{b.get('partner_id')})": str(b.get("partner_id"))
+            for b in bene_list if b
+        }
+        if options:
+            choice = st.selectbox(
+                "Beneficiary name", sorted(options.keys()),
+                placeholder="Search by name…", index=None,
+            )
+            bid = options.get(choice, "") if choice else ""
+        else:
+            st.caption("Could not load beneficiary names — falling back to manual ID entry.")
+            bid = st.text_input("Beneficiary ID (partner_id)", placeholder="e.g. 42")
+
         if st.button("Run Fraud Score", type="primary"):
             if not bid.strip():
-                st.warning("Please enter a Beneficiary ID.")
+                st.warning("Please select a beneficiary.")
                 return
             with st.spinner(f"Scoring beneficiary {bid}…"):
-                result = _post(f"/score/beneficiary/{bid.strip()}")
+                result = _post(f"/score/beneficiary/{bid.strip()}", params={"country_code": country_code})
             if result:
                 _render_decision(result)
 
@@ -613,12 +977,12 @@ def show_scoring_page() -> None:
             progress = st.progress(0)
             results  = []
             for i, b in enumerate(ids):
-                r = _post(f"/score/beneficiary/{b}")
+                r = _post(f"/score/beneficiary/{b}", params={"country_code": country_code})
                 if r:
                     results.append({
-                        "Beneficiary ID": b,
+                        "Beneficiary": beneficiary_display_name(b),
                         "Score":          float(r.get("final_score", 0) or 0),
-                        "Risk":           f"{RISK_COLORS.get(r.get('risk_level','LOW'),'')} {r.get('risk_level','LOW')}",
+                        "Risk":           risk_badge(r.get("risk_level", "LOW")),
                         "Recommendation": r.get("recommendation"),
                         "Case ID":        (r.get("case_id") or "")[:12],
                     })
@@ -646,6 +1010,7 @@ def show_scoring_page() -> None:
                         f"{API_BASE}/score/batch",
                         headers=HEADERS,
                         files={"file": (uploaded.name, uploaded.getvalue(), "text/csv")},
+                        params={"country_code": country_code},
                         timeout=300,
                     )
                     r.raise_for_status()
@@ -733,6 +1098,7 @@ def show_geo_page() -> None:
         return
 
     df_map = pd.DataFrame(heatmap_data)
+    df_map["name"] = df_map["partner_id"].apply(beneficiary_display_name)
 
     # Deep-link from Odoo: ?beneficiary=ID centers + highlights that partner
     focus_bid = st.query_params.get("beneficiary", "")
@@ -808,12 +1174,13 @@ def show_geo_page() -> None:
             initial_view_state=view,
             map_provider="carto",
             map_style="light",
-            tooltip={"text": "Partner {partner_id}\nScore: {fraud_score}"},
+            tooltip={"text": "{name}\nScore: {fraud_score}"},
         ))
 
     except Exception as exc:
         st.warning(f"pydeck chart unavailable ({exc}) — showing table instead")
-        st.dataframe(df_map.sort_values("fraud_score", ascending=False), use_container_width=True)
+        fallback_df = df_map.drop(columns=["partner_id"]).sort_values("fraud_score", ascending=False)
+        st.dataframe(apply_column_labels(fallback_df), use_container_width=True)
 
     # ── hotspot table ─────────────────────────────────────────────────────────
     if hotspots:
@@ -837,7 +1204,7 @@ def show_geo_page() -> None:
                 "HIGH+CRITICAL": h.get("fraud_count"),
                 "Fraud Rate":    f"{h.get('fraud_rate', 0):.1%}",
                 "Avg Score":     f"{h.get('avg_score', 0):.3f}",
-                "Risk":          f"{RISK_COLORS.get(rl, '')} {rl}",
+                "Risk":          risk_badge(rl),
             })
         st.dataframe(pd.DataFrame(hs_rows), use_container_width=True, hide_index=True)
     else:
@@ -1135,15 +1502,18 @@ def _show_sidebar_scanner() -> None:
             st.sidebar.success("All scored")
 
     if st.sidebar.button("Scan Now"):
+        country_code = st.session_state.get("scan_country_code", "TN")
         with st.sidebar:
-            with st.spinner("Scanning…"):
-                result = _post("/scan/now")
+            with st.spinner(f"Scanning ({country_code})…"):
+                result = _post("/scan/now", params={"country_code": country_code})
             if result:
                 s = result.get("summary", {})
                 st.sidebar.success(
                     f"Scored {s.get('scored', 0)} new | "
                     f"CRITICAL: {s.get('CRITICAL', 0)}  HIGH: {s.get('HIGH', 0)}"
                 )
+
+    render_country_stats_sidebar()
 
 
 # ── Main ──────────────────────────────────────────────────────────────────────

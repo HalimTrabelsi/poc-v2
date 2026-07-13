@@ -12,12 +12,17 @@ rules:
     name: "Income Underreporting Pattern"
     weight: 0.20
     alert_level: "MEDIUM"
-    condition: "income_per_person < 50 and nb_programs >= 3"
-    evidence_template: "Income per person {income_per_person:.0f} very low while enrolled in {nb_programs} programs"
+    # Country-relative: was a hardcoded "< 50". poverty_line is injected per
+    # scan from the deployment country's economic profile (app/core/
+    # country_reference.py). 0.5 * poverty_line = "well below the poverty line".
+    condition: "income_per_person < 0.5 * poverty_line and nb_programs >= 3"
+    evidence_template: "Income per person {income_per_person:.0f} is below half the local poverty line ({poverty_line:.0f}/month) while enrolled in {nb_programs} programs"
 
   - id: "SE003"
     name: "Ghost Household"
     weight: 0.25
     alert_level: "HIGH"
-    condition: "household_size >= 8 and income_per_person < 70"
-    evidence_template: "Large household ({household_size} members) with very low income per person ({income_per_person:.0f})"
+    # Country-relative: was a hardcoded "< 70". 0.75 * poverty_line keeps this
+    # slightly more lenient than SE002, matching the original 70-vs-50 gap.
+    condition: "household_size >= 8 and income_per_person < 0.75 * poverty_line"
+    evidence_template: "Large household ({household_size} members) with very low income per person ({income_per_person:.0f}) — below the local poverty line of {poverty_line:.0f}/month"

@@ -1,12 +1,4 @@
-"""
-Train Script — Architecture multi-agent ML avec stacking OOF
-================================================================
-Étage 1 : 3 modèles de base entraînés (RF, XGBoost, LogReg)
-Étage 2 : un méta-modèle (LogisticRegression) apprend à combiner
-          leurs prédictions Out-Of-Fold — PAS de poids fixés à la main.
 
-Ce fichier remplace entièrement l'ancien train_openg2p.py.
-"""
 
 from __future__ import annotations
 
@@ -49,6 +41,7 @@ ML_FEATURES = [
     "shared_phone_count", "shared_account_count", "network_risk",
     "group_membership_count",
     "high_amount_flag", "income_program_inconsistency",
+    "income_ratio_to_national", "household_size_deviation",
 ]
 
 FEATURE_DEFAULTS: dict[str, float] = {
@@ -62,6 +55,10 @@ FEATURE_DEFAULTS: dict[str, float] = {
     "shared_phone_count": 0, "shared_account_count": 0, "network_risk": 0.0,
     "group_membership_count": 0,
     "high_amount_flag": 0, "income_program_inconsistency": 0,
+    # Neutral centers of the training distribution: ratio-to-median = 1.0,
+    # deviation-from-median = 0.0 (NOT 0.0/0.0 — a 0.0 ratio would read as
+    # "no income at all" and systematically bias the score).
+    "income_ratio_to_national": 1.0, "household_size_deviation": 0.0,
 }
 
 
@@ -115,17 +112,17 @@ def build_base_models(feature_cols: list[str]) -> dict[str, Pipeline]:
         "random_forest": Pipeline([
             ("prep", build_preprocessor(feature_cols)),
             ("clf", RandomForestClassifier(
-                n_estimators=200, max_depth=8, min_samples_leaf=10,
+                n_estimators=400, max_depth=12, min_samples_leaf=4,
                 max_features="sqrt", class_weight="balanced", random_state=SEED,
             )),
         ]),
         "xgboost": Pipeline([
             ("prep", build_preprocessor(feature_cols)),
             ("clf", XGBClassifier(
-                n_estimators=300, max_depth=5, learning_rate=0.05,
+                n_estimators=600, max_depth=6, learning_rate=0.03,
                 subsample=0.9, colsample_bytree=0.8,
                 scale_pos_weight=7,  # compense le déséquilibre 88/12
-                eval_metric="auc", random_state=SEED,
+                eval_metric="aucpr", random_state=SEED,  # aucpr: optimise la zone PR (fraude rare)
             )),
         ]),
         "logreg": Pipeline([
