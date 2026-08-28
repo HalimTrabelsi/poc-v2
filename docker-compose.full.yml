@@ -99,6 +99,17 @@ services:
       DASHBOARD_TOKEN_SECRET: ${DASHBOARD_TOKEN_SECRET:?set in .env}
     volumes:
       - odoo-data:/bitnami/odoo
+      # Bind-mounted so source edits made on the host survive a container
+      # recreation instead of silently reverting to the last image build —
+      # the same class of bug that repeatedly wiped fraud-engine fixes.
+      #
+      # MUST target /opt/bitnami/odoo/extraaddons/ (NO hyphen) — this is the
+      # directory actually listed in odoo.conf's addons_path. Dockerfile.odoo
+      # COPYs the module into /opt/bitnami/odoo/extra-addons/ (WITH hyphen)
+      # then does a one-time `cp -r` into the no-hyphen directory at build
+      # time only; a bind mount on the hyphenated path (as originally set up
+      # here) is never read by Odoo at all and has zero effect.
+      - ./odoo-fraud-module/g2p_fraud_detection:/opt/bitnami/odoo/extraaddons/odoo-fraud-module/g2p_fraud_detection
     networks:
       - openg2p-internal
   # ═══════════════════════════════════════════════════════════
@@ -147,9 +158,14 @@ services:
       OLLAMA_TIMEOUT: "60"
       LLM_LANGUAGE: "fr"
     volumes:
-      - ./fraud-detection-engine/app/rules/rules:/app/app/rules/rules
-      - ./fraud-detection-engine/app/models_saved:/app/app/models_saved
+      # Whole app/ bind-mounted (not just rules/models_saved) so that source
+      # edits made on the host are never lost to a container recreation
+      # again — this happened repeatedly when only a subset of files were
+      # copied in ad-hoc via `docker cp` (auth.py, metrics.py,
+      # country_reference.py, config.py all got silently wiped on rebuild).
+      - ./fraud-detection-engine/app:/app/app
       - ./fraud-detection-engine/ml/scripts:/app/ml/scripts
+      - ./fraud-detection-engine/ml/data:/app/ml/data
     depends_on:
       postgresql:
         condition: service_healthy
@@ -194,6 +210,41 @@ services:
       - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
     depends_on:
       - prometheus
+    networks:
+      - fraud-net
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.47.2
+    container_name: cadvisor
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    devices:
+      - /dev/kmsg
+    networks:
+      - fraud-net
+
+  node-exporter:
+    image: prom/node-exporter:v1.7.0
+    container_name: node-exporter
+    restart: unless-stopped
+    ports:
+      - "9100:9100"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - "--path.procfs=/host/proc"
+      - "--path.sysfs=/host/sys"
+      - "--path.rootfs=/rootfs"
+      - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
     networks:
       - fraud-net
 

@@ -15,6 +15,11 @@ RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
 
 COPY dashboard/ ./dashboard/
 
+# Streamlit resolves project config from $CWD/.streamlit, but the file ships
+# under dashboard/.streamlit — surface it at /app/.streamlit so the EY theme
+# (yellow primaryColor, light base) actually applies at runtime.
+RUN cp -r ./dashboard/.streamlit ./.streamlit
+
 ENV PYTHONUNBUFFERED=1
 
 EXPOSE 8501

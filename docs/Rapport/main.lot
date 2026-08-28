@@ -2,25 +2,34 @@
 \addvspace {10\p@ }
 \contentsline {xchapter}{Contexte du projet}{2}{}%
 \contentsline {table}{\numberline {1.1}{\ignorespaces Services professionnels d’EY Tunisie}}{4}{}%
-\contentsline {table}{\numberline {1.2}{\ignorespaces Méthodologies Traditionnelles vs Agiles}}{8}{}%
+\contentsline {table}{\numberline {1.2}{\ignorespaces Méthodologies Traditionnelles vs Agiles}}{9}{}%
 \addvspace {10\p@ }
-\contentsline {xchapter}{État de l'art}{10}{}%
-\contentsline {table}{\numberline {2.1}{\ignorespaces Acteurs internes du système}}{14}{}%
-\contentsline {table}{\numberline {2.2}{\ignorespaces Acteurs externes et systèmes}}{14}{}%
-\contentsline {table}{\numberline {2.3}{\ignorespaces Comparaison des méthodes de détection de fraude: avantages et limites}}{15}{}%
-\contentsline {table}{\numberline {2.4}{\ignorespaces Solutions commerciales de détection de fraude sur le marché}}{16}{}%
-\contentsline {table}{\numberline {2.5}{\ignorespaces Limites des travaux existants face à la philosophie DPI / DPG}}{17}{}%
+\contentsline {xchapter}{État de l'art}{12}{}%
+\contentsline {table}{\numberline {2.1}{\ignorespaces Acteurs internes du système}}{17}{}%
+\contentsline {table}{\numberline {2.2}{\ignorespaces Acteurs externes et systèmes}}{18}{}%
+\contentsline {table}{\numberline {2.3}{\ignorespaces Comparaison des méthodes de détection de fraude: avantages et limites}}{18}{}%
+\contentsline {table}{\numberline {2.4}{\ignorespaces Solutions commerciales de détection de fraude sur le marché}}{19}{}%
+\contentsline {table}{\numberline {2.5}{\ignorespaces Limites des travaux existants face à la philosophie DPI / DPG}}{20}{}%
 \addvspace {10\p@ }
-\contentsline {xchapter}{Spécifications fonctionnelles et choix technologiques}{18}{}%
-\contentsline {table}{\numberline {3.1}{\ignorespaces Spécification des besoins fonctionnels du moteur intelligent de détection de fraude par acteur}}{18}{}%
-\contentsline {table}{\numberline {3.2}{\ignorespaces Technologies de base du système de détection de fraude}}{25}{}%
-\contentsline {table}{\numberline {3.3}{\ignorespaces Technologies d'explicabilité et de gestion des modèles}}{26}{}%
-\contentsline {table}{\numberline {3.4}{\ignorespaces Outils de développement et d'infrastructure}}{26}{}%
-\contentsline {table}{\numberline {3.5}{\ignorespaces Dashboards et plateformes de visualisation}}{27}{}%
-\contentsline {table}{\numberline {3.6}{\ignorespaces Outils de collaboration et de documentation}}{28}{}%
+\contentsline {xchapter}{Spécifications fonctionnelles et choix technologiques}{21}{}%
+\contentsline {table}{\numberline {3.1}{\ignorespaces Spécification des besoins fonctionnels du moteur intelligent de détection de fraude par acteur}}{21}{}%
+\contentsline {table}{\numberline {3.2}{\ignorespaces Rôle des principaux composants du moteur de détection}}{30}{}%
+\contentsline {table}{\numberline {3.3}{\ignorespaces Éléments clés du moteur de règles}}{32}{}%
+\contentsline {table}{\numberline {3.4}{\ignorespaces Technologies de base du système de détection de fraude}}{40}{}%
+\contentsline {table}{\numberline {3.5}{\ignorespaces Technologies d'explicabilité et de gestion des modèles}}{40}{}%
+\contentsline {table}{\numberline {3.6}{\ignorespaces Outils de développement et d'infrastructure}}{41}{}%
+\contentsline {table}{\numberline {3.7}{\ignorespaces Dashboards et plateformes de visualisation}}{42}{}%
+\contentsline {table}{\numberline {3.8}{\ignorespaces Outils de collaboration et de documentation}}{43}{}%
 \addvspace {10\p@ }
-\contentsline {xchapter}{Réalisation}{29}{}%
-\contentsline {table}{\numberline {4.1}{\ignorespaces Conteneurs Docker du système}}{30}{}%
-\contentsline {table}{\numberline {4.2}{\ignorespaces Principales sources de données exploitées pour la construction du dataset}}{40}{}%
-\contentsline {table}{\numberline {4.3}{\ignorespaces Les 25 features extraites pour le modèle ML}}{41}{}%
-\contentsline {table}{\numberline {4.4}{\ignorespaces Comparaison des modèles supervisés}}{46}{}%
+\contentsline {xchapter}{Réalisation}{44}{}%
+\contentsline {table}{\numberline {4.1}{\ignorespaces Conteneurs Docker du système}}{45}{}%
+\contentsline {table}{\numberline {4.2}{\ignorespaces Description des neuf scénarios de fraude simulés}}{53}{}%
+\contentsline {table}{\numberline {4.3}{\ignorespaces Principales sources de données exploitées pour la construction du dataset}}{55}{}%
+\contentsline {table}{\numberline {4.4}{\ignorespaces Les 25 features extraites pour le modèle ML}}{56}{}%
+\contentsline {table}{\numberline {4.5}{\ignorespaces Fiche technique (datacard) du dataset synthétique}}{58}{}%
+\contentsline {table}{\numberline {4.6}{\ignorespaces Statistiques descriptives des features par catégorie}}{59}{}%
+\contentsline {table}{\numberline {4.7}{\ignorespaces Comparaison des modèles de base et de l'ensemble (jeu de test, seuil 0,5)}}{64}{}%
+\contentsline {table}{\numberline {4.8}{\ignorespaces Rôles et permissions d'accès au système}}{78}{}%
+\contentsline {table}{\numberline {4.9}{\ignorespaces Fonctionnalités du tableau de bord pour l'analyste fraude}}{80}{}%
+\addvspace {10\p@ }
+\contentsline {xchapter}{Perspectives}{87}{}%

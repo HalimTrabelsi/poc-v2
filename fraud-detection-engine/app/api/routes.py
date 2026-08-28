@@ -399,7 +399,7 @@ async def country_profile(country_code: str) -> dict:
     summary="List beneficiary IDs from OpenG2P",
 )
 async def list_beneficiaries(limit: int = Query(100, ge=1, le=5000)) -> list[dict]:
-    """Return partner_id + name/age/phone from OpenG2P, for display and name search."""
+    """Return partner_id + name/age/phone/address from OpenG2P, for display and name search."""
     from app.data.extractors import BeneficiaryExtractor
 
     try:
@@ -407,30 +407,31 @@ async def list_beneficiaries(limit: int = Query(100, ge=1, le=5000)) -> list[dic
         df = extractor.get_all_features(limit=limit)
         cols = ["partner_id"] + [c for c in ("name", "age") if c in df.columns]
 
-        # `age` comes from get_all_features(); raw phone doesn't (only used
-        # internally for shared_phone_count) — fetch it separately from
-        # res_partner.phone (same field Odoo's own case display reads from)
-        # rather than touching the large shared feature-extraction query.
-        phones: dict[int, str] = {}
+        # `age` comes from get_all_features(); raw phone/street don't (only
+        # shared_phone_count is used internally) — fetch them separately from
+        # res_partner (same fields Odoo's own case display reads from) rather
+        # than touching the large shared feature-extraction query.
+        contact_info: dict[int, dict] = {}
         try:
             from sqlalchemy import text
             ids = [int(x) for x in df["partner_id"].tolist()]
             if ids:
                 with extractor._connector.engine.connect() as conn:
                     rows = conn.execute(
-                        text("SELECT id, phone FROM res_partner WHERE id = ANY(:ids)"),
+                        text("SELECT id, phone, street FROM res_partner WHERE id = ANY(:ids)"),
                         {"ids": ids},
                     ).fetchall()
-                phones = {r[0]: r[1] or "" for r in rows}
+                contact_info = {r[0]: {"phone": r[1] or "", "address": r[2] or ""} for r in rows}
         except Exception:
-            logger.warning("Could not fetch beneficiary phones", exc_info=True)
+            logger.warning("Could not fetch beneficiary contact info", exc_info=True)
 
         return [
             {
                 "partner_id": int(row["partner_id"]),
                 "name": row.get("name") or "",
                 "age": int(row["age"]) if "age" in cols and row.get("age") is not None else None,
-                "phone": phones.get(int(row["partner_id"]), ""),
+                "phone": contact_info.get(int(row["partner_id"]), {}).get("phone", ""),
+                "address": contact_info.get(int(row["partner_id"]), {}).get("address", ""),
             }
             for _, row in df[cols].iterrows()
         ]

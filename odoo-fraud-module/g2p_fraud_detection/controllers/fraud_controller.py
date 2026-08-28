@@ -1,4 +1,5 @@
 """HTTP controller for the fraud detection module."""
+import base64
 import hashlib
 import hmac
 import os
@@ -43,7 +44,12 @@ class FraudController(http.Controller):
         secret = os.environ.get("DASHBOARD_TOKEN_SECRET", "")
 
         expiry = int(time.time()) + 300
-        payload = f"{user.id}:{expiry}"
+        # Carry the display name (URL-safe base64, no padding — keeps the ':'
+        # token separator unambiguous) so the dashboard can greet the analyst.
+        name_b64 = base64.urlsafe_b64encode(
+            (user.name or "").encode("utf-8")
+        ).decode("ascii").rstrip("=")
+        payload = f"{user.id}:{expiry}:{name_b64}"
         signature = hmac.new(secret.encode(), payload.encode(), hashlib.sha256).hexdigest()
         token = f"{payload}:{signature}"
 
@@ -67,4 +73,18 @@ class FraudController(http.Controller):
             "medium": Case.search_count([("risk_level", "=", "MEDIUM"),
                                           ("state", "in", ("open", "investigating"))]),
             "total_open": Case.search_count([("state", "in", ("open", "investigating"))]),
+        }
+
+    @http.route("/fraud/cron_status", type="json", auth="user")
+    def cron_status(self):
+        """Expose the sync cron's real timing so the Live Alert Monitor can
+        show a live "last scan / next scan" indicator — visible proof the
+        1-minute cron is actually running, not just a static claim."""
+        ICP = request.env["ir.config_parameter"].sudo()
+        cron = request.env.ref("g2p_fraud_detection.ir_cron_fraud_sync", raise_if_not_found=False)
+        return {
+            "last_sync_at": ICP.get_param("fraud_detection.last_sync_at", ""),
+            "last_sync_count": int(ICP.get_param("fraud_detection.last_sync_count", "0") or 0),
+            "next_run_at": str(cron.sudo().nextcall) if cron else "",
+            "interval_seconds": (cron.sudo().interval_number * 60) if cron and cron.sudo().interval_type == "minutes" else 60,
         }

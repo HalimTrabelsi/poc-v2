@@ -26,7 +26,8 @@
     "high_amount_flag",
     "income_program_inconsistency",
     "income_ratio_to_national",
-    "household_size_deviation"
+    "household_size_deviation",
+    "duplicate_national_id_count"
   ],
   "target_column": "is_fraud",
   "base_models": [
@@ -52,5 +53,6 @@
     "ml": 0.55,
     "anomaly": 0.05,
     "graph": 0.2
-  }
+  },
+  "decision_threshold": 0.55
 }

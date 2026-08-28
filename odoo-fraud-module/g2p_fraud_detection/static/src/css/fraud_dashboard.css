@@ -1,68 +1,191 @@
-/* Fraud Detection Dashboard Styles */
+/* Fraud Detection Dashboard Styles — matches Odoo's own flat, purple-accented
+   design language (navbar #71639e, body text #495057, flat card shadows)
+   rather than a custom dark/gradient look. */
 
-.o_fraud_kanban {
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+.o_fraud_dashboard.o_kanban_view {
+    background-color: #f8f9fa;
+    padding: 8px 12px;
 }
 
-.o_kanban_record.oe_kanban_global_click {
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s, box-shadow 0.2s;
+/* ── Cron banner ─────────────────────────────────────────────────────── */
+.fraud-cron-banner {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 8px 16px;
+    margin-bottom: 12px;
+    background-color: #ffffff;
+    border: 1px solid #dee2e6;
+    border-left: 3px solid #71639e;
+    border-radius: 4px;
+    font-size: 13px;
+    color: #495057;
 }
 
-.o_kanban_record.oe_kanban_global_click:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+.fraud-cron-banner .fraud-cron-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #28a745;
+    box-shadow: 0 0 0 rgba(40, 167, 69, 0.6);
+    animation: fraud-pulse 2s infinite;
+    margin-right: 4px;
 }
 
-/* Risk level color coding */
-.o_risk_critical {
-    background-color: #dc3545;
-    color: white;
+.fraud-cron-banner .fraud-cron-title {
+    font-weight: 600;
+    color: #71639e;
+    letter-spacing: 0.2px;
 }
 
-.o_risk_high {
-    background-color: #fd7e14;
-    color: white;
+.fraud-cron-banner .fraud-cron-sep {
+    color: #ced4da;
 }
 
-.o_risk_medium {
-    background-color: #ffc107;
-    color: #333;
+.fraud-cron-banner .fraud-cron-last,
+.fraud-cron-banner .fraud-cron-next {
+    color: #495057;
 }
 
-.o_risk_low {
-    background-color: #28a745;
-    color: white;
+.fraud-cron-banner .fraud-cron-count {
+    margin-left: auto;
+    background-color: #f1eef8;
+    color: #71639e;
+    border-radius: 0.25rem;
+    padding: 3px 12px;
+    font-weight: 600;
+    font-size: 0.75em;
 }
 
-/* Score percentage display */
-.o_fraud_score {
-    font-size: 24px;
-    font-weight: bold;
+/* Chronometer — the visible proof the 1-minute cron is really ticking */
+.fraud-cron-chrono {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    background-color: #f1eef8;
+    border-radius: 4px;
+    padding: 3px 12px;
+}
+
+.fraud-cron-chrono-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #71639e;
+    opacity: 0.85;
+}
+
+.fraud-cron-chrono-value {
+    font-family: "Courier New", Consolas, monospace;
+    font-size: 16px;
+    font-weight: 700;
+    color: #71639e;
+    min-width: 2.6em;
     text-align: center;
-    margin: 10px 0;
+}
+
+.fraud-cron-banner.fraud-cron-scanning {
+    border-left-color: #28a745;
+    background-color: #f0f9f2;
+}
+
+.fraud-cron-banner.fraud-cron-scanning .fraud-cron-chrono-value {
+    color: #28a745;
+    animation: fraud-chrono-blink 0.6s infinite;
+}
+
+@keyframes fraud-chrono-blink {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0.3; }
+}
+
+@keyframes fraud-pulse {
+    0%   { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.55); }
+    70%  { box-shadow: 0 0 0 8px rgba(40, 167, 69, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
+}
+
+/* ── Alert cards ─────────────────────────────────────────────────────── */
+/* Flat, bordered cards in Odoo's own style (o_kanban_record uses
+   box-shadow:none natively) — colored left border signals risk level
+   instead of a heavier drop-shadow / gradient treatment. */
+.fraud-alert-card {
+    border-radius: 4px;
+    border: 1px solid #dee2e6;
+    border-left: 4px solid #adb5bd;
+    background-color: #ffffff;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    padding: 2px 2px 4px;
+    overflow: hidden;
+}
+
+.fraud-alert-card:hover {
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+.fraud-alert-card.risk-CRITICAL { border-left-color: #dc3545; }
+.fraud-alert-card.risk-HIGH     { border-left-color: #fd7e14; }
+.fraud-alert-card.risk-MEDIUM   { border-left-color: #ffc107; }
+.fraud-alert-card.risk-LOW      { border-left-color: #28a745; }
+
+.fraud-alert-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 10px 4px;
+}
+
+.risk-badge {
+    display: inline-block;
+    padding: 0.25em 0.82em;
+    border-radius: 0.25rem;
+    font-size: 0.75em;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    color: #fff;
+}
+
+.risk-badge.risk-CRITICAL { background-color: #dc3545; }
+.risk-badge.risk-HIGH     { background-color: #fd7e14; }
+.risk-badge.risk-MEDIUM   { background-color: #ffc107; color: #3a2e00; }
+.risk-badge.risk-LOW      { background-color: #28a745; }
+
+.fraud-score {
+    font-size: 15px;
+    font-weight: 700;
+    color: #495057;
+}
+
+.fraud-alert-body {
+    padding: 0 10px 8px;
+}
+
+.fraud-bid {
+    font-size: 15px;
+    font-weight: 600;
+    color: #71639e;
+    margin-bottom: 2px;
+}
+
+.fraud-meta {
+    font-size: 12px;
+    color: #495057;
+    margin-bottom: 4px;
 }
 
 /* Rules triggered section */
-.o_fraud_rules {
-    margin-top: 10px;
-    padding: 8px;
-    background: rgba(255, 255, 255, 0.2);
+.fraud-rules {
+    margin-top: 6px;
+    padding: 6px 8px;
+    background-color: #f8f9fa;
     border-radius: 4px;
-    font-size: 12px;
+    font-size: 11.5px;
     max-height: 60px;
     overflow-y: auto;
 }
 
-/* LLM Explanation section */
-.o_fraud_explanation {
-    margin-top: 10px;
-    padding: 8px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 4px;
-    font-size: 11px;
-    line-height: 1.4;
-    max-height: 80px;
-    overflow-y: auto;
+.fraud-ts {
+    margin-top: 6px;
 }

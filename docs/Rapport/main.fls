@@ -740,10 +740,9 @@ OUTPUT main.mtc2
 OUTPUT main.mtc3
 OUTPUT main.mtc4
 OUTPUT main.mtc5
+OUTPUT main.mtc6
 INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\tfm\public\lm\ec-lmbx12.tfm
 INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\tfm\public\lm\ec-lmbx12.tfm
-INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\tfm\public\lm\ec-lmri12.tfm
-INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\tfm\public\lm\ec-lmbxi10.tfm
 OUTPUT main.pdf
 INPUT C:\Users\Mega Pc\AppData\Local\MiKTeX\fonts\map\pdftex\pdftex.map
 INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\enc\dvips\lm\lm-ec.enc
@@ -813,12 +812,19 @@ INPUT .\images\AMCEYTunisia.png
 INPUT .\images\AMCEYTunisia.png
 INPUT .\images\AMCEYTunisia.png
 INPUT .\images\AMCEYTunisia.png
+INPUT .\images\ServiceEY2.png
+INPUT .\images\ServiceEY2.png
+INPUT .\images\ServiceEY2.png
+INPUT .\images\ServiceEY2.png
+INPUT .\images\ServiceEY2.png
+INPUT .\images\ServiceEY2.png
 INPUT .\images\TechTransfo.png
 INPUT .\images\TechTransfo.png
 INPUT .\images\TechTransfo.png
 INPUT .\images\TechTransfo.png
 INPUT .\images\TechTransfo.png
 INPUT .\images\TechTransfo.png
+INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\tfm\public\lm\ec-lmri12.tfm
 INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\tex\latex\lm\ts1lmr.fd
 INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\tex\latex\lm\ts1lmr.fd
 INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\tex\latex\lm\ts1lmr.fd
@@ -831,12 +837,31 @@ INPUT .\images\OpenG2P.png
 INPUT .\images\OpenG2P.png
 INPUT .\images\OpenG2P.png
 INPUT .\images\OpenG2P.png
-INPUT .\images\processus_openg2p.png
-INPUT .\images\processus_openg2p.png
-INPUT .\images\processus_openg2p.png
-INPUT .\images\processus_openg2p.png
-INPUT .\images\processus_openg2p.png
-INPUT .\images\processus_openg2p.png
+INPUT .\images\AFOpenG2P.png
+INPUT .\images\AFOpenG2P.png
+INPUT .\images\AFOpenG2P.png
+INPUT .\images\AFOpenG2P.png
+INPUT .\images\AFOpenG2P.png
+INPUT .\images\AFOpenG2P.png
+INPUT .\architecture\ProcessusOpeng2p.png
+INPUT .\architecture\ProcessusOpeng2p.png
+INPUT .\architecture\ProcessusOpeng2p.png
+INPUT .\architecture\ProcessusOpeng2p.png
+INPUT .\architecture\ProcessusOpeng2p.png
+INPUT .\architecture\ProcessusOpeng2p.png
+INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\tfm\public\lm\ec-lmbxi10.tfm
+INPUT .\images\scrum_process.png
+INPUT .\images\scrum_process.png
+INPUT .\images\scrum_process.png
+INPUT .\images\scrum_process.png
+INPUT .\images\scrum_process.png
+INPUT .\images\scrum_process.png
+INPUT .\images\gantt.png
+INPUT .\images\gantt.png
+INPUT .\images\gantt.png
+INPUT .\images\gantt.png
+INPUT .\images\gantt.png
+INPUT .\images\gantt.png
 INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\tfm\public\lm\ec-lmr10.tfm
 INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\tfm\public\lm\rm-lmr10.tfm
 INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\tfm\public\lm\lmmi10.tfm
@@ -845,143 +870,365 @@ INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\s
 INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msbm10.tfm
 INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\tfm\public\lm\ec-lmbx10.tfm
 INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\enc\dvips\lm\lm-mathsy.enc
-INPUT .\architecture\use_case_uml.png
-INPUT .\architecture\use_case_uml.png
-INPUT .\architecture\use_case_uml.png
-INPUT .\architecture\use_case_uml.png
-INPUT .\architecture\use_case_uml.png
-INPUT .\architecture\use_case_uml.png
-INPUT .\architecture\AgentsOrchestratorClassDiagram.png
-INPUT .\architecture\AgentsOrchestratorClassDiagram.png
-INPUT .\architecture\AgentsOrchestratorClassDiagram.png
-INPUT .\architecture\AgentsOrchestratorClassDiagram.png
-INPUT .\architecture\AgentsOrchestratorClassDiagram.png
-INPUT .\architecture\AgentsOrchestratorClassDiagram.png
-INPUT .\architecture\Architecture_Physique.png
-INPUT .\architecture\Architecture_Physique.png
-INPUT .\architecture\Architecture_Physique.png
-INPUT .\architecture\Architecture_Physique.png
-INPUT .\architecture\Architecture_Physique.png
-INPUT .\architecture\Architecture_Physique.png
-INPUT .\images\Architecture_logiqueSmall.jpg
-INPUT .\images\Architecture_logiqueSmall.jpg
-INPUT .\images\Architecture_logiqueSmall.jpg
-INPUT .\images\Architecture_logiqueSmall.jpg
-INPUT .\images\Architecture_logiqueSmall.jpg
-INPUT .\images\Architecture_logiqueSmall.jpg
-INPUT .\architecture\archi_flux_donnees.png
-INPUT .\architecture\archi_flux_donnees.png
-INPUT .\architecture\archi_flux_donnees.png
-INPUT .\architecture\archi_flux_donnees.png
-INPUT .\architecture\archi_flux_donnees.png
-INPUT .\architecture\archi_flux_donnees.png
-INPUT .\architecture\TechStack.png
-INPUT .\architecture\TechStack.png
-INPUT .\architecture\TechStack.png
-INPUT .\architecture\TechStack.png
-INPUT .\architecture\TechStack.png
-INPUT .\architecture\TechStack.png
+INPUT .\UML\UseCaseDiagram.png
+INPUT .\UML\UseCaseDiagram.png
+INPUT .\UML\UseCaseDiagram.png
+INPUT .\UML\UseCaseDiagram.png
+INPUT .\UML\UseCaseDiagram.png
+INPUT .\UML\UseCaseDiagram.png
 INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\tex\latex\lm\t1lmtt.fd
 INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\tex\latex\lm\t1lmtt.fd
 INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\tex\latex\lm\t1lmtt.fd
-INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\tfm\public\lm\ec-lmtk10.tfm
 INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\tfm\public\lm\ec-lmtt12.tfm
-INPUT .\images\Docker.png
-INPUT .\images\Docker.png
-INPUT .\images\Docker.png
-INPUT .\images\Docker.png
-INPUT .\images\Docker.png
-INPUT .\images\Docker.png
-INPUT .\images\Extrait1.png
-INPUT .\images\Extrait1.png
-INPUT .\images\Extrait1.png
-INPUT .\images\Extrait1.png
-INPUT .\images\Extrait1.png
-INPUT .\images\Extrait1.png
-INPUT .\images\Docker2.png
-INPUT .\images\Docker2.png
-INPUT .\images\Docker2.png
-INPUT .\images\Docker2.png
-INPUT .\images\Docker2.png
-INPUT .\images\Docker2.png
-INPUT .\images\DockerStart.png
-INPUT .\images\DockerStart.png
-INPUT .\images\DockerStart.png
-INPUT .\images\DockerStart.png
-INPUT .\images\DockerStart.png
-INPUT .\images\DockerStart.png
-INPUT .\images\CodeStructure.png
-INPUT .\images\CodeStructure.png
-INPUT .\images\CodeStructure.png
-INPUT .\images\CodeStructure.png
-INPUT .\images\CodeStructure.png
-INPUT .\images\CodeStructure.png
-INPUT .\images\FEStructure.png
-INPUT .\images\FEStructure.png
-INPUT .\images\FEStructure.png
-INPUT .\images\FEStructure.png
-INPUT .\images\FEStructure.png
-INPUT .\images\FEStructure.png
-INPUT .\images\CoreComponenets.png
-INPUT .\images\CoreComponenets.png
-INPUT .\images\CoreComponenets.png
-INPUT .\images\CoreComponenets.png
-INPUT .\images\CoreComponenets.png
-INPUT .\images\CoreComponenets.png
+INPUT .\UML\SeqGlobal.png
+INPUT .\UML\SeqGlobal.png
+INPUT .\UML\SeqGlobal.png
+INPUT .\UML\SeqGlobal.png
+INPUT .\UML\SeqGlobal.png
+INPUT .\UML\SeqGlobal.png
+INPUT .\UML\ANALYSTE_FRAUDE_SEQUENCE.png
+INPUT .\UML\ANALYSTE_FRAUDE_SEQUENCE.png
+INPUT .\UML\ANALYSTE_FRAUDE_SEQUENCE.png
+INPUT .\UML\ANALYSTE_FRAUDE_SEQUENCE.png
+INPUT .\UML\ANALYSTE_FRAUDE_SEQUENCE.png
+INPUT .\UML\ANALYSTE_FRAUDE_SEQUENCE.png
+INPUT .\UML\ProcessGlobal.png
+INPUT .\UML\ProcessGlobal.png
+INPUT .\UML\ProcessGlobal.png
+INPUT .\UML\ProcessGlobal.png
+INPUT .\UML\ProcessGlobal.png
+INPUT .\UML\ProcessGlobal.png
+INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\tfm\public\lm\ec-lmr10.tfm
+INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\tfm\public\lm\rm-lmr10.tfm
+INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\tfm\public\lm\rm-lmr7.tfm
+INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\tfm\public\lm\rm-lmr5.tfm
+INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\tfm\public\lm\lmmi10.tfm
+INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\tfm\public\lm\lmmi7.tfm
+INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\tfm\public\lm\lmmi5.tfm
+INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\tfm\public\lm\lmsy10.tfm
+INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\tfm\public\lm\lmsy7.tfm
+INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\tfm\public\lm\lmsy5.tfm
+INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msam10.tfm
+INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msam7.tfm
+INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msam5.tfm
+INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msbm10.tfm
+INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msbm7.tfm
+INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msbm5.tfm
+INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\tfm\public\lm\ec-lmbx10.tfm
+INPUT .\UML\DiagClassML.png
+INPUT .\UML\DiagClassML.png
+INPUT .\UML\DiagClassML.png
+INPUT .\UML\DiagClassML.png
+INPUT .\UML\DiagClassML.png
+INPUT .\UML\DiagClassML.png
+INPUT .\UML\RuleEngine.png
+INPUT .\UML\RuleEngine.png
+INPUT .\UML\RuleEngine.png
+INPUT .\UML\RuleEngine.png
+INPUT .\UML\RuleEngine.png
+INPUT .\UML\RuleEngine.png
+INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\tfm\public\lm\ec-lmri10.tfm
+INPUT .\UML\Graph.png
+INPUT .\UML\Graph.png
+INPUT .\UML\Graph.png
+INPUT .\UML\Graph.png
+INPUT .\UML\Graph.png
+INPUT .\UML\Graph.png
+INPUT .\UML\SHAPLLM.png
+INPUT .\UML\SHAPLLM.png
+INPUT .\UML\SHAPLLM.png
+INPUT .\UML\SHAPLLM.png
+INPUT .\UML\SHAPLLM.png
+INPUT .\UML\SHAPLLM.png
+INPUT .\architecture\archi_flux_donnees.png
+INPUT .\architecture\archi_flux_donnees.png
+INPUT .\architecture\archi_flux_donnees.png
+INPUT .\architecture\archi_flux_donnees.png
+INPUT .\architecture\archi_flux_donnees.png
+INPUT .\architecture\archi_flux_donnees.png
+INPUT .\architecture\ArchitectureLogique.png
+INPUT .\architecture\ArchitectureLogique.png
+INPUT .\architecture\ArchitectureLogique.png
+INPUT .\architecture\ArchitectureLogique.png
+INPUT .\architecture\ArchitectureLogique.png
+INPUT .\architecture\ArchitectureLogique.png
 INPUT .\architecture\Modules_principaux.png
 INPUT .\architecture\Modules_principaux.png
 INPUT .\architecture\Modules_principaux.png
 INPUT .\architecture\Modules_principaux.png
 INPUT .\architecture\Modules_principaux.png
 INPUT .\architecture\Modules_principaux.png
-INPUT .\architecture\Construction_dataset.png
-INPUT .\architecture\Construction_dataset.png
-INPUT .\architecture\Construction_dataset.png
-INPUT .\architecture\Construction_dataset.png
-INPUT .\architecture\Construction_dataset.png
-INPUT .\architecture\Construction_dataset.png
-INPUT .\images\openg2p_schema_complexity.png
-INPUT .\images\openg2p_schema_complexity.png
-INPUT .\images\openg2p_schema_complexity.png
-INPUT .\images\openg2p_schema_complexity.png
-INPUT .\images\openg2p_schema_complexity.png
-INPUT .\images\openg2p_schema_complexity.png
-INPUT .\images\ScenarioFraude.png
-INPUT .\images\ScenarioFraude.png
-INPUT .\images\ScenarioFraude.png
-INPUT .\images\ScenarioFraude.png
-INPUT .\images\ScenarioFraude.png
-INPUT .\images\ScenarioFraude.png
-INPUT .\images\openg2p_columns_dtypes.png
-INPUT .\images\openg2p_columns_dtypes.png
-INPUT .\images\openg2p_columns_dtypes.png
-INPUT .\images\openg2p_columns_dtypes.png
-INPUT .\images\openg2p_columns_dtypes.png
-INPUT .\images\openg2p_columns_dtypes.png
-INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\tex\latex\listings\lstlang1.sty
-INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\tex\latex\listings\lstlang1.sty
-INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\tex\latex\listings\lstlang1.sty
-INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\tex\latex\listings\lstlang1.sty
-INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\tex\latex\listings\lstlang1.sty
-INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\tex\latex\listings\lstlang1.sty
-INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\tfm\public\lm\ec-lmtt10.tfm
-INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\tfm\public\lm\ec-lmr6.tfm
+INPUT .\architecture\TechStack.png
+INPUT .\architecture\TechStack.png
+INPUT .\architecture\TechStack.png
+INPUT .\architecture\TechStack.png
+INPUT .\architecture\TechStack.png
+INPUT .\architecture\TechStack.png
 INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\tfm\public\lm\ec-lmtk10.tfm
-INPUT .\images\paysim_overview.png
-INPUT .\images\paysim_overview.png
-INPUT .\images\paysim_overview.png
-INPUT .\images\paysim_overview.png
-INPUT .\images\paysim_overview.png
-INPUT .\images\paysim_overview.png
-INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\tex\latex\listings\lstlang1.sty
-INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\tex\latex\listings\lstlang1.sty
-INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\tex\latex\listings\lstlang1.sty
+INPUT .\images\DockerStart.png
+INPUT .\images\DockerStart.png
+INPUT .\images\DockerStart.png
+INPUT .\images\DockerStart.png
+INPUT .\images\DockerStart.png
+INPUT .\images\DockerStart.png
+INPUT .\captures\openg2plogin.png
+INPUT .\captures\openg2plogin.png
+INPUT .\captures\openg2plogin.png
+INPUT .\captures\openg2plogin.png
+INPUT .\captures\openg2plogin.png
+INPUT .\captures\openg2plogin.png
+INPUT .\captures\modulesopeng2p.png
+INPUT .\captures\modulesopeng2p.png
+INPUT .\captures\modulesopeng2p.png
+INPUT .\captures\modulesopeng2p.png
+INPUT .\captures\modulesopeng2p.png
+INPUT .\captures\modulesopeng2p.png
+INPUT .\captures\OpenG2P2.png
+INPUT .\captures\OpenG2P2.png
+INPUT .\captures\OpenG2P2.png
+INPUT .\captures\OpenG2P2.png
+INPUT .\captures\OpenG2P2.png
+INPUT .\captures\OpenG2P2.png
+INPUT .\captures\facturation.png
+INPUT .\captures\facturation.png
+INPUT .\captures\facturation.png
+INPUT .\captures\facturation.png
+INPUT .\captures\facturation.png
+INPUT .\captures\facturation.png
+INPUT .\captures\openg2p_programmes.png
+INPUT .\captures\openg2p_programmes.png
+INPUT .\captures\openg2p_programmes.png
+INPUT .\captures\openg2p_programmes.png
+INPUT .\captures\openg2p_programmes.png
+INPUT .\captures\openg2p_programmes.png
+INPUT .\captures\facturation.png
+INPUT .\captures\facturation.png
+INPUT .\captures\facturation.png
+INPUT .\captures\GrafanaOpeng2p.png
+INPUT .\captures\GrafanaOpeng2p.png
+INPUT .\captures\GrafanaOpeng2p.png
+INPUT .\captures\GrafanaOpeng2p.png
+INPUT .\captures\GrafanaOpeng2p.png
+INPUT .\captures\GrafanaOpeng2p.png
+INPUT .\captures\GrafanaFraud.png
+INPUT .\captures\GrafanaFraud.png
+INPUT .\captures\GrafanaFraud.png
+INPUT .\captures\GrafanaFraud.png
+INPUT .\captures\GrafanaFraud.png
+INPUT .\captures\GrafanaFraud.png
+INPUT .\captures\PrometheusOpenG2P.png
+INPUT .\captures\PrometheusOpenG2P.png
+INPUT .\captures\PrometheusOpenG2P.png
+INPUT .\captures\PrometheusOpenG2P.png
+INPUT .\captures\PrometheusOpenG2P.png
+INPUT .\captures\PrometheusOpenG2P.png
+INPUT .\architecture\Construction_dataset.png
+INPUT .\architecture\Construction_dataset.png
+INPUT .\architecture\Construction_dataset.png
+INPUT .\architecture\Construction_dataset.png
+INPUT .\architecture\Construction_dataset.png
+INPUT .\architecture\Construction_dataset.png
+INPUT .\architecture\ScenarioFraude.png
+INPUT .\architecture\ScenarioFraude.png
+INPUT .\architecture\ScenarioFraude.png
+INPUT .\architecture\ScenarioFraude.png
+INPUT .\architecture\ScenarioFraude.png
+INPUT .\architecture\ScenarioFraude.png
+INPUT .\images\openg2p_schema_complexity.png
+INPUT .\images\openg2p_schema_complexity.png
+INPUT .\images\openg2p_schema_complexity.png
+INPUT .\images\openg2p_schema_complexity.png
+INPUT .\images\openg2p_schema_complexity.png
+INPUT .\images\openg2p_schema_complexity.png
+INPUT .\images\openg2p_columns_dtypes.png
+INPUT .\images\openg2p_columns_dtypes.png
+INPUT .\images\openg2p_columns_dtypes.png
+INPUT .\images\openg2p_columns_dtypes.png
+INPUT .\images\openg2p_columns_dtypes.png
+INPUT .\images\openg2p_columns_dtypes.png
+INPUT .\generated\datacard_tables.tex
+INPUT .\generated\datacard_tables.tex
+INPUT generated\datacard_tables.tex
+INPUT .\architecture\DatasetGeneration.png
+INPUT .\architecture\DatasetGeneration.png
+INPUT .\architecture\DatasetGeneration.png
+INPUT .\architecture\DatasetGeneration.png
+INPUT .\architecture\DatasetGeneration.png
+INPUT .\architecture\DatasetGeneration.png
+INPUT .\architecture\openg2p_pmt_score_distribution.png
+INPUT .\architecture\openg2p_pmt_score_distribution.png
+INPUT .\architecture\openg2p_pmt_score_distribution.png
+INPUT .\architecture\openg2p_pmt_score_distribution.png
+INPUT .\architecture\openg2p_pmt_score_distribution.png
+INPUT .\architecture\openg2p_pmt_score_distribution.png
+INPUT .\architecture\paysim_amount_distribution.png
+INPUT .\architecture\paysim_amount_distribution.png
+INPUT .\architecture\paysim_amount_distribution.png
+INPUT .\architecture\paysim_amount_distribution.png
+INPUT .\architecture\paysim_amount_distribution.png
+INPUT .\architecture\paysim_amount_distribution.png
+INPUT .\architecture\class_balance.png
+INPUT .\architecture\class_balance.png
+INPUT .\architecture\class_balance.png
+INPUT .\architecture\class_balance.png
+INPUT .\architecture\class_balance.png
+INPUT .\architecture\class_balance.png
+INPUT .\architecture\roc_comparaison_modeles.png
+INPUT .\architecture\roc_comparaison_modeles.png
+INPUT .\architecture\roc_comparaison_modeles.png
+INPUT .\architecture\roc_comparaison_modeles.png
+INPUT .\architecture\roc_comparaison_modeles.png
+INPUT .\architecture\roc_comparaison_modeles.png
+INPUT .\architecture\isolation_forest_distribution.png
+INPUT .\architecture\isolation_forest_distribution.png
+INPUT .\architecture\isolation_forest_distribution.png
+INPUT .\architecture\isolation_forest_distribution.png
+INPUT .\architecture\isolation_forest_distribution.png
+INPUT .\architecture\isolation_forest_distribution.png
+INPUT .\architecture\network_analysis_pipeline.png
+INPUT .\architecture\network_analysis_pipeline.png
+INPUT .\architecture\network_analysis_pipeline.png
+INPUT .\architecture\network_analysis_pipeline.png
+INPUT .\architecture\network_analysis_pipeline.png
+INPUT .\architecture\network_analysis_pipeline.png
 INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\tfm\public\lm\ec-lmr8.tfm
+INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\tfm\public\lm\ec-lmr6.tfm
+INPUT .\architecture\shap_beeswarm.png
+INPUT .\architecture\shap_beeswarm.png
+INPUT .\architecture\shap_beeswarm.png
+INPUT .\architecture\shap_beeswarm.png
+INPUT .\architecture\shap_beeswarm.png
+INPUT .\architecture\shap_beeswarm.png
 INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\enc\dvips\lm\lm-rm.enc
 INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\enc\dvips\lm\lm-mathit.enc
+INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\enc\dvips\lm\lm-mathex.enc
+INPUT .\architecture\shap_waterfall.png
+INPUT .\architecture\shap_waterfall.png
+INPUT .\architecture\shap_waterfall.png
+INPUT .\architecture\shap_waterfall.png
+INPUT .\architecture\shap_waterfall.png
+INPUT .\architecture\shap_waterfall.png
+INPUT .\captures\explainability.png
+INPUT .\captures\explainability.png
+INPUT .\captures\explainability.png
+INPUT .\captures\explainability.png
+INPUT .\captures\explainability.png
+INPUT .\captures\explainability.png
+INPUT .\captures\explainability2.png
+INPUT .\captures\explainability2.png
+INPUT .\captures\explainability2.png
+INPUT .\captures\explainability2.png
+INPUT .\captures\explainability2.png
+INPUT .\captures\explainability2.png
+INPUT .\captures\IntegrationOdoo.png
+INPUT .\captures\IntegrationOdoo.png
+INPUT .\captures\IntegrationOdoo.png
+INPUT .\captures\IntegrationOdoo.png
+INPUT .\captures\IntegrationOdoo.png
+INPUT .\captures\IntegrationOdoo.png
+INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\tfm\public\lm\ec-lmr12.tfm
+INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\tfm\public\lm\ec-lmbx12.tfm
+INPUT .\captures\notifications.png
+INPUT .\captures\notifications.png
+INPUT .\captures\notifications.png
+INPUT .\captures\notifications.png
+INPUT .\captures\notifications.png
+INPUT .\captures\notifications.png
+INPUT .\captures\notifications2.png
+INPUT .\captures\notifications2.png
+INPUT .\captures\notifications2.png
+INPUT .\captures\notifications2.png
+INPUT .\captures\notifications2.png
+INPUT .\captures\notifications2.png
+INPUT .\captures\fraudcase.png
+INPUT .\captures\fraudcase.png
+INPUT .\captures\fraudcase.png
+INPUT .\captures\fraudcase.png
+INPUT .\captures\fraudcase.png
+INPUT .\captures\fraudcase.png
+INPUT .\captures\LiveAlertMonitor.png
+INPUT .\captures\LiveAlertMonitor.png
+INPUT .\captures\LiveAlertMonitor.png
+INPUT .\captures\LiveAlertMonitor.png
+INPUT .\captures\LiveAlertMonitor.png
+INPUT .\captures\LiveAlertMonitor.png
+INPUT .\captures\Dossier.png
+INPUT .\captures\Dossier.png
+INPUT .\captures\Dossier.png
+INPUT .\captures\Dossier.png
+INPUT .\captures\Dossier.png
+INPUT .\captures\Dossier.png
+INPUT .\captures\Dossier2.png
+INPUT .\captures\Dossier2.png
+INPUT .\captures\Dossier2.png
+INPUT .\captures\Dossier2.png
+INPUT .\captures\Dossier2.png
+INPUT .\captures\Dossier2.png
+INPUT .\captures\swagger.png
+INPUT .\captures\swagger.png
+INPUT .\captures\swagger.png
+INPUT .\captures\swagger.png
+INPUT .\captures\swagger.png
+INPUT .\captures\swagger.png
+INPUT .\captures\swagger2.png
+INPUT .\captures\swagger2.png
+INPUT .\captures\swagger2.png
+INPUT .\captures\swagger2.png
+INPUT .\captures\swagger2.png
+INPUT .\captures\swagger2.png
+INPUT .\captures\Dashboard1.png
+INPUT .\captures\Dashboard1.png
+INPUT .\captures\Dashboard1.png
+INPUT .\captures\Dashboard1.png
+INPUT .\captures\Dashboard1.png
+INPUT .\captures\Dashboard1.png
+INPUT .\captures\resultScoring.png
+INPUT .\captures\resultScoring.png
+INPUT .\captures\resultScoring.png
+INPUT .\captures\resultScoring.png
+INPUT .\captures\resultScoring.png
+INPUT .\captures\resultScoring.png
+INPUT .\captures\ScoreCSV.png
+INPUT .\captures\ScoreCSV.png
+INPUT .\captures\ScoreCSV.png
+INPUT .\captures\ScoreCSV.png
+INPUT .\captures\ScoreCSV.png
+INPUT .\captures\ScoreCSV.png
+INPUT .\captures\FraudReport.png
+INPUT .\captures\FraudReport.png
+INPUT .\captures\FraudReport.png
+INPUT .\captures\FraudReport.png
+INPUT .\captures\FraudReport.png
+INPUT .\captures\FraudReport.png
+INPUT .\captures\explainability3.png
+INPUT .\captures\explainability3.png
+INPUT .\captures\explainability3.png
+INPUT .\captures\explainability3.png
+INPUT .\captures\explainability3.png
+INPUT .\captures\explainability3.png
+INPUT .\captures\GeoHotspot.png
+INPUT .\captures\GeoHotspot.png
+INPUT .\captures\GeoHotspot.png
+INPUT .\captures\GeoHotspot.png
+INPUT .\captures\GeoHotspot.png
+INPUT .\captures\GeoHotspot.png
+INPUT .\captures\monitoring.png
+INPUT .\captures\monitoring.png
+INPUT .\captures\monitoring.png
+INPUT .\captures\monitoring.png
+INPUT .\captures\monitoring.png
+INPUT .\captures\monitoring.png
+INPUT .\captures\rulesmanagement.png
+INPUT .\captures\rulesmanagement.png
+INPUT .\captures\rulesmanagement.png
+INPUT .\captures\rulesmanagement.png
+INPUT .\captures\rulesmanagement.png
+INPUT .\captures\rulesmanagement.png
 OUTPUT main.maf
 INPUT .\main.mtc
 INPUT .\main.mtc
+INPUT .\main.mtc5
+INPUT .\main.mtc5
 INPUT .\main.mtc4
 INPUT .\main.mtc4
 INPUT .\main.mtc3
@@ -999,23 +1246,25 @@ INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\type1\public\lm\lmbxi
 INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\type1\public\lm\lmbxi10.pfb
 INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\type1\public\lm\lmcsc10.pfb
 INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\type1\public\lm\lmcsc10.pfb
+INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\type1\public\lm\lmex10.pfb
+INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\type1\public\lm\lmex10.pfb
 INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\type1\public\lm\lmmi12.pfb
 INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\type1\public\lm\lmmi12.pfb
+INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\type1\public\lm\lmmi8.pfb
+INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\type1\public\lm\lmmi8.pfb
 INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\type1\public\lm\lmr10.pfb
 INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\type1\public\lm\lmr10.pfb
 INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\type1\public\lm\lmr12.pfb
 INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\type1\public\lm\lmr12.pfb
-INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\type1\public\lm\lmr6.pfb
-INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\type1\public\lm\lmr6.pfb
 INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\type1\public\lm\lmr8.pfb
 INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\type1\public\lm\lmr8.pfb
+INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\type1\public\lm\lmri10.pfb
+INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\type1\public\lm\lmri10.pfb
 INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\type1\public\lm\lmri12.pfb
 INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\type1\public\lm\lmri12.pfb
 INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\type1\public\lm\lmsy10.pfb
 INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\type1\public\lm\lmsy10.pfb
 INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\type1\public\lm\lmtk10.pfb
 INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\type1\public\lm\lmtk10.pfb
-INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\type1\public\lm\lmtt10.pfb
-INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\type1\public\lm\lmtt10.pfb
 INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\type1\public\lm\lmtt12.pfb
 INPUT C:\Users\Mega Pc\AppData\Local\Programs\MiKTeX\fonts\type1\public\lm\lmtt12.pfb

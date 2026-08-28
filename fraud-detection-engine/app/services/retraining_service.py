@@ -278,7 +278,17 @@ class RetrainingService:
                     "run_id":    r.info.run_id[:12],
                     "status":    r.info.status,
                     "started":   str(r.info.start_time)[:10],
-                    "accuracy":  r.data.metrics.get("feedback_accuracy", 0),
+                    # Different retrain paths log accuracy under different metric
+                    # names: the weekly feedback-retrain logs 'feedback_accuracy',
+                    # the full ml/scripts/train_openg2p.py retrain logs 'accuracy'
+                    # (aliased from holdout_auc). Fall back across all of them so
+                    # every run type shows a real number instead of 0.
+                    "accuracy":  (
+                        r.data.metrics.get("feedback_accuracy")
+                        or r.data.metrics.get("accuracy")
+                        or r.data.metrics.get("holdout_auc")
+                        or 0
+                    ),
                     "n_samples": int(r.data.metrics.get("n_samples", 0)),
                     "n_feedback":int(r.data.params.get("n_feedback_labels", 0)),
                 }

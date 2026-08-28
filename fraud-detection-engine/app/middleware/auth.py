@@ -26,6 +26,7 @@ class APIKeyMiddleware(BaseHTTPMiddleware):
         "/redoc",
         "/openapi.json",
         "/metrics",
+        "/metrics/",  # Mount("/metrics", ...) 307-redirects bare "/metrics" here
     }
 
     async def dispatch(self, request: Request, call_next):

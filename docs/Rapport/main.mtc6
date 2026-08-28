@@ -1,23 +1,11 @@
-{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {5.1}Introduction}{\reset@font\mtcSfont 30}{}}
-{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {5.2}Environnement de travail}{\reset@font\mtcSfont 30}{}}
-{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {5.2.1}Langages et outils utilisés}{\reset@font\mtcSSfont 30}{}}
-{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {5.2.2}Configuration Docker Compose}{\reset@font\mtcSSfont 32}{}}
-{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {5.3}Organisation du code}{\reset@font\mtcSfont 33}{}}
-{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {5.3.1}Structure du projet}{\reset@font\mtcSSfont 33}{}}
-{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {5.3.2}Description des modules principaux}{\reset@font\mtcSSfont 35}{}}
-{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {5.3.3}Interactions entre les composants}{\reset@font\mtcSSfont 35}{}}
-{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {5.4}Développement des fonctionnalités}{\reset@font\mtcSfont 36}{}}
-{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {5.4.1}Génération et injection des données}{\reset@font\mtcSSfont 36}{}}
-{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {5.4.2}Extraction des features}{\reset@font\mtcSSfont 36}{}}
-{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {5.4.3}Moteur de règles métier}{\reset@font\mtcSSfont 38}{}}
-{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {5.4.4}Pipeline ML : entraînement et scoring}{\reset@font\mtcSSfont 39}{}}
-{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode \numberline {5.4.4.0.1}Rééquilibrage des classes avec SMOTE.}{\reset@font\mtcPfont 39}{}}
-{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode \numberline {5.4.4.0.2}Entraînement XGBoost.}{\reset@font\mtcPfont 39}{}}
-{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {5.4.5}Analyse de réseau (NetworkX + PageRank)}{\reset@font\mtcSSfont 41}{}}
-{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {5.4.6}Score hybride}{\reset@font\mtcSSfont 42}{}}
-{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {5.4.7}Explicabilité : SHAP et LLM Mistral}{\reset@font\mtcSSfont 43}{}}
-{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode \numberline {5.4.7.0.1}SHAP}{\reset@font\mtcPfont 43}{}}
-{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode \numberline {5.4.7.0.2}LLM Mistral}{\reset@font\mtcPfont 43}{}}
-{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {5.4.8}Intégration Odoo}{\reset@font\mtcSSfont 44}{}}
-{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {5.4.9}Dashboard Streamlit}{\reset@font\mtcSSfont 45}{}}
-{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {5.5}Conclusion partielle}{\reset@font\mtcSfont 47}{}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {5.1}Limites du travail réalisé}{\reset@font\mtcSfont 87}{}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {5.2}Améliorations à court terme}{\reset@font\mtcSfont 87}{}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {5.2.1}Apprentissage des poids de fusion}{\reset@font\mtcSSfont 87}{}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {5.2.2}Intégration du score d'anomalie}{\reset@font\mtcSSfont 87}{}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {5.2.3}Calibration par pays}{\reset@font\mtcSSfont 88}{}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {5.2.4}Enrichissement des explications par RAG}{\reset@font\mtcSSfont 88}{}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {5.3}Conditions d'un déploiement réel}{\reset@font\mtcSfont 88}{}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {5.3.1}Protection des données personnelles}{\reset@font\mtcSSfont 88}{}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {5.3.2}Supervision du modèle en production}{\reset@font\mtcSSfont 88}{}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {5.3.3}Montée en charge}{\reset@font\mtcSSfont 88}{}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {5.4}Extensions envisageables}{\reset@font\mtcSfont 89}{}}

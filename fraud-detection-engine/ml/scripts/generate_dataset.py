@@ -662,9 +662,8 @@ def apply_duplicate_national_id_scenario(df, rate=0.02):
 
     Picks ~`rate` of FRAUD rows and gives each one a national_id copied
     from another random row (mix of legitimate and fraud), simulating a
-    stolen/reused identity. Computes duplicate_national_id_count as a
-    rule-engine signal ONLY — deliberately not added to ML_FEATURES/
-    training in this pass (see train_openg2p.py — untouched).
+    stolen/reused identity. Computes duplicate_national_id_count, fed to
+    both the rule engine and the ML ensemble (added to ML_FEATURES).
     """
     rng = np.random.default_rng(SEED + 2)
     fraud_idx = df.index[df["is_fraud"] == 1]
@@ -744,6 +743,7 @@ ML_FEATURES = [
     "payment_success_rate", "amount_variance", "cycle_count",
     "shared_phone_count", "shared_account_count", "network_risk",
     "group_membership_count", "high_amount_flag", "income_program_inconsistency",
+    "duplicate_national_id_count",
 ]
 
 
@@ -1167,13 +1167,13 @@ def main():
         "is_fraud", "synthetic_label", "partner_idx", "partner_id",
         "scenario", "registration_age_days", "avg_entitlement_amount",
         "total_issued", "total_paid", "network_risk_score", "elderly_head",
-        # Identity/context fields (cosmetic) + duplicate-ID rule signal —
-        # NOT ML features, deliberately excluded from ML_FEATURES/training.
+        # Identity/context fields (cosmetic) — NOT ML features.
+        # duplicate_national_id_count now comes via ML_FEATURES above.
         "country_code", "name", "first_name", "last_name", "email",
         "phone", "carrier", "address", "city", "region", "country_name",
         "national_id", "mobile_money_provider", "mobile_money_number",
         "transaction_id", "company_name", "registration_number",
-        "declared_income_display", "duplicate_national_id_count",
+        "declared_income_display",
         "lat", "lon",
     ]
     df[[c for c in cols if c in df.columns]].to_csv(out, index=False)

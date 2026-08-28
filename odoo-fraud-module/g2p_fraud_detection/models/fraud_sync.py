@@ -43,6 +43,9 @@ class FraudSync(models.AbstractModel):
 
         cases = payload.get("cases", [])
         if not cases:
+            ICP = self.env["ir.config_parameter"].sudo()
+            ICP.set_param("fraud_detection.last_sync_at", fields_now())
+            ICP.set_param("fraud_detection.last_sync_count", "0")
             _logger.info("Fraud sync: no cases returned")
             return True
 
@@ -104,12 +107,24 @@ class FraudSync(models.AbstractModel):
             # single-worker dev server, the entire Odoo web UI) until it
             # returned or timed out.
 
+        # Persist last-run timing/count so the Live Alert Monitor can show a
+        # real "last scan / next scan" indicator instead of just trusting
+        # that the 1-minute cron is running silently in the background.
+        ICP = self.env["ir.config_parameter"].sudo()
+        ICP.set_param("fraud_detection.last_sync_at", fields_now())
+        ICP.set_param("fraud_detection.last_sync_count", str(created))
+
         _logger.info("Fraud sync: created %d new cases", created)
         return True
 
     @api.model
-    def cron_generate_pending_llm_explanations(self, batch_size=5):
-        """Fill in llm_explanation for CRITICAL/HIGH cases that don't have one yet.
+    def cron_generate_pending_llm_explanations(self, batch_size=10):
+        """Fill in llm_explanation for every case that doesn't have one yet.
+
+        Previously restricted to CRITICAL/HIGH only, which meant MEDIUM/LOW
+        beneficiaries never got an AI explanation at all — widened to cover
+        every risk level, since the user wants an explanation for every
+        beneficiary, not just the highest-risk ones.
 
         Runs on its own cron, separate from cron_sync_cases, so a slow/stuck
         Ollama response can only ever stall this job's worker slot for a
@@ -118,11 +133,11 @@ class FraudSync(models.AbstractModel):
         """
         cfg = self._get_config()
         Case = self.env["fraud.case"]
+        # Text fields store "no value yet" as '' (not NULL) once touched by
+        # ORM defaults, so ("llm_explanation", "=", False) alone matches
+        # nothing — it only matches NULL. Match both.
         pending = Case.search(
-            [
-                ("risk_level", "in", ("CRITICAL", "HIGH")),
-                ("llm_explanation", "=", False),
-            ],
+            ["|", ("llm_explanation", "=", False), ("llm_explanation", "=", "")],
             limit=batch_size,
         )
         for case in pending:

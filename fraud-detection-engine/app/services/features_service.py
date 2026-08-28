@@ -36,10 +36,11 @@ FEATURE_NAMES = [
     "income_program_inconsistency",
     "income_ratio_to_national",
     "household_size_deviation",
-    # Rule-engine-only signal (IDC003 "Duplicate National ID") — synthetic
-    # data path only for now; not computed by the live OpenG2P SQL extractor
-    # and NOT fed to the ML ensemble. See ml/scripts/generate_dataset.py
-    # apply_duplicate_national_id_scenario().
+    # Used by the rule engine (IDC003 "Duplicate National ID") AND now part
+    # of ML_FEATURES in ml/scripts/train_openg2p.py. Still NOT computed by
+    # the live OpenG2P SQL extractor (extractors.py has no g2p_reg_id join
+    # yet) — always defaults to 0 in production until that's wired up. Only
+    # the synthetic training data (generate_dataset.py) has real values.
     "duplicate_national_id_count",
     # Temporal features (referenced by rules TA001-TA005)
     "days_reg_to_first_payment",

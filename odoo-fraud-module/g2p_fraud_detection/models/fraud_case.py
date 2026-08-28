@@ -241,6 +241,7 @@ class FraudCase(models.Model):
                         {
                             "case_id": rec.case_id,
                             "beneficiary_id": rec.beneficiary_id,
+                            "beneficiary_name": rec.beneficiary_name,
                             "risk_level": rec.risk_level,
                             "final_score": rec.final_score,
                             "recommendation": rec.recommendation,

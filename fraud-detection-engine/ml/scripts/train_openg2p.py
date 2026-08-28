@@ -17,7 +17,7 @@ from sklearn.impute import SimpleImputer
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier, IsolationForest
 from sklearn.model_selection import train_test_split, StratifiedKFold, cross_val_predict
-from sklearn.metrics import classification_report, roc_auc_score, f1_score
+from sklearn.metrics import classification_report, roc_auc_score, f1_score, recall_score
 from xgboost import XGBClassifier
 
 SEED = 42
@@ -42,6 +42,7 @@ ML_FEATURES = [
     "group_membership_count",
     "high_amount_flag", "income_program_inconsistency",
     "income_ratio_to_national", "household_size_deviation",
+    "duplicate_national_id_count",
 ]
 
 FEATURE_DEFAULTS: dict[str, float] = {
@@ -59,6 +60,10 @@ FEATURE_DEFAULTS: dict[str, float] = {
     # deviation-from-median = 0.0 (NOT 0.0/0.0 — a 0.0 ratio would read as
     # "no income at all" and systematically bias the score).
     "income_ratio_to_national": 1.0, "household_size_deviation": 0.0,
+    # Not yet computed by the live OpenG2P SQL extractor — defaults to 0
+    # (no known duplicate) whenever the column is absent, e.g. in production
+    # until extractors.py is wired to compute it from g2p_reg_id.
+    "duplicate_national_id_count": 0,
 }
 
 
@@ -121,7 +126,7 @@ def build_base_models(feature_cols: list[str]) -> dict[str, Pipeline]:
             ("clf", XGBClassifier(
                 n_estimators=600, max_depth=6, learning_rate=0.03,
                 subsample=0.9, colsample_bytree=0.8,
-                scale_pos_weight=7,  # compense le déséquilibre 88/12
+                scale_pos_weight=9,  # légèrement au-dessus du ratio réel (~6.1) pour pousser le recall
                 eval_metric="aucpr", random_state=SEED,  # aucpr: optimise la zone PR (fraude rare)
             )),
         ]),
@@ -257,6 +262,8 @@ def train():
     print("="*60)
     cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=SEED)
     cv_aucs, cv_f1s = [], []
+    oof_proba_all, oof_y_all = [], []  # accumulated across folds — used below for
+                                        # a leak-free threshold search (never touches holdout)
     for fold, (train_idx, val_idx) in enumerate(cv.split(X_trainval, y_trainval)):
         X_tr, X_val = X_trainval.iloc[train_idx], X_trainval.iloc[val_idx]
         y_tr, y_val = y_trainval.iloc[train_idx], y_trainval.iloc[val_idx]
@@ -267,9 +274,22 @@ def train():
         auc_val = roc_auc_score(y_val, proba_val)
         f1_val = f1_score(y_val, (proba_val >= 0.5).astype(int))
         cv_aucs.append(auc_val); cv_f1s.append(f1_val)
+        oof_proba_all.append(proba_val); oof_y_all.append(y_val.to_numpy())
         print(f"   Fold {fold+1}: AUC={auc_val:.4f}  F1={f1_val:.4f}")
     print(f"\n   📊 CV 5-fold → AUC = {np.mean(cv_aucs):.4f} ± {np.std(cv_aucs):.4f}  "
           f"|  F1 = {np.mean(cv_f1s):.4f} ± {np.std(cv_f1s):.4f}")
+
+    # ── Seuil de décision optimal (recherché sur les OOF de trainval, jamais
+    # sur le holdout — évite toute fuite de données) ─────────────────────────
+    oof_proba_all = np.concatenate(oof_proba_all)
+    oof_y_all = np.concatenate(oof_y_all)
+    best_threshold, best_thr_f1 = 0.5, f1_score(oof_y_all, (oof_proba_all >= 0.5).astype(int))
+    for thr in np.arange(0.20, 0.56, 0.01):
+        f1_thr = f1_score(oof_y_all, (oof_proba_all >= thr).astype(int))
+        if f1_thr > best_thr_f1:
+            best_threshold, best_thr_f1 = round(float(thr), 2), f1_thr
+    print(f"\n   🎯 Seuil optimal (recherché sur OOF, F1) : {best_threshold}  "
+          f"(F1 OOF à ce seuil = {best_thr_f1:.4f}, vs. {cv_f1s[-1]:.4f} à 0.5 sur le dernier fold)")
 
     fitted_models, oof_predictions = train_base_models_with_oof(
         X_trainval, y_trainval, feature_cols
@@ -312,13 +332,24 @@ def train():
         proba = model.predict_proba(X_holdout)[:, 1]
         holdout_base_proba[name] = proba
         auc = roc_auc_score(y_holdout, proba)
-        print(f"   {name:15s} seul — AUC holdout : {auc:.4f}")
+        f1_base = f1_score(y_holdout, (proba >= 0.5).astype(int))
+        print(f"\n   ── {name} (seuil 0.5) ──")
+        print(f"   AUC holdout : {auc:.4f}   F1 : {f1_base:.4f}")
+        print(classification_report(y_holdout, (proba >= 0.5).astype(int), digits=3))
 
     S_holdout = np.column_stack([holdout_base_proba[n] for n in meta_model_names])
     ensemble_proba = meta_model.predict_proba(S_holdout)[:, 1]
     ensemble_auc = roc_auc_score(y_holdout, ensemble_proba)
-    print(f"\n   {'ENSEMBLE (méta)':15s} — AUC holdout : {ensemble_auc:.4f}  ⭐")
-    print(classification_report(y_holdout, (ensemble_proba >= 0.5).astype(int)))
+
+    print(f"\n   ── ENSEMBLE (méta) — seuil 0.5 (référence) ──")
+    print(f"   AUC holdout : {ensemble_auc:.4f}")
+    print(classification_report(y_holdout, (ensemble_proba >= 0.5).astype(int), digits=3))
+
+    ensemble_f1_opt = f1_score(y_holdout, (ensemble_proba >= best_threshold).astype(int))
+    ensemble_recall_opt = recall_score(y_holdout, (ensemble_proba >= best_threshold).astype(int))
+    print(f"\n   ── ENSEMBLE (méta) — seuil optimisé {best_threshold} (retenu) ⭐──")
+    print(f"   AUC holdout : {ensemble_auc:.4f}")
+    print(classification_report(y_holdout, (ensemble_proba >= best_threshold).astype(int), digits=3))
 
     save_artifacts(fitted_models, meta_model, meta_model_names, iso, feature_cols)
 
@@ -330,9 +361,62 @@ def train():
     else:
         meta = {}
     meta["learned_weights"] = learned_weights
+    meta["decision_threshold"] = best_threshold
     meta_path.write_text(json.dumps(meta, indent=2, ensure_ascii=False), encoding="utf-8")
     print(f"\n✅ Poids d'agrégation appris sauvegardés dans metadata.json : {learned_weights}")
+    print(f"✅ Seuil de décision optimisé sauvegardé : {best_threshold}")
+
+    _log_to_mlflow(
+        feature_cols=feature_cols,
+        n_samples=len(df),
+        fraud_rate=fraud_rate,
+        cv_auc=float(np.mean(cv_aucs)),
+        cv_f1=float(np.mean(cv_f1s)),
+        holdout_auc=float(ensemble_auc),
+        learned_weights=learned_weights,
+        decision_threshold=best_threshold,
+        holdout_f1_at_threshold=float(ensemble_f1_opt),
+        holdout_recall_at_threshold=float(ensemble_recall_opt),
+    )
     print("\n🎯 DONE")
+
+
+def _log_to_mlflow(feature_cols, n_samples, fraud_rate, cv_auc, cv_f1, holdout_auc, learned_weights,
+                    decision_threshold=0.5, holdout_f1_at_threshold=None, holdout_recall_at_threshold=None):
+    """Log this training run to MLflow so it shows up in the dashboard's
+    Model Version History. Previously this script logged nothing — only the
+    separate weekly feedback-retrain path did (app/services/retraining_
+    service.py), which is why manual full retrains never appeared there.
+    Best-effort: never fails the training run if MLflow is unreachable.
+    """
+    try:
+        import mlflow
+        tracking_uri = os.getenv(
+            "MLFLOW_TRACKING_URI", f"sqlite:///{MODELS_DIR}/mlflow.db"
+        )
+        mlflow.set_tracking_uri(tracking_uri)
+        mlflow.set_experiment(os.getenv("MLFLOW_EXPERIMENT_NAME", "fraud-detection-engine"))
+        with mlflow.start_run(run_name="full_retrain_openg2p"):
+            mlflow.log_param("n_features", len(feature_cols))
+            mlflow.log_param("feature_columns", ",".join(feature_cols))
+            mlflow.log_param("ensemble_type", "stacking_logreg")
+            mlflow.log_param("base_models", "random_forest,xgboost,logreg")
+            mlflow.log_metric("n_samples", n_samples)
+            mlflow.log_metric("fraud_rate", fraud_rate)
+            mlflow.log_metric("cv_auc", cv_auc)
+            mlflow.log_metric("cv_f1", cv_f1)
+            mlflow.log_metric("holdout_auc", holdout_auc)
+            mlflow.log_metric("accuracy", holdout_auc)  # dashboard reads 'accuracy'
+            mlflow.log_param("decision_threshold", decision_threshold)
+            if holdout_f1_at_threshold is not None:
+                mlflow.log_metric("holdout_f1_at_threshold", holdout_f1_at_threshold)
+            if holdout_recall_at_threshold is not None:
+                mlflow.log_metric("holdout_recall_at_threshold", holdout_recall_at_threshold)
+            for k, v in (learned_weights or {}).items():
+                mlflow.log_metric(f"weight_{k}", v)
+        print("\n📊 Run enregistré dans MLflow.")
+    except Exception as exc:
+        print(f"\n⚠️  MLflow logging failed (non-blocking): {exc}")
 
 
 if __name__ == "__main__":

@@ -10,6 +10,8 @@
               default_order="risk_level,detected_at desc">
         <field name="case_id"/>
         <field name="beneficiary_id"/>
+        <field name="beneficiary_name"/>
+        <field name="beneficiary_phone"/>
         <field name="risk_level"/>
         <field name="final_score"/>
         <field name="score_pct"/>
@@ -30,7 +32,7 @@
               </div>
               <div class="fraud-alert-body">
                 <div class="fraud-bid">
-                  Beneficiary #<field name="beneficiary_id"/>
+                  <field name="beneficiary_name"/>
                 </div>
                 <div class="fraud-meta">
                   <field name="recommendation"/> | Case: <field name="case_id"/>

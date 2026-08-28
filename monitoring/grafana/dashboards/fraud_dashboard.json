@@ -1,0 +1,125 @@
+{
+  "title": "Fraud Detection Engine",
+  "uid": "fraud-engine",
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "15s",
+  "time": { "from": "now-6h", "to": "now" },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Fraud Engine Up",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            { "type": "value", "options": { "0": { "text": "DOWN", "color": "red" }, "1": { "text": "UP", "color": "green" } } }
+          ]
+        }
+      },
+      "targets": [
+        { "expr": "up{job=\"fraud-engine\"}", "legendFormat": "fraud-engine" }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Scorings / min",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 0 },
+      "targets": [
+        { "expr": "sum(rate(fraud_scores_total[1m])) * 60", "legendFormat": "scorings/min" }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Avg Scoring Latency (s)",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 0 },
+      "fieldConfig": { "defaults": { "unit": "s" } },
+      "targets": [
+        {
+          "expr": "rate(fraud_scoring_duration_seconds_sum[5m]) / rate(fraud_scoring_duration_seconds_count[5m])",
+          "legendFormat": "avg latency"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Pipeline Errors / 5m",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 0 },
+      "fieldConfig": { "defaults": { "thresholds": { "steps": [{ "color": "green", "value": 0 }, { "color": "red", "value": 1 }] } } },
+      "targets": [
+        { "expr": "sum(increase(fraud_pipeline_errors_total[5m]))", "legendFormat": "errors" }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Scored Beneficiaries by Risk Level",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 4 },
+      "targets": [
+        { "expr": "sum(rate(fraud_scores_total[5m])) by (risk_level)", "legendFormat": "{{risk_level}}" }
+      ],
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "CRITICAL" }, "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "red" } }] },
+          { "matcher": { "id": "byName", "options": "HIGH" }, "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "orange" } }] },
+          { "matcher": { "id": "byName", "options": "MEDIUM" }, "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "yellow" } }] },
+          { "matcher": { "id": "byName", "options": "LOW" }, "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "green" } }] }
+        ]
+      }
+    },
+    {
+      "id": 6,
+      "title": "Risk Level Distribution (current window)",
+      "type": "piechart",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 4 },
+      "targets": [
+        { "expr": "sum(increase(fraud_scores_total[6h])) by (risk_level)", "legendFormat": "{{risk_level}}" }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Final Score Distribution",
+      "type": "heatmap",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 12 },
+      "targets": [
+        { "expr": "sum(increase(fraud_score_value_bucket[5m])) by (le)", "legendFormat": "{{le}}", "format": "heatmap" }
+      ]
+    },
+    {
+      "id": 8,
+      "title": "Top Triggered Rules",
+      "type": "bargauge",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 12 },
+      "targets": [
+        { "expr": "topk(10, sum(increase(fraud_rule_triggered_total[6h])) by (rule_id))", "legendFormat": "{{rule_id}}" }
+      ]
+    },
+    {
+      "id": 9,
+      "title": "Recommendations Issued",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 20 },
+      "targets": [
+        { "expr": "sum(rate(fraud_recommendation_total[5m])) by (recommendation)", "legendFormat": "{{recommendation}}" }
+      ]
+    },
+    {
+      "id": 10,
+      "title": "Scoring Latency p50 / p95 / p99",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 20 },
+      "fieldConfig": { "defaults": { "unit": "s" } },
+      "targets": [
+        { "expr": "histogram_quantile(0.50, sum(rate(fraud_scoring_duration_seconds_bucket[5m])) by (le))", "legendFormat": "p50" },
+        { "expr": "histogram_quantile(0.95, sum(rate(fraud_scoring_duration_seconds_bucket[5m])) by (le))", "legendFormat": "p95" },
+        { "expr": "histogram_quantile(0.99, sum(rate(fraud_scoring_duration_seconds_bucket[5m])) by (le))", "legendFormat": "p99" }
+      ]
+    }
+  ]
+}

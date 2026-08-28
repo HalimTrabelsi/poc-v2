@@ -1,14 +1,19 @@
-{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {3.1}Introduction}{\reset@font\mtcSfont 18}{}}
-{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {3.2}Identification des besoins fonctionelles}{\reset@font\mtcSfont 18}{}}
-{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {3.3}Identification des besoins non fonctionnels }{\reset@font\mtcSfont 19}{}}
-{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {3.4}Diagramme de cas d’utilisation général}{\reset@font\mtcSfont 20}{}}
-{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {3.5}Diagramme de classes général }{\reset@font\mtcSfont 21}{}}
-{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {3.6}Architecture physique}{\reset@font\mtcSfont 22}{}}
-{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {3.7}Architecture logique }{\reset@font\mtcSfont 23}{}}
-{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {3.8}Organisation de flux de données}{\reset@font\mtcSfont 24}{}}
-{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {3.9}Spécifications techniques et environnement logiciel}{\reset@font\mtcSfont 25}{}}
-{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {3.10}Stack de développement backend et données}{\reset@font\mtcSfont 25}{}}
-{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {3.11}Stack de développement et DevOps}{\reset@font\mtcSfont 26}{}}
-{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {3.11.1}Dashboards et visualisation des résultats}{\reset@font\mtcSSfont 26}{}}
-{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {3.11.2}Collaboration et documentation}{\reset@font\mtcSSfont 28}{}}
-{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {3.12}Conclusion }{\reset@font\mtcSfont 28}{}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {3.1}Introduction}{\reset@font\mtcSfont 21}{}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {3.2}Identification des besoins fonctionelles}{\reset@font\mtcSfont 21}{}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {3.3}Identification des besoins non fonctionnels }{\reset@font\mtcSfont 22}{}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {3.4}Diagramme de cas d’utilisation général}{\reset@font\mtcSfont 24}{}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {3.4.1}Description du diagramme de cas d'utilisation}{\reset@font\mtcSSfont 25}{}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {3.5}Diagrammes de séquence UML}{\reset@font\mtcSfont 26}{}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {3.6}Architectures des composants du moteur de détection de fraude}{\reset@font\mtcSfont 29}{}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {3.6.1}Pipeline global du moteur de détection (agrégation)}{\reset@font\mtcSSfont 29}{}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {3.6.2}Architecture des composants du moteur de détection}{\reset@font\mtcSSfont 30}{}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {3.6.3}Moteur de règles métier (Rule Engine)}{\reset@font\mtcSSfont 32}{}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {3.6.4}Analyseur de réseau (Graph)}{\reset@font\mtcSSfont 33}{}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {3.6.5}Explicabilité et génération du texte (SHAP + LLM)}{\reset@font\mtcSSfont 33}{}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {3.6.6}Organisation de flux de données}{\reset@font\mtcSSfont 34}{}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {3.6.7}Architecture physique et logique de la solution}{\reset@font\mtcSSfont 36}{}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {3.6.8}Stack Technologique}{\reset@font\mtcSSfont 39}{}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode \numberline {3.6.8.1}Stack de développement et DevOps}{\reset@font\mtcSSSfont 41}{}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode \numberline {3.6.8.2}Dashboards et visualisation des résultats}{\reset@font\mtcSSSfont 41}{}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode \numberline {3.6.8.3}Collaboration et documentation}{\reset@font\mtcSSSfont 42}{}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {3.7}Conclusion}{\reset@font\mtcSfont 43}{}}

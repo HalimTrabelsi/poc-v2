@@ -12,6 +12,14 @@ from app.services.features_service import FeatureEngineer
 from app.services.graph_service import GraphAnalyzer
 from app.services.ml_service import MLScorer
 from app.services.rules_service import RuleService
+from app.core.metrics import (
+    fraud_scores_total,
+    fraud_score_value,
+    fraud_scoring_duration_seconds,
+    fraud_rule_triggered_total,
+    fraud_recommendation_total,
+    fraud_pipeline_errors_total,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -106,6 +114,7 @@ class DecisionOrchestrator:
             )
         except Exception as exc:
             logger.warning("Graph analysis failed for %s: %s", beneficiary_id, exc)
+            fraud_pipeline_errors_total.labels(stage="graph").inc()
             graph_result = {"network_score": 0.0, "pagerank_score": 0.0,
                             "community_risk": 0.0, "network_size": 0, "density": 0.0,
                             "fraud_connections": 0, "risk_factors": []}
@@ -117,6 +126,7 @@ class DecisionOrchestrator:
             ml_result = self.ml_scorer.score(features)
         except Exception as exc:
             logger.warning("ML scoring failed for %s: %s", beneficiary_id, exc)
+            fraud_pipeline_errors_total.labels(stage="ml").inc()
             ml_result = {"combined_score": 0.0, "xgboost_score": 0.0, "isolation_score": 0.0}
 
         ml_score: float = ml_result.get("combined_score", 0.0)
@@ -133,6 +143,14 @@ class DecisionOrchestrator:
         # 6. Risk level & recommendation
         risk_level = _determine_risk_level(final_score)
         recommendation = _determine_recommendation(risk_level)
+
+        # Prometheus: score distribution, risk-level counts, per-rule firing
+        fraud_score_value.observe(final_score)
+        fraud_scores_total.labels(risk_level=risk_level).inc()
+        fraud_recommendation_total.labels(recommendation=recommendation).inc()
+        for rule in triggered_rules:
+            rule_id = rule.get("id", "unknown") if isinstance(rule, dict) else str(rule)
+            fraud_rule_triggered_total.labels(rule_id=rule_id).inc()
 
         # 7. Explainability
         decision_context = {
@@ -158,7 +176,9 @@ class DecisionOrchestrator:
                 "feature_contributions": [],
             }
 
-        processing_ms = round((time.perf_counter() - t0) * 1000, 2)
+        elapsed_seconds = time.perf_counter() - t0
+        processing_ms = round(elapsed_seconds * 1000, 2)
+        fraud_scoring_duration_seconds.observe(elapsed_seconds)
 
         decision = {
             "beneficiary_id": beneficiary_id,

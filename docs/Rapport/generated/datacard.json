@@ -1,0 +1,187 @@
+{
+  "n_rows": 5000,
+  "n_cols": 59,
+  "n_ml_features": 28,
+  "dtype_counts": {
+    "float64": 22,
+    "int64": 17,
+    "object": 17,
+    "bool": 3
+  },
+  "missing_ml_features": 0,
+  "target_column": "is_fraud",
+  "fraud_count": 659,
+  "legit_count": 4341,
+  "fraud_rate": 0.1318,
+  "missing_features_from_expected_28": [],
+  "feature_stats": {
+    "age": {
+      "mean": 49.303,
+      "std": 15.73,
+      "min": 23.0,
+      "max": 76.0
+    },
+    "income": {
+      "mean": 845.516,
+      "std": 765.732,
+      "min": 19.74,
+      "max": 5917.09
+    },
+    "income_per_person": {
+      "mean": 292.456,
+      "std": 393.201,
+      "min": 1.62,
+      "max": 4862.12
+    },
+    "household_size": {
+      "mean": 4.374,
+      "std": 2.724,
+      "min": 1.0,
+      "max": 21.0
+    },
+    "nb_children": {
+      "mean": 1.16,
+      "std": 1.512,
+      "min": 0.0,
+      "max": 12.0
+    },
+    "nb_elderly": {
+      "mean": 0.205,
+      "std": 0.427,
+      "min": 0.0,
+      "max": 2.0
+    },
+    "dependency_ratio": {
+      "mean": 0.72,
+      "std": 1.077,
+      "min": 0.0,
+      "max": 11.0
+    },
+    "has_disabled": {
+      "mean": 0.071,
+      "std": 0.257,
+      "min": 0.0,
+      "max": 1.0
+    },
+    "single_head": {
+      "mean": 0.156,
+      "std": 0.363,
+      "min": 0.0,
+      "max": 1.0
+    },
+    "nb_programs": {
+      "mean": 2.053,
+      "std": 1.123,
+      "min": 0.0,
+      "max": 6.101
+    },
+    "nb_active_programs": {
+      "mean": 1.937,
+      "std": 0.874,
+      "min": 1.0,
+      "max": 4.0
+    },
+    "avg_enrollment_days": {
+      "mean": 1685.972,
+      "std": 420.67,
+      "min": 969.0,
+      "max": 2399.0
+    },
+    "pmt_score": {
+      "mean": 0.579,
+      "std": 0.242,
+      "min": 0.0,
+      "max": 1.357
+    },
+    "pmt_score_min": {
+      "mean": 0.537,
+      "std": 0.192,
+      "min": 0.05,
+      "max": 0.999
+    },
+    "payment_count": {
+      "mean": 5.812,
+      "std": 2.623,
+      "min": 3.0,
+      "max": 12.0
+    },
+    "payment_gap_ratio": {
+      "mean": 0.331,
+      "std": 0.213,
+      "min": 0.0,
+      "max": 1.206
+    },
+    "payment_success_rate": {
+      "mean": 0.676,
+      "std": 0.139,
+      "min": 0.0,
+      "max": 0.917
+    },
+    "amount_variance": {
+      "mean": 22934.443,
+      "std": 14430.672,
+      "min": 2034.12,
+      "max": 61320.62
+    },
+    "cycle_count": {
+      "mean": 3.0,
+      "std": 0.0,
+      "min": 3.0,
+      "max": 3.0
+    },
+    "shared_phone_count": {
+      "mean": 0.846,
+      "std": 1.215,
+      "min": 0.0,
+      "max": 9.692
+    },
+    "shared_account_count": {
+      "mean": 0.632,
+      "std": 0.893,
+      "min": 0.0,
+      "max": 6.736
+    },
+    "network_risk": {
+      "mean": 0.178,
+      "std": 0.215,
+      "min": 0.0,
+      "max": 1.524
+    },
+    "group_membership_count": {
+      "mean": 0.507,
+      "std": 0.5,
+      "min": 0.0,
+      "max": 1.0
+    },
+    "high_amount_flag": {
+      "mean": 0.05,
+      "std": 0.218,
+      "min": 0.0,
+      "max": 1.0
+    },
+    "income_program_inconsistency": {
+      "mean": 0.027,
+      "std": 0.162,
+      "min": 0.0,
+      "max": 1.0
+    },
+    "income_ratio_to_national": {
+      "mean": 1.46,
+      "std": 1.323,
+      "min": 0.034,
+      "max": 10.22
+    },
+    "household_size_deviation": {
+      "mean": 0.374,
+      "std": 2.724,
+      "min": -3.0,
+      "max": 17.0
+    },
+    "duplicate_national_id_count": {
+      "mean": 0.005,
+      "std": 0.072,
+      "min": 0.0,
+      "max": 1.0
+    }
+  }
+}
