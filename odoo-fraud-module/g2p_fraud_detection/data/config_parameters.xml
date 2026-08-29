@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+  <record id="cfg_fraud_api_url" model="ir.config_parameter">
+    <field name="key">fraud_detection.api_url</field>
+    <field name="value">http://fraud-engine:8000/api/v1</field>
+  </record>
+  <record id="cfg_fraud_api_key" model="ir.config_parameter">
+    <field name="key">fraud_detection.api_key</field>
+    <field name="value">dev-secret-change-in-prod</field>
+  </record>
+  <record id="cfg_fraud_sync_limit" model="ir.config_parameter">
+    <field name="key">fraud_detection.sync_limit</field>
+    <field name="value">200</field>
+  </record>
+  <record id="cfg_fraud_dashboard_url" model="ir.config_parameter">
+    <field name="key">fraud_detection.dashboard_url</field>
+    <field name="value">http://localhost:8501</field>
+  </record>
+  <record id="cfg_fraud_default_program" model="ir.config_parameter">
+    <field name="key">fraud_detection.default_program_id</field>
+    <field name="value">16</field>
+  </record>
+</odoo>

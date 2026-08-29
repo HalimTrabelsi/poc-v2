@@ -28,7 +28,7 @@ ENV/
 # ============================================================
 #  DATA — never commit datasets (regenerate with scripts/)
 # ============================================================
-data/
+/ml/data/
 ml/data/
 *.csv
 *.parquet

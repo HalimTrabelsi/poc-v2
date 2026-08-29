@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+  <record id="ir_cron_fraud_sync" model="ir.cron">
+    <field name="name">Fraud Engine: Sync Cases</field>
+    <field name="model_id" ref="model_fraud_sync"/>
+    <field name="state">code</field>
+    <field name="code">model.cron_sync_cases()</field>
+    <field name="active">True</field>
+    <field name="interval_number">1</field>
+    <field name="interval_type">minutes</field>
+    <field name="numbercall">-1</field>
+    <field name="doall" eval="False"/>
+  </record>
+
+  <record id="ir_cron_fraud_llm_explanations" model="ir.cron">
+    <field name="name">Fraud Engine: Generate Pending AI Explanations</field>
+    <field name="model_id" ref="model_fraud_sync"/>
+    <field name="state">code</field>
+    <field name="code">model.cron_generate_pending_llm_explanations()</field>
+    <field name="active">True</field>
+    <field name="interval_number">2</field>
+    <field name="interval_type">minutes</field>
+    <field name="numbercall">-1</field>
+    <field name="doall" eval="False"/>
+  </record>
+</odoo>

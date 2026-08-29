@@ -17,7 +17,12 @@ dist/
 postgres_data/
 odoo_addons/
 volumes/
-data/
+# Anchored with a leading slash: a bare "data/" matches at ANY depth and was
+# silently excluding live source packages (fraud-detection-engine/app/data/,
+# odoo-fraud-module/g2p_fraud_detection/data/) from git.
+/data/
+# Large PaySim/demo datasets — kept out of git, but by explicit path only.
+/fraud-detection-engine/data/
 *.log
 *.pkl
 *.joblib
@@ -52,4 +57,3 @@ Dataexploration.ipynb
 structure.txt
 openg2p_tables.txt
 notes.txt
-data/

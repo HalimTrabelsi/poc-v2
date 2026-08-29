@@ -1,0 +1,342 @@
+{
+  "audit_metadata": {
+    "title": "OpenG2P + Fraud-Engine Audit — Sync State & Live Pipeline",
+    "audit_date": "2026-08-29",
+    "repository": "https://github.com/HalimTrabelsi/poc-v2.git",
+    "branch": "main",
+    "head_commit": "e86545f0c96df6a238c8ad800952657ccc9f87db",
+    "head_commit_date": "2026-08-28 04:40:07 +0100",
+    "head_commit_message": "rapport pfe",
+    "scope": "Read-only investigation. No code changes, no fixes, no migrations, no commits were made.",
+    "evidence_policy": "Every claim cites a file path, line number, or literal command output. Items that could not be directly verified are listed under 'unverified'."
+  },
+
+  "part1_sync_check": {
+    "repo_state": {
+      "git_status": "On branch main / Your branch is up to date with 'origin/main'. / nothing to commit, working tree clean",
+      "git_toplevel": "C:/Users/Mega Pc/Desktop/poc-v2/poc-v2",
+      "remote_confirmed": true,
+      "nested_git_repo_at_fraud_detection_engine": false,
+      "note": "'ls -d fraud-detection-engine/.git' returns 'No such file or directory'. Earlier assumptions of a nested repo were incorrect; git commands run from that subdirectory resolve to the parent repo."
+    },
+
+    "critical_finding_app_data_not_on_github": {
+      "severity": "critical",
+      "summary": "The entire app/data/ Python source package — including extractors.py, the live feature-extraction code path — is excluded from git and therefore absent from GitHub.",
+      "root_cause": {
+        "rule": "data/",
+        "location": "fraud-detection-engine/.gitignore:31",
+        "explanation": "A bare 'data/' pattern with no leading slash matches at ANY directory depth, so it excludes the Python source package app/data/ in addition to the intended ML data directory."
+      },
+      "why_git_status_looks_clean": "The files are IGNORED, not merely untracked. 'git status' therefore reports 'working tree clean', making the divergence silent and invisible in normal workflow.",
+      "verification_command": "git check-ignore -v fraud-detection-engine/app/data/extractors.py",
+      "verification_output": "fraud-detection-engine/.gitignore:31:data/\tfraud-detection-engine/app/data/extractors.py",
+      "git_ls_files_app_data": "(empty — zero files tracked under fraud-detection-engine/app/data/)",
+      "untracked_source_files": [
+        { "path": "fraud-detection-engine/app/data/__init__.py", "size_bytes": 0, "tracked": false },
+        { "path": "fraud-detection-engine/app/data/connector.py", "size_bytes": 1752, "tracked": false },
+        { "path": "fraud-detection-engine/app/data/extractors.py", "size_bytes": 20887, "mtime": "2026-07-13 16:11", "tracked": false },
+        { "path": "fraud-detection-engine/app/data/repository.py", "size_bytes": 14560, "tracked": false }
+      ],
+      "file_counts": {
+        "python_files_on_disk_under_app": 51,
+        "python_files_tracked_under_app": 47,
+        "difference": 4,
+        "note": "The 4 missing files are exactly the app/data/ package listed above."
+      },
+      "additional_risk": "These 4 files exist only on this machine. Combined with the previously-established absence of any db-data volume backup or snapshot mechanism, there is no recovery path if this machine is lost."
+    },
+
+    "feature_extractor_status": {
+      "path": "fraud-detection-engine/app/db/feature_extractor.py",
+      "size_bytes": 7922,
+      "mtime": "2026-04-20 14:32",
+      "tracked_by_git": true,
+      "is_live_code": false,
+      "callers": [
+        "app/db/postgres.py:66 (FraudDatabase.get_beneficiary_features, lazy import)",
+        "app/db/postgres.py:75 (FraudDatabase.get_all_beneficiaries_features, lazy import)"
+      ],
+      "live_invocation_found": false,
+      "note": "Nothing in app/api invokes either FraudDatabase method. The stale header comment at postgres.py:8 ('Extraction des features ML -> deleguee a feature_extractor.py (source unique)') is inaccurate.",
+      "irony": "Git tracks the DEAD extractor (feature_extractor.py) and ignores the LIVE one (app/data/extractors.py)."
+    },
+
+    "fresh_clone_bootability": {
+      "verdict": "Boots, then fails on the first scoring request.",
+      "reason": "All app.data imports are lazy (inside function bodies), so module-level import of app.main succeeds and uvicorn starts. The failure occurs at first use of the scoring path.",
+      "import_chain": [
+        "app/api/routes.py:30 — _get_orchestrator(): from app.services.decision_service import DecisionOrchestrator",
+        "app/services/decision_service.py:8 — from app.data.extractors import BeneficiaryExtractor, RelationshipExtractor",
+        "app/services/decision_service.py:9 — from app.data.repository import FraudCaseRepository",
+        "app/services/decision_service.py:11 — from app.services.features_service import FeatureEngineer",
+        "app/services/features_service.py:6 — from app.data.extractors import BeneficiaryExtractor"
+      ],
+      "expected_error": "ModuleNotFoundError: No module named 'app.data'",
+      "other_entry_points_affected": [
+        "app/api/webhook.py:50",
+        "app/services/scanner_service.py:199",
+        "app/api/routes.py:642"
+      ],
+      "practical_impact": "Health endpoints likely respond; scoring is entirely non-functional on a fresh clone of GitHub main."
+    }
+  },
+
+  "part2_live_pipeline": {
+    "metadata_json": {
+      "path": "fraud-detection-engine/app/models_saved/metadata.json",
+      "mtime": "2026-07-27 15:03",
+      "size_bytes": 1278,
+      "confirmed_as_served_artifact_via": "app/core/ml_scorer.py:19-20 (MODELS_DIR = Path(os.getenv('MODELS_DIR', '/app/models_saved')); METADATA_FILE = MODELS_DIR / 'metadata.json')",
+      "note": "openg2p_demo_metadata.json and paysim_metadata.json are NOT loaded by the serving app and were excluded from this audit per scope.",
+      "feature_columns_count": 28,
+      "feature_columns": [
+        "age", "income", "income_per_person", "household_size", "nb_children",
+        "nb_elderly", "dependency_ratio", "has_disabled", "single_head",
+        "nb_programs", "nb_active_programs", "pmt_score", "pmt_score_min",
+        "avg_enrollment_days", "payment_count", "payment_gap_ratio",
+        "payment_success_rate", "amount_variance", "cycle_count",
+        "shared_phone_count", "shared_account_count", "network_risk",
+        "group_membership_count", "high_amount_flag", "income_program_inconsistency",
+        "income_ratio_to_national", "household_size_deviation", "duplicate_national_id_count"
+      ],
+      "target_column": "is_fraud",
+      "base_models": ["random_forest", "xgboost", "logreg"],
+      "meta_model_input_order": ["logreg", "random_forest", "xgboost"],
+      "ensemble_type": "stacking_logreg",
+      "learned_weights": { "rule": 0.2, "ml": 0.55, "anomaly": 0.05, "graph": 0.2 },
+      "decision_threshold": 0.55
+    },
+
+    "evaluation_report": {
+      "path": "fraud-detection-engine/ml/reports/evaluation_report.txt",
+      "exists": true,
+      "mtime": "2026-06-04 17:00",
+      "size_bytes": 1031,
+      "staleness": "~7 weeks older than metadata.json (2026-07-27)",
+      "describes_deployed_model": false,
+      "contents_verbatim": "=================================================================\n  RAPPORT D'EVALUATION — FRAUD DETECTION ENGINE v2\n=================================================================\n\n  Features utilisees : 20\n  Features supprimees (vides) : 8\n    -> household_size, nb_children, nb_elderly, has_disabled, single_head, elderly_head, pmt_score, pmt_score_min\n\n  METRIQUES XGBOOST CALIBRE (jeu de test)\n  AUC-ROC   : 0.8578\n  PR-AUC    : 0.7085\n  F1-score  : 0.6296\n  Precision : 0.8947\n  Rappel    : 0.4857\n\n  Score moyen : 0.130 +/- 0.210\n  [Min=0.004  Max=1.000]\n\n  MATRICE DE CONFUSION\n  TP=68  FP=8  FN=72  TN=852\n\n  POIDS OPTIMISES (grid search)\n  Regles=0.05  ML=0.95  Graphe=-0.0\n  AUC avec ces poids : 0.8604\n\n  COMPARAISON DES MODELES\n  XGBoost (calibre)                   AUC=0.8578  F1=0.6296\n  Random Forest                       AUC=0.8367  F1=0.5806\n  Logistic Regression (baseline)      AUC=0.7361  F1=0.4000\n\n=================================================================",
+      "contradictions_with_served_model": [
+        "Evaluates a SINGLE calibrated XGBoost, not the stacking_logreg ensemble described in metadata.json.",
+        "Reports weights Regles=0.05 / ML=0.95 / Graphe=-0.0, which differ entirely from metadata.json learned_weights (rule 0.2 / ml 0.55 / anomaly 0.05 / graph 0.2)."
+      ],
+      "corroborating_value": "The report independently confirms the dead-feature findings: on 2026-06-04 it dropped 8 features as EMPTY (household_size, nb_children, nb_elderly, has_disabled, single_head, elderly_head, pmt_score, pmt_score_min). metadata.json (2026-07-27) nevertheless RE-INCLUDES all 8 in feature_columns."
+    },
+
+    "pmt_fix_premise": {
+      "premise_as_stated": "the pmt_agg CTE was replaced with PERCENT_RANK (a 'PMT fix')",
+      "premise_status": "FALSE — no such change exists in the codebase",
+      "evidence": [
+        "grep -rni 'percent_rank' --include='*.py' --include='*.sql' across the repo returns ZERO matches.",
+        "app/data/extractors.py:59 still reads 'WHERE false' (current on-disk content).",
+        "app/data/extractors.py mtime is 2026-07-13 16:11 and the working tree is clean — the file is unmodified.",
+        "No such change was applied during this session, which has been read-only throughout."
+      ],
+      "consequence": "pmt_score and pmt_score_min remain hardcoded to 0.5 for every beneficiary via 'COALESCE(pm.pmt_score, 0.5)' at extractors.py:230-231, because the pmt_agg CTE returns zero rows unconditionally.",
+      "question_status": "The requested BEFORE/AFTER timestamp comparison is unanswerable as framed, since no fix exists to compare against."
+    },
+
+    "feature_count_reconciliation": {
+      "feature_names_count": 35,
+      "model_feature_columns_count": 28,
+      "source_of_feature_names": "app/services/features_service.py:10",
+      "in_feature_names_but_not_consumed_by_model": [
+        "identity_cluster_count", "days_reg_to_first_payment", "enroll_last_30d",
+        "enroll_last_90d", "enrollment_velocity", "payments_within_7d_of_enroll",
+        "registration_age_days"
+      ],
+      "in_model_but_not_in_feature_names": [],
+      "note": "The 7 extra features are computed and passed but never reach the ML model; they serve the rule engine (rules TA001-TA005) only.",
+      "dead_model_inputs_count": 12,
+      "dead_model_inputs_summary": "Of the 28 features the model actually consumes, ~12 carry zero signal in production: household_size, nb_children, nb_elderly, has_disabled, single_head (hardcoded SQL literals), pmt_score, pmt_score_min (WHERE false), group_membership_count (source table empty), duplicate_national_id_count, income_ratio_to_national, household_size_deviation (never computed at serving time), and dependency_ratio (derives entirely from constants, always 0.0)."
+    },
+
+    "feature_liveness_map": [
+      { "feature": "age", "scope": "model_input", "source_column": "res_partner.birthdate", "total_rows": 315, "non_null_rows": 314, "verdict": "live", "evidence": "extractors.py:18; registrant-filtered count query" },
+      { "feature": "income", "scope": "model_input", "source_column": "res_partner.income", "total_rows": 315, "non_null_rows": 315, "verdict": "live", "evidence": "extractors.py:20" },
+      { "feature": "income_per_person", "scope": "model_input", "source_column": "derived: income / household_size", "total_rows": null, "non_null_rows": null, "verdict": "partial", "evidence": "features derived at extractors.py:272-274; household_size is a hardcoded constant 1, so this always equals raw income — per-capita normalization never applies" },
+      { "feature": "household_size", "scope": "model_input", "source_column": "NONE — hardcoded literal '1 AS household_size'", "total_rows": null, "non_null_rows": null, "verdict": "dead", "evidence": "extractors.py:21" },
+      { "feature": "nb_children", "scope": "model_input", "source_column": "NONE — hardcoded literal '0 AS nb_children'", "total_rows": null, "non_null_rows": null, "verdict": "dead", "evidence": "extractors.py:22" },
+      { "feature": "nb_elderly", "scope": "model_input", "source_column": "NONE — hardcoded literal '0 AS nb_elderly'", "total_rows": null, "non_null_rows": null, "verdict": "dead", "evidence": "extractors.py:23" },
+      { "feature": "dependency_ratio", "scope": "model_input", "source_column": "derived from nb_children/nb_elderly/household_size (all constants)", "total_rows": null, "non_null_rows": null, "verdict": "dead", "evidence": "extractors.py:276-279; formula reduces to 0/1 = 0 for every row" },
+      { "feature": "has_disabled", "scope": "model_input", "source_column": "NONE — hardcoded literal '0 AS has_disabled'", "total_rows": null, "non_null_rows": null, "verdict": "dead", "evidence": "extractors.py:24" },
+      { "feature": "single_head", "scope": "model_input", "source_column": "NONE — hardcoded literal '0 AS single_head'", "total_rows": null, "non_null_rows": null, "verdict": "dead", "evidence": "extractors.py:25" },
+      { "feature": "nb_programs", "scope": "model_input", "source_column": "g2p_program_membership.program_id", "total_rows": 619, "non_null_rows": 619, "verdict": "live", "evidence": "extractors.py:44" },
+      { "feature": "nb_active_programs", "scope": "model_input", "source_column": "g2p_program_membership.state", "total_rows": 619, "non_null_rows": 619, "verdict": "live", "evidence": "extractors.py:45-47; caveat — all 619 rows have state='enrolled', so no state variety is ever observed" },
+      { "feature": "pmt_score", "scope": "model_input", "source_column": "pmt_agg CTE with literal 'WHERE false'", "total_rows": 0, "non_null_rows": 0, "verdict": "dead", "evidence": "extractors.py:53-60 (WHERE false) + :230 COALESCE fallback to 0.5; g2p_program_registrant_info table does not exist in the live schema" },
+      { "feature": "pmt_score_min", "scope": "model_input", "source_column": "pmt_agg CTE with literal 'WHERE false'", "total_rows": 0, "non_null_rows": 0, "verdict": "dead", "evidence": "extractors.py:53-60 + :231 COALESCE fallback to 0.5" },
+      { "feature": "avg_enrollment_days", "scope": "model_input", "source_column": "g2p_program_membership.enrollment_date", "total_rows": 619, "non_null_rows": 619, "verdict": "live", "evidence": "extractors.py:48" },
+      { "feature": "payment_count", "scope": "model_input", "source_column": "g2p_payment.id", "total_rows": 1854, "non_null_rows": 1854, "verdict": "live", "evidence": "extractors.py:65" },
+      { "feature": "payment_gap_ratio", "scope": "model_input", "source_column": "g2p_payment.amount_issued, amount_paid", "total_rows": 1854, "non_null_rows": 1854, "verdict": "live", "evidence": "extractors.py:68-72" },
+      { "feature": "payment_success_rate", "scope": "model_input", "source_column": "g2p_payment.amount_issued, amount_paid", "total_rows": 1854, "non_null_rows": 1854, "verdict": "live", "evidence": "extractors.py:73-77" },
+      { "feature": "amount_variance", "scope": "model_input", "source_column": "g2p_payment.amount_paid", "total_rows": 1854, "non_null_rows": 1854, "verdict": "live", "evidence": "extractors.py:78" },
+      { "feature": "cycle_count", "scope": "model_input", "source_column": "g2p_entitlement.cycle_id", "total_rows": 1854, "non_null_rows": 1854, "verdict": "live", "evidence": "extractors.py:79" },
+      { "feature": "shared_phone_count", "scope": "model_input", "source_column": "g2p_phone_number.phone_sanitized / phone_no", "total_rows": 320, "non_null_rows": 320, "verdict": "live", "evidence": "extractors.py:86-96" },
+      { "feature": "shared_account_count", "scope": "model_input", "source_column": "res_partner_bank.sanitized_acc_number / acc_number (active=true)", "total_rows": 320, "non_null_rows": 320, "verdict": "live", "evidence": "extractors.py:98-111; all 320 rows active=true" },
+      { "feature": "network_risk", "scope": "model_input", "source_column": "derived: shared_phone_count + shared_account_count + is_dedup_flagged + identity_cluster_count", "total_rows": null, "non_null_rows": null, "verdict": "partial", "evidence": "extractors.py:283-288; 3 of 4 weighted inputs are live, but the is_dedup_flagged term (weight 0.15) is always 0" },
+      { "feature": "group_membership_count", "scope": "model_input", "source_column": "g2p_group_membership.individual", "total_rows": 0, "non_null_rows": 0, "verdict": "dead", "evidence": "extractors.py:113-119; source table contains 0 rows" },
+      { "feature": "high_amount_flag", "scope": "model_input", "source_column": "derived from total_issued (q95 threshold)", "total_rows": 1854, "non_null_rows": 1854, "verdict": "live", "evidence": "extractors.py:290-291" },
+      { "feature": "income_program_inconsistency", "scope": "model_input", "source_column": "derived: income_per_person (q15) AND nb_programs >= 3", "total_rows": null, "non_null_rows": null, "verdict": "partial", "evidence": "extractors.py:293-296; computable but inherits the household_size distortion, so it effectively thresholds on raw income rather than per-capita income" },
+      { "feature": "income_ratio_to_national", "scope": "model_input", "source_column": "NONE — never computed at serving time", "total_rows": null, "non_null_rows": null, "verdict": "dead", "evidence": "features_service.py:88 _DEFAULTS = 1.0; code comment: 'no national-median source exists at serving time yet'" },
+      { "feature": "household_size_deviation", "scope": "model_input", "source_column": "NONE — never computed at serving time", "total_rows": null, "non_null_rows": null, "verdict": "dead", "evidence": "features_service.py:89 _DEFAULTS = 0.0; same code comment block" },
+      { "feature": "duplicate_national_id_count", "scope": "model_input", "source_column": "NONE — no g2p_reg_id join exists in extractors.py", "total_rows": null, "non_null_rows": null, "verdict": "dead", "evidence": "features_service.py:90 _DEFAULTS = 0; self-documented at features_service.py:38-42: 'Still NOT computed by the live OpenG2P SQL extractor ... always defaults to 0 in production'" },
+
+      { "feature": "identity_cluster_count", "scope": "rules_only", "source_column": "res_partner.birthdate + name self-join", "total_rows": 321, "non_null_rows": 320, "verdict": "live", "evidence": "extractors.py:121-140; 46 of 321 registrants (~14%) produce a cluster match — real signal, but NOT among the model's 28 inputs" },
+      { "feature": "enroll_last_30d", "scope": "rules_only", "source_column": "g2p_program_membership.enrollment_date", "total_rows": 619, "non_null_rows": 619, "verdict": "live", "evidence": "extractors.py:147" },
+      { "feature": "enroll_last_90d", "scope": "rules_only", "source_column": "g2p_program_membership.enrollment_date", "total_rows": 619, "non_null_rows": 619, "verdict": "live", "evidence": "extractors.py:148" },
+      { "feature": "enrollment_velocity", "scope": "rules_only", "source_column": "g2p_program_membership.enrollment_date", "total_rows": 619, "non_null_rows": 619, "verdict": "live", "evidence": "extractors.py:150-156" },
+      { "feature": "days_reg_to_first_payment", "scope": "rules_only", "source_column": "g2p_payment.payment_datetime", "total_rows": 1854, "non_null_rows": 0, "verdict": "dead", "evidence": "extractors.py:169-171; payment_datetime is NULL on all 1854 rows, so the value always falls back to the sentinel 999" },
+      { "feature": "payments_within_7d_of_enroll", "scope": "rules_only", "source_column": "g2p_payment.payment_datetime", "total_rows": 1854, "non_null_rows": 0, "verdict": "dead", "evidence": "extractors.py:173-176; always evaluates to 0" },
+      { "feature": "registration_age_days", "scope": "rules_only", "source_column": "res_partner.create_date", "total_rows": 315, "non_null_rows": 1, "verdict": "dead", "evidence": "extractors.py:27-30; create_date is populated on only 1 of 315 registrant rows, so 314/315 fall back to the constant 365" },
+
+      { "feature": "days_reg_to_first_enroll", "scope": "derived_not_consumed", "source_column": "enrollment_date minus res_partner.create_date", "total_rows": 315, "non_null_rows": 1, "verdict": "dead", "evidence": "extractors.py:158; depends on create_date (1/315 populated), so 314/315 fall back to constant 999" },
+      { "feature": "is_dedup_flagged", "scope": "derived_not_consumed", "source_column": "g2p_program_membership.deduplication_status", "total_rows": 619, "non_null_rows": 0, "verdict": "dead", "evidence": "extractors.py:195-199; column exists but all 619 rows are null/empty" },
+      { "feature": "dedup_flag_count", "scope": "derived_not_consumed", "source_column": "g2p_program_membership.deduplication_status", "total_rows": 619, "non_null_rows": 0, "verdict": "dead", "evidence": "extractors.py:201-205" },
+      { "feature": "dedup_record_count", "scope": "derived_not_consumed", "source_column": "g2p_program_membership_g2p_program_membership_duplicate_rel", "total_rows": 0, "non_null_rows": 0, "verdict": "dead", "evidence": "extractors.py:207-210; relation table exists but contains 0 rows" },
+      { "feature": "elderly_head", "scope": "derived_not_consumed", "source_column": "NONE — hardcoded literal '0 AS elderly_head'", "total_rows": null, "non_null_rows": null, "verdict": "dead", "evidence": "extractors.py:26" },
+      { "feature": "rapid_enrollment_flag", "scope": "derived_not_consumed", "source_column": "derived from enroll_last_30d", "total_rows": null, "non_null_rows": null, "verdict": "live", "evidence": "extractors.py:300" },
+      { "feature": "high_velocity_flag", "scope": "derived_not_consumed", "source_column": "derived from enrollment_velocity", "total_rows": null, "non_null_rows": null, "verdict": "live", "evidence": "extractors.py:308" },
+      { "feature": "fast_payment_flag", "scope": "derived_not_consumed", "source_column": "derived from days_reg_to_first_payment (dead)", "total_rows": null, "non_null_rows": null, "verdict": "dead", "evidence": "extractors.py:303-305; '999 < 14' is never true, so the flag is always 0" },
+      { "feature": "rushed_payment_flag", "scope": "derived_not_consumed", "source_column": "derived from payments_within_7d_of_enroll (dead)", "total_rows": null, "non_null_rows": null, "verdict": "dead", "evidence": "extractors.py:311; always 0" }
+    ],
+
+    "supporting_schema_findings": {
+      "g2p_program_registrant_info_table": {
+        "exists": false,
+        "evidence": "SELECT tablename FROM pg_tables WHERE tablename ILIKE '%registrant_info%' returns 0 rows",
+        "impact": "This is the table g2p_proxy_means_test would write pmt_score / latest_pmt_score to. Its absence means PMT is not computed or stored anywhere in this deployment."
+      },
+      "g2p_proxy_means_test_addon": {
+        "state": "uninstalled",
+        "evidence": "SELECT name, state FROM ir_module_module WHERE name='g2p_proxy_means_test'",
+        "would_write_to_table": "g2p_program_registrant_info",
+        "would_add_columns": ["program_pmt_config", "pmt_score", "latest_registrant_info", "latest_pmt_score"],
+        "source": "/opt/bitnami/odoo/extraaddons/openg2p-program/g2p_proxy_means_test/models/program_registrant_info.py (_inherit = 'g2p.program.registrant_info')"
+      },
+      "rest_api_addons": {
+        "note": "Present as addon source on disk but NOT installed in the live database.",
+        "states": {
+          "g2p_bank_rest_api": "uninstalled",
+          "g2p_registry_rest_api": "uninstalled",
+          "g2p_programs_rest_api": "uninstallable",
+          "g2p_program_registrant_info_rest_api": "uninstallable"
+        },
+        "correction": "The framing 'installed but unused by the extractor' does not hold — no REST layer is active, so direct DB access is not bypassing a working alternative."
+      },
+      "g2p_payment_column_population": {
+        "total_rows": 1854,
+        "non_null_payment_datetime": 0,
+        "non_null_issuance_date": 1854,
+        "non_null_status": 0,
+        "note": "issuance_date is fully populated but unused by the extractor; payment_datetime and status are 100% null."
+      },
+      "res_partner_income_distribution_registrants": {
+        "min": 0, "max": 3641.83, "avg": 1044.6914603174603,
+        "p25": 515.925, "p50": 879.73, "p75": 1441.41,
+        "filter": "active=true AND is_company=false AND is_registrant=true (315 rows)"
+      },
+      "z_ind_grp_columns_on_res_partner": {
+        "z_ind_grp_num_individuals": { "exists": true, "total_rows": 328, "non_null_rows": 0 },
+        "z_ind_grp_num_children": { "exists": false, "error": "ERROR: column \"z_ind_grp_num_children\" does not exist" },
+        "z_ind_grp_num_elderly": { "exists": false, "error": "ERROR: column \"z_ind_grp_num_elderly\" does not exist" },
+        "z_ind_grp_is_hh_with_disabled": { "exists": false, "error": "ERROR: column \"z_ind_grp_is_hh_with_disabled\" does not exist" },
+        "z_ind_grp_is_single_head_hh": { "exists": false, "error": "ERROR: column \"z_ind_grp_is_single_head_hh\" does not exist" },
+        "z_ind_grp_is_elderly_head_hh": { "exists": false, "error": "ERROR: column \"z_ind_grp_is_elderly_head_hh\" does not exist" },
+        "note": "Only one of the six candidate household columns exists, and it is 100% null (0/328) — confirming there is no available source to populate the hardcoded demographic features."
+      }
+    },
+
+    "training_data_provenance": {
+      "confirmed_generator": "fraud-detection-engine/ml/scripts/generate_dataset.py",
+      "confirmation_method": "Column fingerprinting — every distinguishing CSV column maps to an explicit line in generate_dataset.py, and none appear anywhere in synthetic_data/generators/.",
+      "training_csv_path": "ml/data/synthetic/dataset_ml.csv",
+      "training_csv_path_source": "ml/scripts/train_openg2p.py:29 (DATASET_CSV, overridable via DATASET_PATH env var)",
+      "training_csv_mtime": "2026-07-27 14:05",
+      "training_csv_size_bytes": 2479009,
+      "fingerprint_evidence": [
+        { "column": "partner_idx", "generate_dataset_py": "line 105", "synthetic_data_generators": "absent" },
+        { "column": "synthetic_label", "generate_dataset_py": "line 332", "synthetic_data_generators": "absent" },
+        { "column": "scenario", "generate_dataset_py": "lines 107, 155", "synthetic_data_generators": "absent" },
+        { "column": "mobile_money_provider", "generate_dataset_py": "lines 579, 616", "synthetic_data_generators": "absent" },
+        { "column": "declared_income_display", "generate_dataset_py": "lines 559, 580", "synthetic_data_generators": "absent" }
+      ],
+      "correction_to_premise": {
+        "premise": "synthetic_data/generators/ is the newer-looking package",
+        "status": "FALSE — it is older and vestigial (dead code)",
+        "evidence": [
+          "synthetic_data/generators/beneficiary_generator.py — 5443 bytes, mtime 2026-05-14 12:01",
+          "synthetic_data/generators/fraud_generator.py — 4457 bytes, mtime 2026-05-14 12:01",
+          "ml/scripts/generate_dataset.py — 59753 bytes, mtime 2026-07-17 07:22"
+        ]
+      }
+    },
+
+    "dataset_stats": {
+      "rows": 5000,
+      "columns": 59,
+      "fraud_rate": 0.1318,
+      "fraud_count": 659,
+      "legitimate_count": 4341,
+      "distinct_scenario_values": 11,
+      "fraud_scenario_count": 10,
+      "scenario_breakdown": {
+        "legitimate": 4399,
+        "income_underreporting": 66,
+        "shared_phone": 66,
+        "ghost_household": 66,
+        "network_exploitation": 66,
+        "systematic_ghost": 65,
+        "payment_manipulation": 65,
+        "multi_enrollment": 65,
+        "identity_fraud": 65,
+        "coordinated_fraud": 64,
+        "duplicate_identity": 13
+      },
+      "discrepancy_note": "The LaTeX report describes '9 scenarios'; the data contains 10 fraud scenarios plus 'legitimate'. duplicate_identity is severely under-represented at 13 rows (~0.26% of the dataset).",
+      "consistency_note": "legitimate scenario count (4399) differs by 58 from is_fraud==0 count (4341), indicating 58 rows labelled is_fraud=1 also carry scenario='legitimate' or a related labelling nuance — not investigated further in this pass."
+    }
+  },
+
+  "key_findings": [
+    {
+      "rank": 1,
+      "severity": "critical",
+      "finding": "GitHub main cannot score.",
+      "detail": "The live extractor and its entire app/data/ package are gitignored by a stray bare 'data/' rule at fraud-detection-engine/.gitignore:31. A fresh clone starts but raises ModuleNotFoundError: No module named 'app.data' on the first scoring call.",
+      "compounding_risk": "These 4 files exist only on this machine, and no db-data volume backup or snapshot mechanism exists."
+    },
+    {
+      "rank": 2,
+      "severity": "high",
+      "finding": "No PMT fix was ever applied.",
+      "detail": "extractors.py:59 still contains 'WHERE false'; PERCENT_RANK appears nowhere in the repository. Every beneficiary's pmt_score and pmt_score_min are hardcoded to 0.5 in the live scoring path."
+    },
+    {
+      "rank": 3,
+      "severity": "high",
+      "finding": "evaluation_report.txt does not describe the deployed model.",
+      "detail": "The report (dated 2026-06-04, AUC 0.8578) evaluates a single calibrated XGBoost with weights 0.05/0.95/-0.0, whereas the served model (metadata.json, 2026-07-27) is a stacking_logreg ensemble with weights 0.2/0.55/0.05/0.2. No evaluation artifact exists on disk for the deployed ensemble."
+    },
+    {
+      "rank": 4,
+      "severity": "medium",
+      "finding": "Roughly 12 of the model's 28 input features carry zero signal in production.",
+      "detail": "Five demographic features are hardcoded SQL literals, two PMT features are constant, three calibration/identity features are never computed at serving time, one source table is empty, and dependency_ratio derives entirely from constants."
+    }
+  ],
+
+  "unverified": [
+    {
+      "item": "Deployed stacking ensemble's true holdout metrics (the 0.912 AUC figure)",
+      "reason": "No evaluation artifact for the stacking model exists on disk; ml/reports/ contains only the stale 2026-06-04 single-XGBoost report. Substantiating it would require re-running ml/scripts/generate_report_figures.py."
+    },
+    {
+      "item": "Exact commit-to-tag mapping of the running OpenG2P addons versus tags 17.0-1.5 / 17.0-1.3",
+      "reason": "No git binary inside the openg2p-odoo container to run 'git describe', and no local clone of the upstream repos was available for cross-reference. Running checkouts are on branch 17.0-develop at commits 6822066e27e3496ec81c05149c3d48d655ba7242 (registry) and 136b19ce1abf09d2aa0f79fe9d5001790218bdbe (program)."
+    },
+    {
+      "item": "Whether the 58-row discrepancy between scenario='legitimate' (4399) and is_fraud==0 (4341) is intentional",
+      "reason": "Not investigated in this pass; would require reading generate_dataset.py's labelling logic in detail."
+    }
+  ]
+}
